@@ -4,25 +4,23 @@ import { useLocation, useNavigate } from "react-router-dom";
 import classnames from "classnames";
 import Helmet from "../components/Helmet/Helmet";
 
-import IncomeGraphs from "./IncomeGraphs"; // Placeholder for all three — can be split later
-import ItemGraphs from "./ItemGraphs";
-import SaleTeamGraphs from "./SaleTeamGraphs";
-const AllGraphs = () => {
-    const [activeTab, setActiveTab] = useState("income-performance");
+const AllPayments = () => {
+    const [activeTab, setActiveTab] = useState("cash-balance");
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Slug-based tab names
     const tabNames = [
-        "income-performance",
-        "item-selling-performance",
-        "sale-team-performance",
+        "cash-balance",
+        "cheque-details",
+        "bank-details",
+        "customer-payments",
     ];
 
     const tabLabels = {
-        "income-performance": "Income Performance",
-        "item-selling-performance": "Item Selling Performance",
-        "sale-team-performance": "Sale Team Performance",
+        "cash-balance": "Cash Balance",
+        "cheque-details": "Cheque Details",
+        "bank-details": "Bank Details",
+        "customer-payments" : "Customer Payments"
     };
 
     useEffect(() => {
@@ -59,21 +57,22 @@ const AllGraphs = () => {
 
                     {/* Tab Content */}
                     <TabContent activeTab={activeTab}>
-                        <TabPane tabId="income-performance">
+                        <TabPane tabId="cash-balance">
                             <Row>
-                                <IncomeGraphs />
                             </Row>
                         </TabPane>
 
-                        <TabPane tabId="item-selling-performance">
+                        <TabPane tabId="cheque-details">
                             <Row>
-                                <ItemGraphs />
                             </Row>
                         </TabPane>
 
-                        <TabPane tabId="sale-team-performance">
+                        <TabPane tabId="bank-details">
                             <Row>
-                                <SaleTeamGraphs />
+                            </Row>
+                        </TabPane>
+                        <TabPane tabId="customer-payments">
+                            <Row>
                             </Row>
                         </TabPane>
                     </TabContent>
@@ -82,5 +81,4 @@ const AllGraphs = () => {
         </Helmet>
     );
 };
-
-export default AllGraphs;
+export default AllPayments;

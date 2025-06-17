@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update admin side bar">
+    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update other side bars">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/AllGraphs.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/AllGraphs.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin/src/pages/SideBar/CashierSidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/SideBar/CashierSidebar.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/SideBar/DriverSidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/SideBar/DriverSidebar.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/SideBar/SaleTeamSidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/SideBar/SaleTeamSidebar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/router/Router.js" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/router/Router.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,7 +86,7 @@
       <recent name="C:\Users\Dell\Desktop\Shop_Mangement_Website\admin\src\style" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.start adminBackend">
+  <component name="RunManager" selected="npm.start admin">
     <configuration name="start admin" type="js.build_tools.npm">
       <package-json value="$PROJECT_DIR$/admin/package.json" />
       <command value="run" />
@@ -355,14 +355,8 @@
       <workItem from="1747626501344" duration="6148000" />
       <workItem from="1747634156282" duration="16851000" />
       <workItem from="1750136622133" duration="978000" />
-      <workItem from="1750137652431" duration="2552000" />
-    </task>
-    <task id="LOCAL-00156" summary="update invoice">
-      <created>1739100443856</created>
-      <option name="number" value="00156" />
-      <option name="presentableId" value="LOCAL-00156" />
-      <option name="project" value="LOCAL" />
-      <updated>1739100443856</updated>
+      <workItem from="1750137652431" duration="3332000" />
+      <workItem from="1750142527089" duration="377000" />
     </task>
     <task id="LOCAL-00157" summary="pass invoice details to main page">
       <created>1739162389832</created>
@@ -700,7 +694,14 @@
       <option name="project" value="LOCAL" />
       <updated>1750139986424</updated>
     </task>
-    <option name="localTasksCounter" value="392" />
+    <task id="LOCAL-00392" summary="update other side bars">
+      <created>1750140437183</created>
+      <option name="number" value="00392" />
+      <option name="presentableId" value="LOCAL-00392" />
+      <option name="project" value="LOCAL" />
+      <updated>1750140437183</updated>
+    </task>
+    <option name="localTasksCounter" value="393" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -719,7 +720,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="add and update add new user view" />
     <MESSAGE value="update leave form" />
     <MESSAGE value="update db" />
     <MESSAGE value="update order detail views" />
@@ -744,6 +744,7 @@
     <MESSAGE value="update accept and complete order view" />
     <MESSAGE value="update order invoice with later option" />
     <MESSAGE value="update admin side bar" />
-    <option name="LAST_COMMIT_MESSAGE" value="update admin side bar" />
+    <MESSAGE value="update other side bars" />
+    <option name="LAST_COMMIT_MESSAGE" value="update other side bars" />
   </component>
 </project>

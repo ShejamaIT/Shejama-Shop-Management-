@@ -16,6 +16,7 @@ import Orders from "../pages/OrderManagement";
 import AdminHome from "../pages/AdminHome";
 import LoginPage from "../pages/LoginPage";
 import AllLeaves from "../pages/AllLeaves";
+import AllPayments from "../pages/AllPayments";
 // Details pages
 import OrderDetails from "../pages/OrderDetails";
 import ItemDetails from "../pages/ItemDetails";
@@ -58,6 +59,8 @@ const Router = () => {
                 <Route path="employees" element={<AllEmployees />} />
                 <Route path="delivery" element={<AllDeliveryNotes />} />
                 <Route path="vehicles" element={<AllVehicles />} />
+                <Route path="payments" element={<AllPayments />} />
+
             </Route>
 
             <Route path="/chashier-dashboard" element={<CashierDashboard />}>

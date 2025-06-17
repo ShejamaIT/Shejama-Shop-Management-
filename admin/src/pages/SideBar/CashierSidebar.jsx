@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 
 // Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCartShopping,faCabinetFingerprint,  faRightFromBracket} from '@fortawesome/free-solid-svg-icons';
+import {faCartShopping, faTags, faRightFromBracket, faBox} from '@fortawesome/free-solid-svg-icons';
 
 const CashierSidebar = ({ onNavigate }) => {
     const location = useLocation();
@@ -57,13 +57,13 @@ const CashierSidebar = ({ onNavigate }) => {
 
     const menuItems = [
         { id: "orders", icon: faCartShopping, label: "Place Order", path: "/chashier-dashboard/orders" },
-        { id: "price_list", icon: faCabinetFingerprint, label: "Item Price List", path: "/chashier-dashboard/item_prices" },
+        { id: "price_list", icon: faTags, label: "Item Price List", path: "/chashier-dashboard/item_prices" },
     ];
 
     return (
         <div className="sidebar">
             <div className="logo-details">
-                <FontAwesomeIcon icon={faCabinetFingerprint} className="sidebar-icon" />
+                <FontAwesomeIcon icon={faBox} className="sidebar-icon" />
                 <span className="logo_name">Shejama</span>
             </div>
             <ul className="nav-links">

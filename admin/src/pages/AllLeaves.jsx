@@ -4,7 +4,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import classnames from "classnames";
 import Helmet from "../components/Helmet/Helmet";
 
-import IncomeGraphs from "./IncomeGraphs"; // Placeholder for all three — can be split later
 import TableUserLeaves from "../components/tables/TableUserLeaves";
 import Leaveform from "../pages/Leaveform";
 

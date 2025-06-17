@@ -518,15 +518,6 @@ CREATE TABLE ord_Pay_type(
     CONSTRAINT FOREIGN KEY (orID) REFERENCES Orders (orID)
                                  ON DELETE CASCADE ON UPDATE CASCADE
 );
-CREATE TABLE ord_Card_Pay(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    optId INT,
-    type VARCHAR(25),
-    amount DOUBLE,
-    intrestValue DOUBLE,
-    CONSTRAINT FOREIGN KEY (optId) REFERENCES ord_Pay_type (optId)
-                                 ON DELETE CASCADE ON UPDATE CASCADE
-);
 CREATE TABLE ord_Cheque_Pay(
     id INT AUTO_INCREMENT PRIMARY KEY,
     optId INT,
@@ -539,6 +530,16 @@ CREATE TABLE ord_Cheque_Pay(
     CONSTRAINT FOREIGN KEY (optId) REFERENCES ord_Pay_type (optId)
                                  ON DELETE CASCADE ON UPDATE CASCADE
 );
+CREATE TABLE ord_Card_Pay(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    optId INT,
+    type VARCHAR(25),
+    amount DOUBLE,
+    intrestValue DOUBLE,
+    CONSTRAINT FOREIGN KEY (optId) REFERENCES ord_Pay_type (optId)
+                                 ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 CREATE TABLE ord_Credit_Pay(
     id INT AUTO_INCREMENT PRIMARY KEY,
     optId INT,
@@ -603,3 +604,5 @@ ALTER TABLE `item` CHANGE `img1` `img1` LONGBLOB NULL;
 ALTER TABLE `item` CHANGE `img2` `img2` LONGBLOB NULL;
 ALTER TABLE `item` CHANGE `img3` `img3` LONGBLOB NULL;
 ALTER TABLE `emp_leaves` ADD `present` ENUM('In ','Out','','') NOT NULL DEFAULT 'Out' AFTER `status`;
+ALTER TABLE ord_Cheque_Pay
+MODIFY status ENUM('received', 'cashed', 'returned') DEFAULT 'received';

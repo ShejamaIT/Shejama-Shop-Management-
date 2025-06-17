@@ -4,11 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update other side bars">
+    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update views">
+      <change afterPath="$PROJECT_DIR$/admin/src/pages/Payments/ReceivedCheques.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin/src/pages/AllGraphs.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/AllGraphs.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/SideBar/CashierSidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/SideBar/CashierSidebar.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/router/Router.js" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/router/Router.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/AllLeaves.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/AllLeaves.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/AllPayments.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/AllPayments.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/IncomeGraphs.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/graphs/IncomeGraphs.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/ItemGraphs.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/graphs/ItemGraphs.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/SaleTeamGraphs.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/graphs/SaleTeamGraphs.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbquery.txt" beforeDir="false" afterPath="$PROJECT_DIR$/dbquery.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,7 +60,7 @@
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;js.last.introduce.type&quot;: &quot;CONST&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/shejama/Shop_Website_withadmin/admin/src/pages&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/VISHWA/Documents/testing/20250616/Shop_Website_withadmin/admin/src/pages/graphs&quot;,
     &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -72,21 +79,21 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\VISHWA\Documents\testing\20250616\Shop_Website_withadmin\admin\src\pages\graphs" />
       <recent name="D:\shejama\Shop_Website_withadmin\admin\src\pages" />
       <recent name="D:\shejama\Shop_Website_withadmin\admin\src\components\tables" />
       <recent name="D:\shejama\Shop_Website_withadmin\admin\src\pages\SideBar" />
       <recent name="D:\shejama\Shop_Website_withadmin\admin\src\pages\Dashboard" />
-      <recent name="C:\Users\LENOVO\Desktop\Shop_Website_withadmin\admin\src\pages" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\VISHWA\Documents\testing\20250616\Shop_Website_withadmin\admin\src\pages\graphs" />
       <recent name="D:\shejama\Shop_Website_withadmin\admin\src\pages\SideBar" />
       <recent name="D:\shejama\Shop_Website_withadmin\admin\src\pages\Dashboard" />
       <recent name="D:\shejama\Shop_Website_withadmin\admin\src\style" />
       <recent name="C:\Users\Dell\Desktop\Shop_Mangement_Website" />
-      <recent name="C:\Users\Dell\Desktop\Shop_Mangement_Website\admin\src\style" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.start admin">
+  <component name="RunManager" selected="npm.start adminBackend">
     <configuration name="start admin" type="js.build_tools.npm">
       <package-json value="$PROJECT_DIR$/admin/package.json" />
       <command value="run" />
@@ -356,14 +363,7 @@
       <workItem from="1747634156282" duration="16851000" />
       <workItem from="1750136622133" duration="978000" />
       <workItem from="1750137652431" duration="3332000" />
-      <workItem from="1750142527089" duration="377000" />
-    </task>
-    <task id="LOCAL-00157" summary="pass invoice details to main page">
-      <created>1739162389832</created>
-      <option name="number" value="00157" />
-      <option name="presentableId" value="LOCAL-00157" />
-      <option name="project" value="LOCAL" />
-      <updated>1739162389832</updated>
+      <workItem from="1750142527089" duration="9042000" />
     </task>
     <task id="LOCAL-00158" summary="save or print invoice function">
       <created>1739162449190</created>
@@ -701,7 +701,14 @@
       <option name="project" value="LOCAL" />
       <updated>1750140437183</updated>
     </task>
-    <option name="localTasksCounter" value="393" />
+    <task id="LOCAL-00393" summary="update other sidebars and add all payments">
+      <created>1750143109795</created>
+      <option name="number" value="00393" />
+      <option name="presentableId" value="LOCAL-00393" />
+      <option name="project" value="LOCAL" />
+      <updated>1750143109795</updated>
+    </task>
+    <option name="localTasksCounter" value="394" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -720,8 +727,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="update leave form" />
-    <MESSAGE value="update db" />
     <MESSAGE value="update order detail views" />
     <MESSAGE value="remove sign up from login page" />
     <MESSAGE value="update hire view with db and api" />
@@ -745,6 +750,8 @@
     <MESSAGE value="update order invoice with later option" />
     <MESSAGE value="update admin side bar" />
     <MESSAGE value="update other side bars" />
-    <option name="LAST_COMMIT_MESSAGE" value="update other side bars" />
+    <MESSAGE value="update other sidebars and add all payments" />
+    <MESSAGE value="update views" />
+    <option name="LAST_COMMIT_MESSAGE" value="update views" />
   </component>
 </project>

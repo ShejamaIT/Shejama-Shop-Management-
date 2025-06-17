@@ -4,12 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="">
+    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update admin side bar">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/admin/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/admin/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/SideBar/AdminSidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/SideBar/AdminSidebar.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/style/Sidebar.css" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/style/Sidebar.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/SideBar/CashierSidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/SideBar/CashierSidebar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/SideBar/DriverSidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/SideBar/DriverSidebar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/SideBar/SaleTeamSidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/SideBar/SaleTeamSidebar.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -356,14 +355,7 @@
       <workItem from="1747626501344" duration="6148000" />
       <workItem from="1747634156282" duration="16851000" />
       <workItem from="1750136622133" duration="978000" />
-      <workItem from="1750137652431" duration="2244000" />
-    </task>
-    <task id="LOCAL-00155" summary="update invoice">
-      <created>1739100350083</created>
-      <option name="number" value="00155" />
-      <option name="presentableId" value="LOCAL-00155" />
-      <option name="project" value="LOCAL" />
-      <updated>1739100350083</updated>
+      <workItem from="1750137652431" duration="2552000" />
     </task>
     <task id="LOCAL-00156" summary="update invoice">
       <created>1739100443856</created>
@@ -701,7 +693,14 @@
       <option name="project" value="LOCAL" />
       <updated>1739959764374</updated>
     </task>
-    <option name="localTasksCounter" value="391" />
+    <task id="LOCAL-00391" summary="update admin side bar">
+      <created>1750139986424</created>
+      <option name="number" value="00391" />
+      <option name="presentableId" value="LOCAL-00391" />
+      <option name="project" value="LOCAL" />
+      <updated>1750139986424</updated>
+    </task>
+    <option name="localTasksCounter" value="392" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -720,7 +719,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="change folders" />
     <MESSAGE value="add and update add new user view" />
     <MESSAGE value="update leave form" />
     <MESSAGE value="update db" />
@@ -745,6 +743,7 @@
     <MESSAGE value="update order invoice with Later (save to item in array)" />
     <MESSAGE value="update accept and complete order view" />
     <MESSAGE value="update order invoice with later option" />
-    <option name="LAST_COMMIT_MESSAGE" value="update order invoice with later option" />
+    <MESSAGE value="update admin side bar" />
+    <option name="LAST_COMMIT_MESSAGE" value="update admin side bar" />
   </component>
 </project>

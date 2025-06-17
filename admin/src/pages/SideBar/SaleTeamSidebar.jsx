@@ -1,11 +1,16 @@
 import React from 'react';
-import {useLocation, useNavigate} from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import '../../style/Sidebar.css';
 import Swal from "sweetalert2";
 
-const SaleTeamSidebar = ({ onNavigate, activePage }) => {
+// Font Awesome
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTachometerAlt, faBox,faCartShopping,faList, faCalendarPlus, faRightFromBracket} from '@fortawesome/free-solid-svg-icons';
+
+const SaleTeamSidebar = ({ onNavigate }) => {
     const location = useLocation();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+
     const handleLogout = async () => {
         const result = await Swal.fire({
             title: 'Do you want to logout?',
@@ -42,6 +47,7 @@ const SaleTeamSidebar = ({ onNavigate, activePage }) => {
                     navigate('/SignIn');
                 } else {
                     const data = await response.json();
+                    console.error(data);
                 }
             } catch (error) {
                 console.error('Error during logout:', error);
@@ -50,16 +56,17 @@ const SaleTeamSidebar = ({ onNavigate, activePage }) => {
     };
 
     const menuItems = [
-        {id: "dashboard", icon: "bx-grid-alt", label: "Dashboard", path: "/user-dashboard"},
-        {id: "price_list", icon: "bx-cabinet", label: "Item Price List", path: "/user-dashboard/item_prices"},
-        {id: "orders", icon: "bx-cart", label: "Place Order", path: "/user-dashboard/orders"},
-        {id: "product_list", icon: "bx-list-ul", label: "Orders", path: "/user-dashboard/product_list"},
-        {id: "leave", icon: "bx-calendar-plus", label: "Leaves", path: "/user-dashboard/leave"},
+        { id: "dashboard", icon: faTachometerAlt, label: "Dashboard", path: "/user-dashboard" },
+        { id: "price_list", icon: faBox, label: "Item Price List", path: "/user-dashboard/item_prices" },
+        { id: "orders", icon: faCartShopping, label: "Place Order", path: "/user-dashboard/orders" },
+        { id: "product_list", icon: faList, label: "Orders", path: "/user-dashboard/product_list" },
+        { id: "leave", icon: faCalendarPlus, label: "Leaves", path: "/user-dashboard/leave" },
     ];
+
     return (
         <div className="sidebar">
             <div className="logo-details">
-                <i className='bx bx-code-alt'></i>
+                <FontAwesomeIcon icon={faBox} className="sidebar-icon" />
                 <span className="logo_name">Shejama</span>
             </div>
             <ul className="nav-links">
@@ -73,21 +80,20 @@ const SaleTeamSidebar = ({ onNavigate, activePage }) => {
                                 onNavigate(item.path);
                             }}
                         >
-                            <i className={`bx ${item.icon}`}></i>
+                            <FontAwesomeIcon icon={item.icon} className="sidebar-icon" />
                             <span className="links_name">{item.label}</span>
                         </a>
                     </li>
                 ))}
                 <li className="log_out">
-                    <a href="/admin/public" onClick={(e) => {
-                        e.preventDefault(); // Prevent navigation
-                        handleLogout();     // Call your logout function
+                    <a href="#" onClick={(e) => {
+                        e.preventDefault();
+                        handleLogout();
                     }}>
-                        <i className='bx bx-log-out'></i>
+                        <FontAwesomeIcon icon={faRightFromBracket} className="sidebar-icon" />
                         <span className="links_name">Log out</span>
                     </a>
                 </li>
-
             </ul>
         </div>
     );

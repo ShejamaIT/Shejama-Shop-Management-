@@ -1,12 +1,16 @@
 import React from 'react';
-import {useLocation, useNavigate} from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import '../../style/Sidebar.css';
 import Swal from "sweetalert2";
-import CashierDashboard from "../Dashboard/CashierDashboard";
 
-const CashierSidebar = ({ onNavigate, activePage }) => {
+// Font Awesome
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCartShopping,faCabinetFingerprint,  faRightFromBracket} from '@fortawesome/free-solid-svg-icons';
+
+const CashierSidebar = ({ onNavigate }) => {
     const location = useLocation();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+
     const handleLogout = async () => {
         const result = await Swal.fire({
             title: 'Do you want to logout?',
@@ -43,6 +47,7 @@ const CashierSidebar = ({ onNavigate, activePage }) => {
                     navigate('/SignIn');
                 } else {
                     const data = await response.json();
+                    console.error(data);
                 }
             } catch (error) {
                 console.error('Error during logout:', error);
@@ -51,14 +56,14 @@ const CashierSidebar = ({ onNavigate, activePage }) => {
     };
 
     const menuItems = [
-        {id: "orders", icon: "bx-cart", label: "Place Order", path: "/chashier-dashboard/orders"},
-        {id: "price_list", icon: "bx-cabinet", label: "Item Price List", path: "/chashier-dashboard/item_prices"},
-
+        { id: "orders", icon: faCartShopping, label: "Place Order", path: "/chashier-dashboard/orders" },
+        { id: "price_list", icon: faCabinetFingerprint, label: "Item Price List", path: "/chashier-dashboard/item_prices" },
     ];
+
     return (
         <div className="sidebar">
             <div className="logo-details">
-                <i className='bx bx-code-alt'></i>
+                <FontAwesomeIcon icon={faCabinetFingerprint} className="sidebar-icon" />
                 <span className="logo_name">Shejama</span>
             </div>
             <ul className="nav-links">
@@ -72,21 +77,20 @@ const CashierSidebar = ({ onNavigate, activePage }) => {
                                 onNavigate(item.path);
                             }}
                         >
-                            <i className={`bx ${item.icon}`}></i>
+                            <FontAwesomeIcon icon={item.icon} className="sidebar-icon" />
                             <span className="links_name">{item.label}</span>
                         </a>
                     </li>
                 ))}
                 <li className="log_out">
-                    <a href="/admin/public" onClick={(e) => {
-                        e.preventDefault(); // Prevent navigation
-                        handleLogout();     // Call your logout function
+                    <a href="#" onClick={(e) => {
+                        e.preventDefault();
+                        handleLogout();
                     }}>
-                        <i className='bx bx-log-out'></i>
+                        <FontAwesomeIcon icon={faRightFromBracket} className="sidebar-icon" />
                         <span className="links_name">Log out</span>
                     </a>
                 </li>
-
             </ul>
         </div>
     );

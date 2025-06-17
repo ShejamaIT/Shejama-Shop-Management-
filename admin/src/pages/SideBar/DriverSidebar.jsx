@@ -1,11 +1,16 @@
 import React from 'react';
-import {useLocation, useNavigate} from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import '../../style/Sidebar.css';
 import Swal from "sweetalert2";
 
-const DriverSidebar = ({ onNavigate, activePage }) => {
+// Font Awesome
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {faTachometerAlt,faTruckMoving,faCalendarPlus, faRightFromBracket} from '@fortawesome/free-solid-svg-icons';
+
+const DriverSidebar = ({ onNavigate }) => {
     const location = useLocation();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+
     const handleLogout = async () => {
         const result = await Swal.fire({
             title: 'Do you want to logout?',
@@ -42,6 +47,7 @@ const DriverSidebar = ({ onNavigate, activePage }) => {
                     navigate('/SignIn');
                 } else {
                     const data = await response.json();
+                    console.error(data);
                 }
             } catch (error) {
                 console.error('Error during logout:', error);
@@ -50,14 +56,15 @@ const DriverSidebar = ({ onNavigate, activePage }) => {
     };
 
     const menuItems = [
-        {id: "dashboard", icon: "bx-grid-alt", label: "Dashboard", path: "/driver-dashboard"},
-        {id: "deliveries", icon: "bxs-truck", label: "Deliveries", path: "/driver-dashboard/delivery"},
-        {id: "leave", icon: "bx-calendar-plus", label: "Leaves", path: "/driver-dashboard/leave"},
+        { id: "dashboard", icon: faTachometerAlt, label: "Dashboard", path: "/driver-dashboard" },
+        { id: "deliveries", icon: faTruckMoving, label: "Deliveries", path: "/driver-dashboard/delivery" },
+        { id: "leave", icon: faCalendarPlus, label: "Leaves", path: "/driver-dashboard/leave" },
     ];
+
     return (
         <div className="sidebar">
             <div className="logo-details">
-                <i className='bx bx-code-alt'></i>
+                <FontAwesomeIcon icon={faTachometerAlt} className="sidebar-icon" />
                 <span className="logo_name">Shejama</span>
             </div>
             <ul className="nav-links">
@@ -71,21 +78,20 @@ const DriverSidebar = ({ onNavigate, activePage }) => {
                                 onNavigate(item.path);
                             }}
                         >
-                            <i className={`bx ${item.icon}`}></i>
+                            <FontAwesomeIcon icon={item.icon} className="sidebar-icon" />
                             <span className="links_name">{item.label}</span>
                         </a>
                     </li>
                 ))}
                 <li className="log_out">
-                    <a href="/admin/public" onClick={(e) => {
-                        e.preventDefault(); // Prevent navigation
-                        handleLogout();     // Call your logout function
+                    <a href="#" onClick={(e) => {
+                        e.preventDefault();
+                        handleLogout();
                     }}>
-                        <i className='bx bx-log-out'></i>
+                        <FontAwesomeIcon icon={faRightFromBracket} className="sidebar-icon" />
                         <span className="links_name">Log out</span>
                     </a>
                 </li>
-
             </ul>
         </div>
     );

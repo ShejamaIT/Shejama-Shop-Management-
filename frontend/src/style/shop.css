@@ -1,0 +1,73 @@
+/* Filter Widget Style */
+.filter__widget {
+    padding: 8px 20px;
+    cursor: pointer;
+    color: #fff;
+    margin-left: 25px;
+    display: inline-block; /* Allows them to sit inline */
+    margin-right: 15px; /* Space between dropdowns */
+}
+
+/* Dropdown Select Styling */
+.filter__widget select {
+    background: var(--primary-color);
+    color: #ffffff;
+    border: 1px solid var(--primary-color);
+    border-radius: 5px;
+    padding: 7px 20px; /* Slight padding inside the dropdown */
+    font-size: 0.9rem;
+    width: auto; /* Auto width for responsive dropdown */
+}
+
+/* Focus state for dropdown */
+.filter__widget select:focus {
+    outline: none !important;
+}
+
+/* Dropdown Option Styling */
+.filter__widget select option {
+    font-size: 0.9rem;
+}
+
+/* Search Box Styling (if needed) */
+.search__box {
+    width: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--primary-color);
+    border-radius: 5px;
+    padding-right: 12px;
+    padding-left: 2px;
+    cursor: pointer;
+    margin-right: 20px;
+    margin-left: 350px;
+}
+
+/* Search Input */
+.search__box input {
+    width: 100%;
+    border: none;
+    outline: none;
+}
+
+/* Search Icon */
+.search__box span {
+    color: var(--primary-color);
+}
+
+/* Mobile Responsiveness */
+@media only screen and (max-width: 768px) {
+    .filter__widget {
+        margin-bottom: 15px; /* Added bottom margin for space */
+        display: block; /* Stack dropdowns vertically on small screens */
+        width: 100%; /* Full width for better responsiveness */
+        margin-left: 0; /* Align left on mobile */
+    }
+
+    .filter__widget select {
+        padding: 7px 20px;
+        font-size: 0.9rem;
+        margin-bottom: 10px; /* Space between dropdowns */
+    }
+}

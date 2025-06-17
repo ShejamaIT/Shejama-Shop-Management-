@@ -317,20 +317,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             setBalance((0).toFixed(2));
             setFullTotalPay(0);
         }
-    }, [
-        formData.payment,
-        formData.subPayment,
-        formData.cashAmount,
-        totalBillPrice,
-        cheques,
-        grossAmount,
-        combinedCardBalance,
-        combinedTransferBalance,
-        combinedChequeBalance,
-        creditAmount,
-        ChequeBalance,
-        transferPortion
-    ]);
+    }, [formData.payment, formData.subPayment, formData.cashAmount, totalBillPrice,cheques,grossAmount,combinedCardBalance,combinedTransferBalance,combinedChequeBalance, creditAmount, ChequeBalance,transferPortion ]);
 
     const calculateTotalPrice = () => {
         const totalSpecialDiscount = selectedItems.reduce((total, item) => {

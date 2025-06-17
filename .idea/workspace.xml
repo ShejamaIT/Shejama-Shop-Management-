@@ -4,18 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update views">
-      <change afterPath="$PROJECT_DIR$/admin/src/pages/Payments/ReceivedCheques.jsx" afterDir="false" />
+    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update order invoice">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/AllGraphs.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/AllGraphs.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/AllLeaves.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/AllLeaves.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/AllPayments.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/AllPayments.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/IncomeGraphs.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/graphs/IncomeGraphs.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/ItemGraphs.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/graphs/ItemGraphs.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/SaleTeamGraphs.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/graphs/SaleTeamGraphs.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dbquery.txt" beforeDir="false" afterPath="$PROJECT_DIR$/dbquery.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -364,41 +355,7 @@
       <workItem from="1750136622133" duration="978000" />
       <workItem from="1750137652431" duration="3332000" />
       <workItem from="1750142527089" duration="9042000" />
-    </task>
-    <task id="LOCAL-00158" summary="save or print invoice function">
-      <created>1739162449190</created>
-      <option name="number" value="00158" />
-      <option name="presentableId" value="LOCAL-00158" />
-      <option name="project" value="LOCAL" />
-      <updated>1739162449190</updated>
-    </task>
-    <task id="LOCAL-00159" summary="update accepting order checkbox">
-      <created>1739169097150</created>
-      <option name="number" value="00159" />
-      <option name="presentableId" value="LOCAL-00159" />
-      <option name="project" value="LOCAL" />
-      <updated>1739169097151</updated>
-    </task>
-    <task id="LOCAL-00160" summary="update frontend">
-      <created>1739175656076</created>
-      <option name="number" value="00160" />
-      <option name="presentableId" value="LOCAL-00160" />
-      <option name="project" value="LOCAL" />
-      <updated>1739175656076</updated>
-    </task>
-    <task id="LOCAL-00161" summary="update frontend running ports (Used Fixed ports)">
-      <created>1739175993042</created>
-      <option name="number" value="00161" />
-      <option name="presentableId" value="LOCAL-00161" />
-      <option name="project" value="LOCAL" />
-      <updated>1739175993042</updated>
-    </task>
-    <task id="LOCAL-00162" summary="update backend">
-      <created>1739176084836</created>
-      <option name="number" value="00162" />
-      <option name="presentableId" value="LOCAL-00162" />
-      <option name="project" value="LOCAL" />
-      <updated>1739176084836</updated>
+      <workItem from="1750153510893" duration="2391000" />
     </task>
     <task id="LOCAL-00163" summary="update with booked unbooked">
       <created>1739179003371</created>
@@ -708,7 +665,42 @@
       <option name="project" value="LOCAL" />
       <updated>1750143109795</updated>
     </task>
-    <option name="localTasksCounter" value="394" />
+    <task id="LOCAL-00394" summary="update graphs">
+      <created>1750154616274</created>
+      <option name="number" value="00394" />
+      <option name="presentableId" value="LOCAL-00394" />
+      <option name="project" value="LOCAL" />
+      <updated>1750154616274</updated>
+    </task>
+    <task id="LOCAL-00395" summary="update leave">
+      <created>1750154792801</created>
+      <option name="number" value="00395" />
+      <option name="presentableId" value="LOCAL-00395" />
+      <option name="project" value="LOCAL" />
+      <updated>1750154792801</updated>
+    </task>
+    <task id="LOCAL-00396" summary="update payment">
+      <created>1750154855402</created>
+      <option name="number" value="00396" />
+      <option name="presentableId" value="LOCAL-00396" />
+      <option name="project" value="LOCAL" />
+      <updated>1750154855402</updated>
+    </task>
+    <task id="LOCAL-00397" summary="update and add recevied cheque">
+      <created>1750155076375</created>
+      <option name="number" value="00397" />
+      <option name="presentableId" value="LOCAL-00397" />
+      <option name="project" value="LOCAL" />
+      <updated>1750155076375</updated>
+    </task>
+    <task id="LOCAL-00398" summary="update order invoice">
+      <created>1750155456375</created>
+      <option name="number" value="00398" />
+      <option name="presentableId" value="LOCAL-00398" />
+      <option name="project" value="LOCAL" />
+      <updated>1750155456375</updated>
+    </task>
+    <option name="localTasksCounter" value="399" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -727,10 +719,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="update order detail views" />
-    <MESSAGE value="remove sign up from login page" />
-    <MESSAGE value="update hire view with db and api" />
-    <MESSAGE value="update driver detail view with api" />
     <MESSAGE value="update salary sheet view with api" />
     <MESSAGE value="update target view with api" />
     <MESSAGE value="update driver salary with api" />
@@ -743,7 +731,6 @@
     <MESSAGE value="update place order" />
     <MESSAGE value="update navbar" />
     <MESSAGE value="rename place order - invoice" />
-    <MESSAGE value="update order invoice" />
     <MESSAGE value="update order invoice with Now issuing(delivery note )" />
     <MESSAGE value="update order invoice with Later (save to item in array)" />
     <MESSAGE value="update accept and complete order view" />
@@ -752,6 +739,11 @@
     <MESSAGE value="update other side bars" />
     <MESSAGE value="update other sidebars and add all payments" />
     <MESSAGE value="update views" />
-    <option name="LAST_COMMIT_MESSAGE" value="update views" />
+    <MESSAGE value="update graphs" />
+    <MESSAGE value="update leave" />
+    <MESSAGE value="update payment" />
+    <MESSAGE value="update and add recevied cheque" />
+    <MESSAGE value="update order invoice" />
+    <option name="LAST_COMMIT_MESSAGE" value="update order invoice" />
   </component>
 </project>

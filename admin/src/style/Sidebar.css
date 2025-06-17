@@ -89,3 +89,39 @@
 .log_out {
     margin-bottom: 30px; /* lift it a bit from bottom */
 }
+.sidebar-icon {
+    margin-right: 10px;
+    font-size: 18px;
+    width: 20px;
+    text-align: center;
+    display: inline-block;
+}
+
+.nav-links a {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+}
+
+.nav-links a.active {
+    background-color: #e0e0e0;
+    font-weight: bold;
+}
+
+.nav-links a:hover {
+    background-color: #f0f0f0;
+}
+
+.logo-details {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.logo_name {
+    margin-left: 10px;
+}

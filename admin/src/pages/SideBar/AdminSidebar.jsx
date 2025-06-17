@@ -1,11 +1,16 @@
 import React from 'react';
-import {useLocation, useNavigate} from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import '../../style/Sidebar.css';
 import Swal from "sweetalert2";
 
-const AdminSidebar = ({ onNavigate, activePage }) => {
+// Font Awesome
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {faTachometerAlt,faTags,faChartLine, faBox, faCartShopping, faList, faTruck,faUsers,faUserTie,faCoins,faBus,faMoneyBill,faRightFromBracket} from '@fortawesome/free-solid-svg-icons';
+
+const AdminSidebar = ({ onNavigate }) => {
     const location = useLocation();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+
     const handleLogout = async () => {
         const result = await Swal.fire({
             title: 'Do you want to logout?',
@@ -42,6 +47,7 @@ const AdminSidebar = ({ onNavigate, activePage }) => {
                     navigate('/SignIn');
                 } else {
                     const data = await response.json();
+                    console.error(data);
                 }
             } catch (error) {
                 console.error('Error during logout:', error);
@@ -49,35 +55,25 @@ const AdminSidebar = ({ onNavigate, activePage }) => {
         }
     };
 
-    const menuItems = [    //sidebarcontent
-        {id: "dashboard", icon: "bx-grid-alt", label: "Dashboard", path: "/admin-dashboard"},
-        //link with Router.js
-        //     {id: "vehicles", icon: "bx-bus-school", label: "Vehicles", path: "/admin-dashboard/vehicles"}
-        // id is button id
-        //path:  --selects path from Router.js
-        //  {id: "dashboard", icon: "bx-grid-alt", label: "itdept", path: "/admin-dashboard"},
-        // {id: "dashboard", icon: "bx-grid-alt", label: "itdept", path: "/admin-dashboard"},
-        // {id: "itDept" route path = ""
-        //label: "ITDEPARTMENT" display text
-        // path: "/admin-dashboard/itDept" router.js eke path eka match karagannawa
-
-        // {id: "it_dept", icon: "bx-grid-alt", label: "ITDEPARTMENT", path: "/admin-dashboard/itDept"},
-        {id: "price_list", icon: "bx-cabinet", label: "Item Price List", path: "/admin-dashboard/item_prices"},
-        {id: "stock", icon: "bx-line-chart-down", label: "Graphs", path: "/admin-dashboard/graphs"},
-        {id: "products", icon: "bx-box", label: "Products", path: "/admin-dashboard/products"},
-        {id: "orders", icon: "bx-cart", label: "Invoice", path: "/admin-dashboard/orders"},
-        {id: "product_list", icon: "bx-list-ul", label: "Orders", path: "/admin-dashboard/product_list"},
-        {id: "deliveries", icon: "bxs-truck", label: "Deliveries", path: "/admin-dashboard/delivery"},
-        {id: "deliveries", icon: "bxs-clipboard-check", label: "GatePasses", path: "/admin-dashboard/delivery"},
-        {id: "customers", icon: "bx-user", label: "Customers", path: "/admin-dashboard/customers"},
-        {id: "employees", icon: "bx-user-circle", label: "Employees", path: "/admin-dashboard/employees"},
-        {id: "suppliers", icon: "bx-coin-stack", label: "Suppliers", path: "/admin-dashboard/suppliers"},
-        {id: "vehicles", icon: "bx-bus-school", label: "Vehicles", path: "/admin-dashboard/vehicles"},
+    const menuItems = [
+        { id: "dashboard", icon: faTachometerAlt, label: "Dashboard", path: "/admin-dashboard" },
+        { id: "price_list", icon: faTags, label: "Item Price List", path: "/admin-dashboard/item_prices" },
+        { id: "stock", icon: faChartLine, label: "Graphs", path: "/admin-dashboard/graphs" },
+        { id: "products", icon: faBox, label: "Products", path: "/admin-dashboard/products" },
+        { id: "orders", icon: faCartShopping, label: "Invoice", path: "/admin-dashboard/orders" },
+        { id: "product_list", icon: faList, label: "Orders", path: "/admin-dashboard/product_list" },
+        { id: "deliveries", icon: faTruck, label: "Deliveries", path: "/admin-dashboard/delivery" },
+        { id: "customers", icon: faUsers, label: "Customers", path: "/admin-dashboard/customers" },
+        { id: "employees", icon: faUserTie, label: "Employees", path: "/admin-dashboard/employees" },
+        { id: "suppliers", icon: faCoins, label: "Suppliers", path: "/admin-dashboard/suppliers" },
+        { id: "vehicles", icon: faBus, label: "Vehicles", path: "/admin-dashboard/vehicles" },
+        { id: "payments", icon: faMoneyBill, label: "Payments", path: "/admin-dashboard/payments" },
     ];
+
     return (
         <div className="sidebar">
             <div className="logo-details">
-                <i className='bx bx-code-alt'></i>
+                <FontAwesomeIcon icon={faBox} className="sidebar-icon" />
                 <span className="logo_name">Shejama</span>
             </div>
             <ul className="nav-links">
@@ -91,21 +87,20 @@ const AdminSidebar = ({ onNavigate, activePage }) => {
                                 onNavigate(item.path);
                             }}
                         >
-                            <i className={`bx ${item.icon}`}></i>
+                            <FontAwesomeIcon icon={item.icon} className="sidebar-icon" />
                             <span className="links_name">{item.label}</span>
                         </a>
                     </li>
                 ))}
                 <li className="log_out">
-                    <a href="/admin/public" onClick={(e) => {
-                        e.preventDefault(); // Prevent navigation
-                        handleLogout();     // Call your logout function
+                    <a href="#" onClick={(e) => {
+                        e.preventDefault();
+                        handleLogout();
                     }}>
-                        <i className='bx bx-log-out'></i>
+                        <FontAwesomeIcon icon={faRightFromBracket} className="sidebar-icon" />
                         <span className="links_name">Log out</span>
                     </a>
                 </li>
-
             </ul>
         </div>
     );

@@ -4,9 +4,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import classnames from "classnames";
 import Helmet from "../components/Helmet/Helmet";
 
-import IncomeGraphs from "./IncomeGraphs"; // Placeholder for all three — can be split later
-import ItemGraphs from "./ItemGraphs";
-import SaleTeamGraphs from "./SaleTeamGraphs";
+import IncomeGraphs from "./graphs/IncomeGraphs"; // Placeholder for all three — can be split later
+import ItemGraphs from "./graphs/ItemGraphs";
+import SaleTeamGraphs from "./graphs/SaleTeamGraphs";
 const AllGraphs = () => {
     const [activeTab, setActiveTab] = useState("income-performance");
     const location = useLocation();

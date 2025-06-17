@@ -105,7 +105,7 @@ import { Card, CardBody } from 'reactstrap';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import '../style/HomeContent.css';
+import '../../style/HomeContent.css';
 
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#FF8042', '#00C49F', '#FFBB28'];
 

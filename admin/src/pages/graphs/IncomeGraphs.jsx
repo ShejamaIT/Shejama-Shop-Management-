@@ -3,7 +3,7 @@ import { Card, CardBody, Table } from 'reactstrap';
 import { Line } from 'react-chartjs-2';
 import {Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend,} from 'chart.js';
 import {PieChart, Pie, Cell, ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Bar} from "recharts";
-import '../style/HomeContent.css';
+import '../../style/HomeContent.css';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 const chartOptions = {
     responsive: true,

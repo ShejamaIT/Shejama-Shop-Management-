@@ -10266,29 +10266,89 @@ router.put('/cheques/update-status/:id', async (req, res) => {
     const chequeId = req.params.id;
     const { status } = req.body;
 
-    const validStatuses = ['received', 'cashed', 'returned'];
+    const validStatuses = ['received', 'cashed', 'returned','handover'];
     if (!validStatuses.includes(status)) {
         return res.status(400).json({ success: false, message: "Invalid status" });
     }
 
     try {
-        const [result] = await db.execute(
+        // Step 1: Get cheque amount, cheque number, and optId
+        const [chequeRows] = await db.execute(
+            "SELECT amount, chequeNumber, optId FROM ord_Cheque_Pay WHERE id = ?",
+            [chequeId]
+        );
+
+        if (chequeRows.length === 0) {
+            return res.status(404).json({ success: false, message: "Cheque not found" });
+        }
+
+        const chequeAmount = parseFloat(chequeRows[0].amount);
+        const chequeNumber = chequeRows[0].chequeNumber;
+        const optId = chequeRows[0].optId;
+
+        // Step 2: Get orID from ord_Pay_type
+        const [payTypeRows] = await db.execute(
+            "SELECT orID FROM ord_Pay_type WHERE optId = ?",
+            [optId]
+        );
+
+        if (payTypeRows.length === 0) {
+            return res.status(404).json({ success: false, message: "Payment record not found" });
+        }
+
+        const orID = payTypeRows[0].orID;
+
+        // Step 3: Get c_ID from Orders
+        const [orderRows] = await db.execute(
+            "SELECT c_ID FROM Orders WHERE orID = ?",
+            [orID]
+        );
+
+        if (orderRows.length === 0) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        const c_ID = orderRows[0].c_ID;
+
+        // Step 4: Update status
+        const [updateResult] = await db.execute(
             "UPDATE ord_Cheque_Pay SET status = ? WHERE id = ?",
             [status, chequeId]
         );
 
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ success: false, message: "Cheque not found" });
+        if (updateResult.affectedRows === 0) {
+            return res.status(500).json({ success: false, message: "Failed to update cheque status" });
         }
 
-        res.json({ success: true, message: "Status updated" });
+        // Step 5: If returned, log and update customer balance
+        if (status === 'returned') {
+            const negativeAmount = -chequeAmount;
+
+            // Add entry to cash_balance
+            await db.execute(
+                `INSERT INTO cash_balance (reason, ref, ref_type, dateTime, amount)
+                 VALUES (?, ?, ?, NOW(), ?)`,
+                ['Cheque Bounced', chequeNumber, 'other', negativeAmount]
+            );
+
+            // Update Customer balance
+            await db.execute(
+                "UPDATE Customer SET balance = balance + ? WHERE c_ID = ?",
+                [negativeAmount, c_ID]
+            );
+        }
+        if (status === 'handover'){
+
+        }
+
+        res.json({ success: true, message: "Cheque status updated successfully" });
     } catch (err) {
-        console.error(err);
+        console.error("Error updating cheque status:", err);
         res.status(500).json({ success: false, message: "Server error" });
     }
 });
 
-// GET all transfer transactions
+
 // Get all bank transfers (deposits/withdrawals)
 router.get('/bank-transfers', async (req, res) => {
     try {

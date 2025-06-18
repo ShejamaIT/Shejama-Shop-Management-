@@ -629,3 +629,12 @@ CREATE TABLE deposit_withdrawals (
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 ALTER TABLE `cash_balance` CHANGE `ref_type` `ref_type` ENUM('order','advance','loss','other','supplier','Loan','hire','Deposit','Withdrawl') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'other';
+ALTER TABLE `ord_cheque_pay` CHANGE `status` `status` ENUM('received','cashed','returned','handover') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'received';
+CREATE TABLE handover_cheque (
+    hcID INT AUTO_INCREMENT PRIMARY KEY,
+    chequeNumber TEXT,
+    givenName TEXT,
+    givenDate DATE,
+    purpose TEXT,
+    type ENUM('Handover', 'Return') DEFAULT 'Handover'
+);

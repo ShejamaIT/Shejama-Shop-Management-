@@ -12,7 +12,6 @@ import ReceivedCheques from "./Payments/ReceivedCheques";
 // import CashWeekly from "./Payments/CashWeekly";
 // import CashMonthly from "./Payments/CashMonthly";
 import BankDeposits from "./Payments/BankDeposits";
-// import BankWithdrawals from "./Payments/BankWithdrawals";
 import BankDetails from "./Payments/BankDetails";
 // import PaymentsPending from "./Payments/PaymentsPending";
 // import PaymentsCompleted from "./Payments/PaymentsCompleted";

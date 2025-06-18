@@ -5,12 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="add bankdeposit view and update">
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_06_2025_11_41_[Changes]/shelved.patch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_06_2025_11_41__Changes_.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/admin/src/pages/Payments/BankDeposits.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin/src/pages/AllPayments.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/AllPayments.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/Payments/ReceivedCheques.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/Payments/ReceivedCheques.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dbquery.txt" beforeDir="false" afterPath="$PROJECT_DIR$/dbquery.txt" afterDir="false" />
     </list>
@@ -363,14 +360,7 @@
       <workItem from="1750142527089" duration="9042000" />
       <workItem from="1750153510893" duration="2738000" />
       <workItem from="1750160872576" duration="1318000" />
-      <workItem from="1750219220518" duration="19333000" />
-    </task>
-    <task id="LOCAL-00165" summary="update accept order detail form">
-      <created>1739186883390</created>
-      <option name="number" value="00165" />
-      <option name="presentableId" value="LOCAL-00165" />
-      <option name="project" value="LOCAL" />
-      <updated>1739186883390</updated>
+      <workItem from="1750219220518" duration="24293000" />
     </task>
     <task id="LOCAL-00166" summary="fixed update order issue">
       <created>1739263858784</created>
@@ -708,7 +698,14 @@
       <option name="project" value="LOCAL" />
       <updated>1750227049377</updated>
     </task>
-    <option name="localTasksCounter" value="401" />
+    <task id="LOCAL-00401" summary="add bankdeposit view and update">
+      <created>1750240293990</created>
+      <option name="number" value="00401" />
+      <option name="presentableId" value="LOCAL-00401" />
+      <option name="project" value="LOCAL" />
+      <updated>1750240293990</updated>
+    </task>
+    <option name="localTasksCounter" value="402" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

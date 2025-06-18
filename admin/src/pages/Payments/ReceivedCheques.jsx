@@ -45,6 +45,7 @@ const ReceivedCheques = () => {
         });
 
         if (!confirm.isConfirmed) return;
+        console.log(JSON.stringify({ status: newStatus, ...extraData }));
 
         try {
             const res = await fetch(`http://localhost:5001/api/admin/main/cheques/update-status/${chequeId}`, {
@@ -59,6 +60,7 @@ const ReceivedCheques = () => {
 
             if (res.ok && result.success) {
                 Swal.fire("Updated!", `Cheque marked as ${newStatus}`, "success");
+
                 fetchCheques(); // Refresh list
             } else {
                 Swal.fire("Failed", result.message || "Could not update status", "error");

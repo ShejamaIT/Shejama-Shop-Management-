@@ -440,8 +440,12 @@ router.post("/orders", async (req, res) => {
                 const optId = await insertPayType();
                 if (subPayment === 'Transfer' && tranferPayment) {
                     await db.query(
-                        `INSERT INTO ord_Transfer_Pay (optId, amount, bank) VALUES (?, ?, ?)`,
+                        `INSERT INTO ord_Transfer_Pay (optId, amount, acnID) VALUES (?, ?, ?)`,
                         [optId, advance1, tranferPayment.bank]
+                    );
+                    await db.query(
+                        `INSERT INTO deposit_withdrawals (acnID, type, amount, dwdate,remark) VALUES (?, ?, ?, NOW(),?)`,
+                        [tranferPayment.acnID, 'Deposit', advance1,orID]
                     );
                 } else {
                     await db.query(
@@ -534,12 +538,21 @@ router.post("/orders", async (req, res) => {
 
                 else if (subPayment === 'Cash & Transfer' && combinedTransferPayment) {
                     await db.query(
-                        `INSERT INTO ord_Transfer_Pay (optId, amount, bank) VALUES (?, ?, ?)`,
+                        `INSERT INTO ord_Transfer_Pay (optId, amount, acnID) VALUES (?, ?, ?)`,
                         [optId, combinedTransferPayment.transferAmount, combinedTransferPayment.bank]
+                    );
+                    await db.query(
+                        `INSERT INTO deposit_withdrawals (acnID, type, amount, dwdate,remark) VALUES (?, ?, ?, NOW(),?)`,
+                        [combinedTransferPayment.acnID, 'Deposit', combinedTransferPayment.transferAmount,orID]
                     );
                     await updateOrderPayment(0, advance1);
                 }
+
             }
+            await db.query(
+                `UPDATE Customer SET balance = ? WHERE c_ID = ?`,
+                [customerBalance, Cust_id]
+            );
         }
 
         return res.status(201).json({
@@ -1034,9 +1047,13 @@ router.post("/later-order", async (req, res) => {
                 if (subPayment === 'Cash & Transfer' && combinedTransferPayment) {
                     const optId = await insertPayType();
                     await db.query(
-                        `INSERT INTO ord_Transfer_Pay (optId, amount, bank)
+                        `INSERT INTO ord_Transfer_Pay (optId, amount, acnID)
                 VALUES (?, ?, ?)`,
                         [optId, combinedTransferPayment.transferAmount, combinedTransferPayment.bank]
+                    );
+                    await db.query(
+                        `INSERT INTO deposit_withdrawals (acnID, type, amount, dwdate,remark) VALUES (?, ?, ?, NOW(),?)`,
+                        [combinedTransferPayment.acnID, 'Deposit', combinedTransferPayment.transferAmount,orID]
                     );
                     await updateOrderPayment(advance1);
                 }
@@ -1045,12 +1062,20 @@ router.post("/later-order", async (req, res) => {
             if (payment === 'Cash' && subPayment === 'Transfer' && tranferPayment) {
                 const optId = await insertPayType();
                 await db.query(
-                    `INSERT INTO ord_Transfer_Pay (optId, amount, bank)
+                    `INSERT INTO ord_Transfer_Pay (optId, amount, acnID)
             VALUES (?, ?, ?)`,
                     [optId, advance1, tranferPayment.bank]
                 );
+                await db.query(
+                    `INSERT INTO deposit_withdrawals (acnID, type, amount, dwdate,remark) VALUES (?, ?, ?, NOW(),?)`,
+                    [tranferPayment.acnID, 'Deposit', advance1,orID]
+                );
                 await updateOrderPayment(advance1);
             }
+            await db.query(
+                `UPDATE Customer SET balance = ? WHERE c_ID = ?`,
+                [customerBalance, Cust_id]
+            );
         }
 
         return res.status(201).json({
@@ -10261,6 +10286,113 @@ router.put('/cheques/update-status/:id', async (req, res) => {
         console.error(err);
         res.status(500).json({ success: false, message: "Server error" });
     }
+});
+
+// GET all transfer transactions
+// Get all bank transfers (deposits/withdrawals)
+router.get('/bank-transfers', async (req, res) => {
+    try {
+        const [rows] = await db.execute(`
+            SELECT 
+                t.id,
+                t.amount,
+                t.acnID,
+                pt.orID,
+                pt.type,
+                pt.subType,
+                pt.payDate,
+                a.number AS accountNumber,
+                b.Bank,
+                b.branch
+            FROM ord_transfer_pay t
+            JOIN ord_pay_type pt ON t.optId = pt.optId
+            JOIN accountNumbers a ON t.acnID = a.acnID
+            JOIN shop_Banks b ON a.sbID = b.sbID
+            ORDER BY t.id DESC
+        `);
+
+        res.json({ success: true, transfers: rows });
+    } catch (err) {
+        console.error("Error fetching bank transfers:", err);
+        res.status(500).json({ success: false, message: "Database error" });
+    }
+});
+
+// get withdrawls payments
+router.get('/bank-deposit-withdrawals', async (req, res) => {
+    try {
+        const [rows] = await db.execute(`
+            SELECT 
+                dw.dwID AS id,
+                dw.type,
+                dw.amount,
+                dw.dwdate,
+                dw.remark,
+                a.number AS accountNumber,
+                b.Bank AS bank,
+                b.branch
+            FROM deposit_withdrawals dw
+            JOIN accountNumbers a ON dw.acnID = a.acnID
+            JOIN shop_Banks b ON a.sbID = b.sbID
+            ORDER BY dw.dwID DESC
+        `);
+
+        res.json({ success: true, transfers: rows });
+    } catch (err) {
+        console.error("Error fetching deposit/withdrawals:", err);
+        res.status(500).json({ success: false, message: "Database error" });
+    }
+});
+
+// POST new transfer transaction
+router.post('/deposit&withdrawals', async (req, res) => {
+    const { optId, acnID, amount, remark } = req.body;
+
+    // Validate inputs
+    if (!optId || !acnID || isNaN(amount)) {
+        return res.status(400).json({
+            success: false,
+            message: 'Missing or invalid fields',
+        });
+    }
+
+    try {
+        // Ensure the amount is a positive float
+        const numericAmount = parseFloat(amount);
+        const payment = optId === 'Withdrawal' ? -Math.abs(numericAmount) : Math.abs(numericAmount);
+        const ref = optId === 'Withdrawal' ? 'Withdrawl' : 'Deposit';
+
+        // Insert the transaction
+        await db.query(
+            `INSERT INTO deposit_withdrawals (acnID, type, amount, dwdate,remark) VALUES (?, ?, ?, NOW(),?)`,
+            [acnID, optId, payment,remark]
+        );
+
+        await db.query(
+            `INSERT INTO cash_balance (reason, ref, ref_type, dateTime, amount)
+             VALUES (?, ?, ?, NOW(), ?)`,
+            [optId,remark, ref , payment]
+        );
+
+        res.json({
+            success: true,
+            message: `${optId} of ${Math.abs(payment)} recorded successfully.`,
+        });
+
+    } catch (err) {
+        console.error("Error recording transaction:", err);
+        res.status(500).json({
+            success: false,
+            message: 'Database error while inserting transaction.',
+        });
+    }
+});
+
+
+// DELETE a transaction
+router.delete('/transfers/:id', async (req, res) => {
+    await db.query(`DELETE FROM ord_Transfer_Pay WHERE id = ?`, [req.params.id]);
+    res.json({ success: true, message: 'Deleted' });
 });
 
 

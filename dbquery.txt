@@ -579,7 +579,7 @@ CREATE TABLE accountNumbers(
     sbID INT,
     number TEXT,
         CONSTRAINT FOREIGN KEY (sbID) REFERENCES shop_Banks (sbID)
-                                 ON DELETE CASCADE ON UPDATE CASCADE
+                                 ON DELETE CASCADE ON UPDATE CASCADE,
 );
 
 ALTER TABLE order_payment
@@ -606,3 +606,26 @@ ALTER TABLE `item` CHANGE `img3` `img3` LONGBLOB NULL;
 ALTER TABLE `emp_leaves` ADD `present` ENUM('In ','Out','','') NOT NULL DEFAULT 'Out' AFTER `status`;
 ALTER TABLE ord_Cheque_Pay
 MODIFY status ENUM('received', 'cashed', 'returned') DEFAULT 'received';
+ALTER TABLE ord_Transfer_Pay
+CHANGE COLUMN bank acnID INT;
+SELECT acnID
+FROM ord_Transfer_Pay
+WHERE acnID NOT IN (SELECT acnID FROM accountNumbers);
+DELETE FROM ord_Transfer_Pay
+WHERE acnID NOT IN (SELECT acnID FROM accountNumbers);
+ALTER TABLE ord_Transfer_Pay
+ADD CONSTRAINT fk_ord_transfer_account
+FOREIGN KEY (acnID) REFERENCES accountNumbers(acnID)
+ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `ord_pay_type` ADD `payDate` DATETIME NULL DEFAULT NULL AFTER `subType`;
+CREATE TABLE deposit_withdrawals (
+    dwID INT AUTO_INCREMENT PRIMARY KEY,
+    acnID INT,
+    type ENUM('Deposit', 'Withdrawal') DEFAULT 'Deposit',
+    amount DOUBLE,
+    dwdate DATE,
+    remark TEXT,
+    CONSTRAINT FOREIGN KEY (acnID) REFERENCES accountNumbers (acnID)
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+ALTER TABLE `cash_balance` CHANGE `ref_type` `ref_type` ENUM('order','advance','loss','other','supplier','Loan','hire','Deposit','Withdrawl') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'other';

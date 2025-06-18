@@ -11,7 +11,7 @@ import ReceivedCheques from "./Payments/ReceivedCheques";
 // import CashToday from "./Payments/CashToday";
 // import CashWeekly from "./Payments/CashWeekly";
 // import CashMonthly from "./Payments/CashMonthly";
-// import BankDeposits from "./Payments/BankDeposits";
+import BankDeposits from "./Payments/BankDeposits";
 // import BankWithdrawals from "./Payments/BankWithdrawals";
 import BankDetails from "./Payments/BankDetails";
 // import PaymentsPending from "./Payments/PaymentsPending";
@@ -47,7 +47,7 @@ const AllPayments = () => {
     const subTabOptions = {
         "cash-balance": ["today", "weekly", "monthly"],
         "cheque-details": ["received", "cleared", "bounced"],
-        "bank-details": ["deposits", "withdrawals","add&update"],
+        "bank-details": ["deposits&withdrawals","add&update"],
         "customer-payments": ["pending", "completed", "overdue"]
     };
 
@@ -58,8 +58,7 @@ const AllPayments = () => {
         "received": "Received",
         "cleared": "Cleared",
         "bounced": "Bounced",
-        "deposits": "Deposits",
-        "withdrawals": "Withdrawals",
+        "deposits&withdrawals": "Deposits & Withdrawals",
         "add&update" :" Add & Update",
         "pending": "Pending",
         "completed": "Completed",
@@ -95,8 +94,7 @@ const AllPayments = () => {
             // if (subTab === "bounced") return <BouncedCheques />;
         }
         if (mainTab === "bank-details") {
-            // if (subTab === "deposits") return <BankDeposits />;
-            // if (subTab === "withdrawals") return <BankWithdrawals />;
+            if (subTab === "deposits&withdrawals") return <BankDeposits />;
              if (subTab === "add&update") return <BankDetails />;
         }
         if (mainTab === "customer-payments") {

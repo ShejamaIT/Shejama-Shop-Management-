@@ -30,6 +30,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
     const [rate , setRate] = useState(0);
     const [netAmount , setNetAmount] = useState(0);
     const [transferBank , setTranferBank] = useState("");
+    const [transferAccount , setTransferAccount] = useState("");
     const [chequeAmount , setChequeAmount] = useState(0);
     const [bank , setBank] = useState("");
     const [branch , setBranch] = useState("");
@@ -728,7 +729,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         }
         if (formData.payment === "Cash" && formData.subPayment === 'Transfer') {
             tranferPayment = {
-               bank : transferBank, 
+               bank : transferAccount,
             };
         }
          if (formData.payment === "Cash" && formData.subPayment === 'Cash') {
@@ -1716,7 +1717,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                         )}
                     </div>
 
-                    <div className='order-details'>
+                    <div className='order-details's>
                         <h2 className="text-xl font-bold mb-2">Order Details</h2>
                         <hr/>
                         <FormGroup>
@@ -2303,17 +2304,18 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                     <span className="custom-info-value flex items-center gap-2">
                                         <select
                                             className="w-full text-right"
-                                            value={selectedAccount}
-                                            onChange={(e) => setSelectedAccount(e.target.value)}
+                                            value={transferAccount}
+                                            onChange={(e) => setTransferAccount(e.target.value)}
                                             required
                                         >
                                             <option value="">Select Account</option>
                                             {availableAccounts.map((acc) => (
-                                                <option key={acc.acnID} value={acc.number}>
+                                                <option key={acc.acnID} value={acc.acnID}>
                                                     {acc.number}
                                                 </option>
                                             ))}
                                         </select>
+
 
                                         <button
                                             type="button"

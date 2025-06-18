@@ -4,11 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update backend">
-      <change afterPath="$PROJECT_DIR$/admin/src/pages/Payments/BankDetails.jsx" afterDir="false" />
+    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="add bankdeposit view and update">
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_06_2025_11_41_[Changes]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_06_2025_11_41__Changes_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/admin/src/pages/Payments/BankDeposits.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin/src/pages/AllPayments.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/AllPayments.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbquery.txt" beforeDir="false" afterPath="$PROJECT_DIR$/dbquery.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -359,14 +363,7 @@
       <workItem from="1750142527089" duration="9042000" />
       <workItem from="1750153510893" duration="2738000" />
       <workItem from="1750160872576" duration="1318000" />
-      <workItem from="1750219220518" duration="7495000" />
-    </task>
-    <task id="LOCAL-00164" summary="update pending order detail form">
-      <created>1739184767446</created>
-      <option name="number" value="00164" />
-      <option name="presentableId" value="LOCAL-00164" />
-      <option name="project" value="LOCAL" />
-      <updated>1739184767446</updated>
+      <workItem from="1750219220518" duration="19333000" />
     </task>
     <task id="LOCAL-00165" summary="update accept order detail form">
       <created>1739186883390</created>
@@ -704,7 +701,14 @@
       <option name="project" value="LOCAL" />
       <updated>1750156011457</updated>
     </task>
-    <option name="localTasksCounter" value="400" />
+    <task id="LOCAL-00400" summary="add bank detail view and update">
+      <created>1750227049377</created>
+      <option name="number" value="00400" />
+      <option name="presentableId" value="LOCAL-00400" />
+      <option name="project" value="LOCAL" />
+      <updated>1750227049377</updated>
+    </task>
+    <option name="localTasksCounter" value="401" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -723,8 +727,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="update driver salary with api" />
-    <MESSAGE value="update all employee view" />
     <MESSAGE value="add new view" />
     <MESSAGE value="add new view to user and cashier dashborads" />
     <MESSAGE value="update salary sheet with saleteam" />
@@ -748,6 +750,8 @@
     <MESSAGE value="update order invoice" />
     <MESSAGE value="update" />
     <MESSAGE value="update backend" />
-    <option name="LAST_COMMIT_MESSAGE" value="update backend" />
+    <MESSAGE value="add bank detail view and update" />
+    <MESSAGE value="add bankdeposit view and update" />
+    <option name="LAST_COMMIT_MESSAGE" value="add bankdeposit view and update" />
   </component>
 </project>

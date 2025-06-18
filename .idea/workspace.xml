@@ -4,8 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update order invoice">
+    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update backend">
+      <change afterPath="$PROJECT_DIR$/admin/src/pages/Payments/BankDetails.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/AllPayments.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/AllPayments.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -355,14 +357,9 @@
       <workItem from="1750136622133" duration="978000" />
       <workItem from="1750137652431" duration="3332000" />
       <workItem from="1750142527089" duration="9042000" />
-      <workItem from="1750153510893" duration="2391000" />
-    </task>
-    <task id="LOCAL-00163" summary="update with booked unbooked">
-      <created>1739179003371</created>
-      <option name="number" value="00163" />
-      <option name="presentableId" value="LOCAL-00163" />
-      <option name="project" value="LOCAL" />
-      <updated>1739179003371</updated>
+      <workItem from="1750153510893" duration="2738000" />
+      <workItem from="1750160872576" duration="1318000" />
+      <workItem from="1750219220518" duration="7495000" />
     </task>
     <task id="LOCAL-00164" summary="update pending order detail form">
       <created>1739184767446</created>
@@ -700,7 +697,14 @@
       <option name="project" value="LOCAL" />
       <updated>1750155456375</updated>
     </task>
-    <option name="localTasksCounter" value="399" />
+    <task id="LOCAL-00399" summary="update">
+      <created>1750156011457</created>
+      <option name="number" value="00399" />
+      <option name="presentableId" value="LOCAL-00399" />
+      <option name="project" value="LOCAL" />
+      <updated>1750156011457</updated>
+    </task>
+    <option name="localTasksCounter" value="400" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -719,8 +723,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="update salary sheet view with api" />
-    <MESSAGE value="update target view with api" />
     <MESSAGE value="update driver salary with api" />
     <MESSAGE value="update all employee view" />
     <MESSAGE value="add new view" />
@@ -744,6 +746,8 @@
     <MESSAGE value="update payment" />
     <MESSAGE value="update and add recevied cheque" />
     <MESSAGE value="update order invoice" />
-    <option name="LAST_COMMIT_MESSAGE" value="update order invoice" />
+    <MESSAGE value="update" />
+    <MESSAGE value="update backend" />
+    <option name="LAST_COMMIT_MESSAGE" value="update backend" />
   </component>
 </project>

@@ -10264,9 +10264,9 @@ router.get('/cheques/received', async (req, res) => {
 // Update check
 router.put('/cheques/update-status/:id', async (req, res) => {
     const chequeId = req.params.id;
-    const { status } = req.body;
+    const { status, givenName, givenDate, purpose } = req.body;
 
-    const validStatuses = ['received', 'cashed', 'returned','handover'];
+    const validStatuses = ['received', 'cashed', 'returned', 'handover'];
     if (!validStatuses.includes(status)) {
         return res.status(400).json({ success: false, message: "Invalid status" });
     }
@@ -10310,7 +10310,7 @@ router.put('/cheques/update-status/:id', async (req, res) => {
 
         const c_ID = orderRows[0].c_ID;
 
-        // Step 4: Update status
+        // Step 4: Update cheque status
         const [updateResult] = await db.execute(
             "UPDATE ord_Cheque_Pay SET status = ? WHERE id = ?",
             [status, chequeId]
@@ -10320,25 +10320,33 @@ router.put('/cheques/update-status/:id', async (req, res) => {
             return res.status(500).json({ success: false, message: "Failed to update cheque status" });
         }
 
-        // Step 5: If returned, log and update customer balance
+        // Step 5: Handle 'returned' logic
         if (status === 'returned') {
             const negativeAmount = -chequeAmount;
 
-            // Add entry to cash_balance
             await db.execute(
                 `INSERT INTO cash_balance (reason, ref, ref_type, dateTime, amount)
                  VALUES (?, ?, ?, NOW(), ?)`,
                 ['Cheque Bounced', chequeNumber, 'other', negativeAmount]
             );
 
-            // Update Customer balance
             await db.execute(
                 "UPDATE Customer SET balance = balance + ? WHERE c_ID = ?",
                 [negativeAmount, c_ID]
             );
         }
-        if (status === 'handover'){
 
+        // Step 6: Handle 'handover' logic
+        if (status === 'handover') {
+            if (!givenName || !givenDate || !purpose) {
+                return res.status(400).json({ success: false, message: "Missing handover details" });
+            }
+
+            await db.execute(
+                `INSERT INTO handover_cheque (chequeNumber, givenName, givenDate, purpose, type)
+                 VALUES (?, ?, ?, ?, 'Handover')`,
+                [chequeNumber, givenName, givenDate, purpose]
+            );
         }
 
         res.json({ success: true, message: "Cheque status updated successfully" });
@@ -10347,6 +10355,7 @@ router.put('/cheques/update-status/:id', async (req, res) => {
         res.status(500).json({ success: false, message: "Server error" });
     }
 });
+
 
 
 // Get all bank transfers (deposits/withdrawals)

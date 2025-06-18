@@ -378,294 +378,170 @@ router.post("/orders", async (req, res) => {
         const op_ID = await generateNewId("order_payment", "op_ID", "OP");
         // ✅ Insert cash balance if advance exists
         if (advance1 > 0) {
-
+            const returnBalnce = parseFloat(cashReturn) * (-1);
             // Insert into cash_balance and get insert ID
             const [cashResult] = await db.query(
-                `INSERT INTO cash_balance (reason, ref, ref_type, dateTime, amount)
-                VALUES (?, ?, 'order', NOW(), ?)`,
+                `INSERT INTO cash_balance (reason, ref, ref_type, dateTime, amount) VALUES (?, ?, 'order', NOW(), ?)`,
                 ['Order Advance', orID, advance1]
             );
-
             const cashId = cashResult.insertId;
+
+            // Handle customer balance decision
             if (customerBalanceDecision === "pass") {
-                // Update customer balance by reducing it (payment made)
                 await db.query(
                     `UPDATE Customer SET balance = ? WHERE c_ID = ?`,
                     [customerBalance, Cust_id]
                 );
             } else if (customerBalanceDecision === "handover") {
-                // Treat this like "pass" as well, unless logic differs
                 await db.query(
-                    `UPDATE Customer SET balance = ? WHERE c_ID = ?`,
-                    [customerBalance, Cust_id]
+                    `INSERT INTO cash_balance (reason, ref, ref_type, dateTime, amount)
+             VALUES (?, ?, ?, NOW(), ?)`,
+                    ['Cash Handover', orID, 'order', returnBalnce]
                 );
             } else if (customerBalanceDecision === "ignore") {
                 await db.query(
-                    `UPDATE Customer SET balance = ? WHERE c_ID = ?`,
-                    [customerBalance, Cust_id]
-                );
-                // Insert a new row in cash_balance for the loss
-                await db.query(
                     `INSERT INTO cash_balance (reason, ref, ref_type, dateTime, amount)
-                    VALUES (?, ?, 'order', NOW(), ?)`,
-                    ['Order Loss', orID, finalCustomerBalance]
+             VALUES (?, ?, ?, NOW(), ?)`,
+                    ['Order Loss', orID, 'order', finalCustomerBalance]
                 );
-            }            
+            }
 
+            // Validate payment fields
             if (!op_ID || !orID || isNaN(advance1) || !stID || !issuable) {
                 return res.status(400).json({ message: "Missing or invalid order payment fields" });
             }
 
+            // Insert into order_payment
             await db.query(
-                `INSERT INTO order_payment 
-                    (op_ID, orID, amount, dateTime, or_status, netTotal, stID, issuable, c_ID, balance, otherCharges, fullPaidAmount) 
-                VALUES 
-                    (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    op_ID,orID,advance1,orderStatus,billPrice, stID,issuable,Cust_id,billBalance, 0, advance1
-                ]
+                `INSERT INTO order_payment
+         (op_ID, orID, amount, dateTime, or_status, netTotal, stID, issuable, c_ID, balance, otherCharges, fullPaidAmount)
+         VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [op_ID, orID, advance1, orderStatus, billPrice, stID, issuable, Cust_id, billBalance, 0, advance1]
             );
 
-             // Additional insert for Cash - Transfer payment
-            if (payment === 'Cash' && subPayment === 'Transfer' && tranferPayment) {
-                // Insert into ord_Pay_type
-                const [payTypeResult] = await db.query(
+            // Payment type handler
+            const insertPayType = async () => {
+                const [result] = await db.query(
                     `INSERT INTO ord_Pay_type (orID, type, subType) VALUES (?, ?, ?)`,
                     [orID, payment, subPayment]
                 );
-                const optId = payTypeResult.insertId; 
+                return result.insertId;
+            };
 
-                // Insert into ord_Transfer_Pay
-                await db.query(
-                    `INSERT INTO ord_Transfer_Pay (optId, amount, bank) VALUES (?, ?, ?)`,
-                    [optId, advance1, tranferPayment.bank]
-                );
-
-                // Update the correct order_payment row using op_ID or orID
-                await db.query(
-                    `UPDATE order_payment SET otherCharges = 0, fullPaidAmount = ? WHERE op_ID = ?`,
-                    [advance1, op_ID]
-                );
-            }
-            // Additional insert for Cash - Cash payment
-            if (payment === 'Cash' && subPayment === 'Cash') {
-                // Insert into ord_Pay_type
-                const [payTypeResult] = await db.query(
-                    `INSERT INTO ord_Pay_type (orID, type, subType) VALUES (?, ?, ?)`,
-                    [orID, payment, subPayment]
-                );
-                // Insert into ord_Cash_Pay
-                await db.query(
-                    `INSERT INTO ord_Cash_Pay (optId, amount) VALUES (?, ?)`,
-                    [optId, advance1]
-                );
-
-                // Update the correct order_payment row using op_ID or orID
-                await db.query(
-                    `UPDATE order_payment SET otherCharges = 0, fullPaidAmount = ? WHERE op_ID = ?`,
-                    [advance1, op_ID]
-                );
-            }
-
-           // Additional insert for Card payment
-            if (payment === 'Card' && cardPayment) {
-                // Insert into ord_Pay_type
-                const [typeResult] = await db.query(
-                    `INSERT INTO ord_Pay_type (orID, type, subType) VALUES (?, ?, ?)`,
-                    [orID, payment, subPayment]
-                );
-                const optId = typeResult.insertId;
-
-                // Insert into ord_Card_Pay
-                await db.query(
-                    `INSERT INTO ord_Card_Pay (optId, type, amount, intrestValue)
-                    VALUES (?, ?, ?, ?)`,
-                    [optId, cardPayment.type, advance1, cardPayment.interestValue || 0]
-                );
-
-                // Update order_payment with interest & full amount
+            const updateOrderPayment = async (charges, fullPaid) => {
                 await db.query(
                     `UPDATE order_payment SET otherCharges = ?, fullPaidAmount = ? WHERE op_ID = ?`,
-                    [cardPayment.interestValue, cardPayment.netAmount, op_ID]
+                    [charges, fullPaid, op_ID]
                 );
+            };
 
-                // 🔄 Update cash_balance with full paid amount
+            // === Payment Types ===
+            if (payment === 'Cash') {
+                const optId = await insertPayType();
+                if (subPayment === 'Transfer' && tranferPayment) {
+                    await db.query(
+                        `INSERT INTO ord_Transfer_Pay (optId, amount, bank) VALUES (?, ?, ?)`,
+                        [optId, advance1, tranferPayment.bank]
+                    );
+                } else {
+                    await db.query(
+                        `INSERT INTO ord_Cash_Pay (optId, amount) VALUES (?, ?)`,
+                        [optId, advance1]
+                    );
+                }
+                await updateOrderPayment(0, advance1);
+            }
+
+            else if (payment === 'Card' && cardPayment) {
+                const optId = await insertPayType();
+                await db.query(
+                    `INSERT INTO ord_Card_Pay (optId, type, amount, intrestValue)
+             VALUES (?, ?, ?, ?)`,
+                    [optId, cardPayment.type, advance1, cardPayment.interestValue || 0]
+                );
+                await updateOrderPayment(cardPayment.interestValue || 0, cardPayment.netAmount);
                 await db.query(
                     `UPDATE cash_balance SET amount = ? WHERE Id = ?`,
                     [cardPayment.netAmount, cashId]
                 );
             }
 
-             // Additional insert for Cheque payment
-            if (payment === 'Cheque' && chequePayment) {
-                const [chequeTypeResult] = await db.query(
-                    `INSERT INTO ord_Pay_type (orID, type, subType) VALUES (?, ?, ?)`,
-                    [orID, payment, subPayment]
-                );
-
-                const chequeOptId = chequeTypeResult.insertId;
-
-                // Insert all cheques from the array
+            else if (payment === 'Cheque' && chequePayment) {
+                const optId = await insertPayType();
                 for (const chq of chequePayment.cheques || []) {
                     await db.query(
-                        `INSERT INTO ord_Cheque_Pay (optId, amount, bank, branch, accountNumber, chequeNumber, date)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                        [
-                            chequeOptId,
-                            chq.amount || 0,
-                            chq.bank || '',
-                            chq.branch || '',
-                            chq.accountNumber || '',
-                            chq.chequeNumber || '',
-                            chq.chequeDate || null
-                        ]
+                        `INSERT INTO ord_Cheque_Pay (optId, amount, bank, branch, accountNumber, chequeNumber, date,status)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                        [optId, chq.amount || 0, chq.bank || '', chq.branch || '', chq.accountNumber || '', chq.chequeNumber || '', chq.chequeDate || null,'received']
                     );
                 }
-
-                // Update the order_payment table
-                await db.query(
-                    `UPDATE order_payment SET otherCharges = 0, fullPaidAmount = ? WHERE op_ID = ?`,
-                    [advance1, op_ID]
-                );
-            }
-
-             // Additional insert for Credit payment
-            if (payment === 'Credit' && creditPayment) {
-                const [creditResult] = await db.query(
-                    `INSERT INTO ord_Pay_type (orID, type, subType) VALUES (?, ?, ?)`,
-                    [orID, payment, subPayment]
-                );
-                const creditOptId = creditResult.insertId;
-
-                // Assuming ord_Credit_Pay table exists for credit details
-                await db.query(
-                    `INSERT INTO ord_Credit_Pay (optId, amount, balance, c_ID, expectedDate)
-                    VALUES (?, ?, ?, ?, ?)`,
-                    [
-                        creditOptId,
-                        creditPayment.amount || 0,
-                        creditPayment.balance || 0,
-                        Cust_id,
-                        creditPayment.expectdate || null
-                    ]
-                );
-
-                // Update order_payment
-                await db.query(
-                    `UPDATE order_payment SET otherCharges = 0, fullPaidAmount = ? WHERE op_ID = ?`,
-                    [advance1, op_ID]
-                );
-            }
-
-            // Additional insert for Combined (Cash & Card) payment
-            if (payment === 'Combined' && subPayment==='Cash & Card' && cashCardPayment) {
-                // Insert into ord_Pay_type
-                const [typeResult] = await db.query(
-                    `INSERT INTO ord_Pay_type (orID, type, subType) VALUES (?, ?, ?)`,
-                    [orID, payment, subPayment]
-                );
-                const optId = typeResult.insertId;
-
-                // Insert into ord_Card_Pay
-                await db.query(
-                    `INSERT INTO ord_Card_Pay (optId, type, amount, intrestValue)
-                    VALUES (?, ?, ?, ?)`,
-                    [optId, cashCardPayment.type, cashCardPayment.cardBalance, cashCardPayment.interestValue || 0]
-                );
-                // Update the correct order_payment row using op_ID or orID
-                await db.query(
-                    `UPDATE order_payment SET otherCharges = ?, fullPaidAmount = ? WHERE op_ID = ?`,
-                    [cashCardPayment.interestValue, cashCardPayment.fullpaidAmount , op_ID]
-                );
-                // 🔄 Update cash_balance with full paid amount
                 await db.query(
                     `UPDATE cash_balance SET amount = ? WHERE Id = ?`,
-                    [cashCardPayment.fullpaidAmount, cashId]
+                    [chequePayment.total || 0, cashId]
                 );
+                await updateOrderPayment(0, advance1);
             }
 
-            // Additional insert for Combined (Cash & Cheque) payment
-            if (payment === 'Combined' && subPayment === 'Cash & Cheque' && combinedChequePayment) {
-                const [chequeTypeResult] = await db.query(
-                    `INSERT INTO ord_Pay_type (orID, type, subType) VALUES (?, ?, ?)`,
-                    [orID, payment, subPayment]
-                );
-
-                const chequeOptId = chequeTypeResult.insertId;
-
-                // Insert all cheques
-                for (const chq of combinedChequePayment.cheques || []) {
-                    await db.query(
-                        `INSERT INTO ord_Cheque_Pay (optId, amount, bank, branch, accountNumber, chequeNumber, date)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                        [
-                            chequeOptId,
-                            chq.amount || 0,
-                            chq.bank || '',
-                            chq.branch || '',
-                            chq.accountNumber || '',
-                            chq.chequeNumber || '',
-                            chq.chequeDate || null
-                        ]
-                    );
-                }
-
-                // Update the order_payment row
-                await db.query(
-                    `UPDATE order_payment SET otherCharges = 0, fullPaidAmount = ? WHERE op_ID = ?`,
-                    [advance1, op_ID]
-                );
-            }
-
-            // Additional insert for Combined (Cash & Credit) payment
-            if (payment === 'Combined' && subPayment==='Cash & Credit' && combinedCreditPayment) {
-                const [creditResult] = await db.query(
-                    `INSERT INTO ord_Pay_type (orID, type, subType) VALUES (?, ?, ?)`,
-                    [orID, payment, subPayment]
-                );
-                const creditOptId = creditResult.insertId;
-
-                // Assuming ord_Credit_Pay table exists for credit details
+            else if (payment === 'Credit' && creditPayment) {
+                const optId = await insertPayType();
                 await db.query(
                     `INSERT INTO ord_Credit_Pay (optId, amount, balance, c_ID, expectedDate)
-                    VALUES (?, ?, ?, ?, ?)`,
-                    [
-                        creditOptId,
-                        combinedCreditPayment.creditBalance || 0,
-                        combinedCreditPayment.cashBalance || 0,
-                        Cust_id,
-                        combinedCreditPayment.expectedDate || null
-                    ]
+             VALUES (?, ?, ?, ?, ?)`,
+                    [optId, creditPayment.amount || 0, creditPayment.balance || 0, Cust_id, creditPayment.expectdate || null]
                 );
-
-                // Update order_payment
-                await db.query(
-                    `UPDATE order_payment SET otherCharges = 0, fullPaidAmount = ? WHERE op_ID = ?`,
-                    [advance1, op_ID]
-                );
+                await updateOrderPayment(0, advance1);
             }
-            // Additional insert for Combined (Cash & Transfer) payment
-            if (payment === 'Combined' && subPayment === 'Cash & Transfer' && combinedTransferPayment) {
-                // Insert into ord_Pay_type
-                const [payTypeResult] = await db.query(
-                    `INSERT INTO ord_Pay_type (orID, type, subType) VALUES (?, ?, ?)`,
-                    [orID, payment, subPayment]
-                );
-                const optId = payTypeResult.insertId; 
 
-                // Insert into ord_Transfer_Pay
-                await db.query(
-                    `INSERT INTO ord_Transfer_Pay (optId, amount, bank) VALUES (?, ?, ?)`,
-                    [optId, combinedTransferPayment.transferAmount, combinedTransferPayment.bank]
-                );
+            else if (payment === 'Combined') {
+                const optId = await insertPayType();
 
-                // Update the correct order_payment row using op_ID or orID
-                await db.query(
-                    `UPDATE order_payment SET otherCharges = 0, fullPaidAmount = ? WHERE op_ID = ?`,
-                    [advance1, op_ID]
-                );
+                if (subPayment === 'Cash & Card' && cashCardPayment) {
+                    await db.query(
+                        `INSERT INTO ord_Card_Pay (optId, type, amount, intrestValue)
+                 VALUES (?, ?, ?, ?)`,
+                        [optId, cashCardPayment.type, cashCardPayment.cardBalance, cashCardPayment.interestValue || 0]
+                    );
+                    await db.query(
+                        `UPDATE cash_balance SET amount = ? WHERE Id = ?`,
+                        [cashCardPayment.fullpaidAmount, cashId]
+                    );
+                    await updateOrderPayment(cashCardPayment.interestValue, cashCardPayment.fullpaidAmount);
+                }
+
+                else if (subPayment === 'Cash & Cheque' && combinedChequePayment) {
+                    for (const chq of combinedChequePayment.cheques || []) {
+                        await db.query(
+                            `INSERT INTO ord_Cheque_Pay (optId, amount, bank, branch, accountNumber, chequeNumber, date,status)
+                     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                            [optId, chq.amount || 0, chq.bank || '', chq.branch || '', chq.accountNumber || '', chq.chequeNumber || '', chq.chequeDate || null,'received']
+                        );
+                    }
+                    await db.query(
+                        `UPDATE cash_balance SET amount = ? WHERE Id = ?`,
+                        [combinedChequePayment.total || 0, cashId]
+                    );
+                    await updateOrderPayment(0, advance1);
+                }
+
+                else if (subPayment === 'Cash & Credit' && combinedCreditPayment) {
+                    await db.query(
+                        `INSERT INTO ord_Credit_Pay (optId, amount, balance, c_ID, expectedDate)
+                 VALUES (?, ?, ?, ?, ?)`,
+                        [optId, combinedCreditPayment.creditBalance || 0, combinedCreditPayment.cashBalance || 0, Cust_id, combinedCreditPayment.expectedDate || null]
+                    );
+                    await updateOrderPayment(0, advance1);
+                }
+
+                else if (subPayment === 'Cash & Transfer' && combinedTransferPayment) {
+                    await db.query(
+                        `INSERT INTO ord_Transfer_Pay (optId, amount, bank) VALUES (?, ?, ?)`,
+                        [optId, combinedTransferPayment.transferAmount, combinedTransferPayment.bank]
+                    );
+                    await updateOrderPayment(0, advance1);
+                }
             }
         }
+
         return res.status(201).json({
             success: true,
             message: "Order placed successfully",
@@ -712,6 +588,7 @@ router.post("/later-order", async (req, res) => {
         if (isNewCustomer) {
             Cust_id = await generateNewId("Customer", "c_ID", "Cus");
 
+            // Construct dynamic customer search query
             let customerSearchQuery = `SELECT c_ID FROM Customer WHERE `;
             let searchParams = [];
 
@@ -726,24 +603,27 @@ router.post("/later-order", async (req, res) => {
                 searchParams = [trimmedOther, trimmedOther];
             }
 
+            // Check for existing customer if phone info is present
             if (searchParams.length > 0) {
                 const [existingCustomer] = await db.query(customerSearchQuery, searchParams);
                 if (existingCustomer.length > 0) {
-                    return res.status(400).json({ success: false, message: "Customer already exists." });
+                    return res.status(400).json({
+                        success: false,
+                        message: "Customer already exists with provided contact details."
+                    });
                 }
             }
 
+            // Insert new customer
             const sqlInsertCustomer = `
-                INSERT INTO Customer (c_ID, title, FtName, SrName, address, contact1, contact2, id, balance, type, category, t_name, occupation, workPlace)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `;
-
+        INSERT INTO Customer 
+            (c_ID, title, FtName, SrName, address, contact1, contact2, id, balance, type, category, t_name, occupation, workPlace)
+        VALUES 
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
             const valuesCustomer = [
-                Cust_id, title, FtName, SrName, address,
-                trimmedPhone || "-", trimmedOther || "-", id,
-                0, type, category, tType, Occupation, WorkPlace
+                Cust_id,title, FtName, SrName,address,trimmedPhone || "-",trimmedOther || "-", id,0,type,category,tType,Occupation,WorkPlace
             ];
-
             await db.query(sqlInsertCustomer, valuesCustomer);
         }
 
@@ -789,18 +669,11 @@ router.post("/later-order", async (req, res) => {
         }
 
     
-        const orderQuery = `
-            INSERT INTO Orders (OrID, orDate, c_ID, orStatus, delStatus, delPrice, discount, specialdic, netTotal, total, stID, expectedDate, specialNote, ordertype, advance, balance, payStatus)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')
-        `;
+        const orderQuery = `INSERT INTO Orders (OrID, orDate, c_ID, orStatus, delStatus, delPrice, discount, specialdic, netTotal, total, stID, expectedDate, specialNote, ordertype, advance, balance, payStatus)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')`;
 
         const orderParams = [
-            orID, orderDate, Cust_id, orderStatus, dvStatus,
-            parseFloat(deliveryPrice) || 0,
-            parseFloat(discountAmount) || 0,
-            parseFloat(specialdiscountAmount) || 0,
-            parseFloat(totalItemPrice) || 0,
-            parseFloat(TotalOrder) || 0,
+            orID, orderDate, Cust_id, orderStatus, dvStatus,parseFloat(deliveryPrice) || 0,parseFloat(discountAmount) || 0,parseFloat(specialdiscountAmount) || 0,parseFloat(totalItemPrice) || 0,parseFloat(TotalOrder) || 0,
             stID, expectedDate, specialNote, orderType, advance1, billBalance
         ];
 
@@ -817,11 +690,11 @@ router.post("/later-order", async (req, res) => {
             const [reviewResult] = await db.query(checkReviewQuery, [stID, currentYear, currentMonth]);
 
             if (reviewResult.length > 0) {
-                await db.query(` UPDATE ST_order_review   SET totalOrder = totalOrder + ? WHERE stID = ? AND year = ? AND month = ?`, [netTotal, stID, currentYear, currentMonth]);
+                await db.query(` UPDATE ST_order_review   SET totalOrder = totalOrder + ? WHERE stID = ? AND year = ? AND month = ?`,
+                    [netTotal, stID, currentYear, currentMonth]);
             } else {
-                await db.query(`
-                    INSERT INTO ST_order_review (stID, year, month, totalOrder, totalIssued) VALUES (?, ?, ?, ?, 0)
-                `, [stID, currentYear, currentMonth, netTotal]);
+                await db.query(`INSERT INTO ST_order_review (stID, year, month, totalOrder, totalIssued) VALUES (?, ?, ?, ?, 0)`,
+                    [stID, currentYear, currentMonth, netTotal]);
             }
         }
         
@@ -835,18 +708,10 @@ router.post("/later-order", async (req, res) => {
             const material = item.material;
             const uid = item.uid;
 
-            const insertQuery = `
-                INSERT INTO Order_Detail (orID, I_Id, qty, tprice, discount, material)
-                VALUES (?, ?, ?, ?, ?, ?)
-            `;
+            const insertQuery = `INSERT INTO Order_Detail (orID, I_Id, qty, tprice, discount, material) VALUES (?, ?, ?, ?, ?, ?)`;
 
             const [result] = await db.query(insertQuery, [
-                orID,
-                item.I_Id,
-                qty,
-                unitPrice,
-                discount,
-                material
+                orID, item.I_Id,qty, unitPrice,discount,material
             ]);
 
             // Store UID and the newly created orderDetail ID
@@ -974,8 +839,7 @@ router.post("/later-order", async (req, res) => {
             await db.query(acceptItemQuery, [acceptValues]);
 
             // Insert into production table
-            const productionInsertQuery = `
-                INSERT INTO production (p_ID, I_Id, qty, s_ID, expectedDate, specialNote, status) VALUES (?, ?, ?, ?, ?, ?, 'Incomplete')`;
+            const productionInsertQuery = `INSERT INTO production (p_ID, I_Id, qty, s_ID, expectedDate, specialNote, status) VALUES (?, ?, ?, ?, ?, ?, 'Incomplete')`;
 
             for (const item of productionItems) {
                 const p_ID = `InP_${Date.now()}`; // Unique p_ID
@@ -1003,50 +867,48 @@ router.post("/later-order", async (req, res) => {
         const op_ID = await generateNewId("order_payment", "op_ID", "OP");
 
         if (advance1 > 0) {
-            // Insert into cash_balance
+            const returnBalnce = parseFloat(cashReturn) * (-1);
+            // Insert into cash_balance for order advance
             const [cashResult] = await db.query(
                 `INSERT INTO cash_balance (reason, ref, ref_type, dateTime, amount)
-                VALUES (?, ?, 'order', NOW(), ?)`,
+        VALUES (?, ?, 'order', NOW(), ?)`,
                 ['Order Advance', orID, advance1]
             );
             const cashId = cashResult.insertId;
 
+            // Handle customer balance decision
             if (customerBalanceDecision === "pass") {
-                // Update customer balance by reducing it (payment made)
                 await db.query(
                     `UPDATE Customer SET balance = ? WHERE c_ID = ?`,
                     [customerBalance, Cust_id]
                 );
             } else if (customerBalanceDecision === "handover") {
-                // Treat this like "pass" as well, unless logic differs
                 await db.query(
-                    `UPDATE Customer SET balance = ? WHERE c_ID = ?`,
-                    [customerBalance, Cust_id]
+                    `INSERT INTO cash_balance (reason, ref, ref_type, dateTime, amount)
+            VALUES (?, ?, ?, NOW(), ?)`,
+                    ['Cash Handover', orID, 'order', returnBalnce]
                 );
             } else if (customerBalanceDecision === "ignore") {
                 await db.query(
-                    `UPDATE Customer SET balance = ? WHERE c_ID = ?`,
-                    [customerBalance, Cust_id]
-                );
-                // Insert a new row in cash_balance for the loss
-                await db.query(
                     `INSERT INTO cash_balance (reason, ref, ref_type, dateTime, amount)
-                    VALUES (?, ?, 'order', NOW(), ?)`,
-                    ['Order Loss', orID, finalCustomerBalance]
+            VALUES (?, ?, ?, NOW(), ?)`,
+                    ['Order Loss', orID, 'order', finalCustomerBalance]
                 );
-            }            
+            }
 
+            // Ensure all required fields are present
             if (!op_ID || !orID || isNaN(advance1) || !stID || !issuable) {
                 return res.status(400).json({ message: "Missing or invalid order payment fields" });
             }
 
+            // Insert into order_payment table
             await db.query(
                 `INSERT INTO order_payment 
-                    (op_ID, orID, amount, dateTime, or_status, netTotal, stID, issuable, c_ID, balance, otherCharges, fullPaidAmount) 
-                VALUES 
-                    (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (op_ID, orID, amount, dateTime, or_status, netTotal, stID, issuable, c_ID, balance, otherCharges, fullPaidAmount) 
+        VALUES 
+            (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
-                    op_ID,orID, advance1, orderStatus,billPrice, stID,issuable, Cust_id,billBalance, 0,advance1
+                    op_ID, orID, advance1, orderStatus, billPrice, stID, issuable, Cust_id, billBalance, 0, advance1
                 ]
             );
 
@@ -1080,7 +942,7 @@ router.post("/later-order", async (req, res) => {
                 const optId = await insertPayType();
                 await db.query(
                     `INSERT INTO ord_Card_Pay (optId, type, amount, intrestValue)
-                    VALUES (?, ?, ?, ?)`,
+            VALUES (?, ?, ?, ?)`,
                     [optId, cardPayment.type, advance1, cardPayment.interestValue || 0]
                 );
                 await updateOrderPayment(cardPayment.netAmount, cardPayment.interestValue || 0);
@@ -1089,15 +951,25 @@ router.post("/later-order", async (req, res) => {
 
             if (payment === 'Cheque' && chequePayment) {
                 const optId = await insertPayType();
+
+                // Loop through each cheque in the cheque payment array
+                let totalChequeAmount = 0;
                 for (const chq of chequePayment.cheques || []) {
+                    totalChequeAmount += parseFloat(chq.amount || 0); // Calculate the total cheque amount
                     await db.query(
-                        `INSERT INTO ord_Cheque_Pay (optId, amount, bank, branch, accountNumber, chequeNumber, date,status)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                        `INSERT INTO ord_Cheque_Pay (optId, amount, bank, branch, accountNumber, chequeNumber, date, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
                         [
-                            optId,chq.amount || 0,chq.bank || '',chq.branch || '',chq.accountNumber || '',chq.chequeNumber || '', chq.chequeDate || null, 'InHand'
+                            optId, chq.amount || 0, chq.bank || '', chq.branch || '', chq.accountNumber || '',
+                            chq.chequeNumber || '', chq.chequeDate || null, 'received'
                         ]
                     );
                 }
+
+                // Update the cash_balance with the total cheque amount
+                await db.query(`UPDATE cash_balance SET amount = ? WHERE Id = ?`, [totalChequeAmount, cashId]);
+
+                // Update the order payment with the advance amount
                 await updateOrderPayment(advance1);
             }
 
@@ -1105,7 +977,7 @@ router.post("/later-order", async (req, res) => {
                 const optId = await insertPayType();
                 await db.query(
                     `INSERT INTO ord_Credit_Pay (optId, amount, balance, c_ID, expectedDate)
-                    VALUES (?, ?, ?, ?, ?)`,
+            VALUES (?, ?, ?, ?, ?)`,
                     [optId, creditPayment.amount || 0, creditPayment.balance || 0, Cust_id, creditPayment.expectdate || null]
                 );
                 await updateOrderPayment(advance1);
@@ -1116,7 +988,7 @@ router.post("/later-order", async (req, res) => {
                     const optId = await insertPayType();
                     await db.query(
                         `INSERT INTO ord_Card_Pay (optId, type, amount, intrestValue)
-                        VALUES (?, ?, ?, ?)`,
+                VALUES (?, ?, ?, ?)`,
                         [optId, cashCardPayment.type, cashCardPayment.cardBalance, cashCardPayment.interestValue || 0]
                     );
                     await updateOrderPayment(cashCardPayment.fullpaidAmount, cashCardPayment.interestValue || 0);
@@ -1125,15 +997,21 @@ router.post("/later-order", async (req, res) => {
 
                 if (subPayment === 'Cash & Cheque' && combinedChequePayment) {
                     const optId = await insertPayType();
+                    let totalChequeAmount = 0;
                     for (const chq of combinedChequePayment.cheques || []) {
+                        totalChequeAmount += parseFloat(chq.amount || 0); // Calculate total of all cheques
                         await db.query(
-                            `INSERT INTO ord_Cheque_Pay (optId, amount, bank, branch, accountNumber, chequeNumber, date,status)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                            `INSERT INTO ord_Cheque_Pay (optId, amount, bank, branch, accountNumber, chequeNumber, date, status)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
                             [
-                                optId, chq.amount || 0,chq.bank || '', chq.branch || '', chq.accountNumber || '',chq.chequeNumber || '',chq.chequeDate || null ,'InHand'
+                                optId, chq.amount || 0, chq.bank || '', chq.branch || '', chq.accountNumber || '',
+                                chq.chequeNumber || '', chq.chequeDate || null, 'received'
                             ]
                         );
                     }
+                    // Update the cash_balance with the total cheque amount
+                    await db.query(`UPDATE cash_balance SET amount = ? WHERE Id = ?`, [totalChequeAmount, cashId]);
+
                     await updateOrderPayment(advance1);
                 }
 
@@ -1141,7 +1019,7 @@ router.post("/later-order", async (req, res) => {
                     const optId = await insertPayType();
                     await db.query(
                         `INSERT INTO ord_Credit_Pay (optId, amount, balance, c_ID, expectedDate)
-                        VALUES (?, ?, ?, ?, ?)`,
+                VALUES (?, ?, ?, ?, ?)`,
                         [
                             optId,
                             combinedCreditPayment.creditBalance || 0,
@@ -1157,7 +1035,7 @@ router.post("/later-order", async (req, res) => {
                     const optId = await insertPayType();
                     await db.query(
                         `INSERT INTO ord_Transfer_Pay (optId, amount, bank)
-                        VALUES (?, ?, ?)`,
+                VALUES (?, ?, ?)`,
                         [optId, combinedTransferPayment.transferAmount, combinedTransferPayment.bank]
                     );
                     await updateOrderPayment(advance1);
@@ -1168,12 +1046,13 @@ router.post("/later-order", async (req, res) => {
                 const optId = await insertPayType();
                 await db.query(
                     `INSERT INTO ord_Transfer_Pay (optId, amount, bank)
-                    VALUES (?, ?, ?)`,
+            VALUES (?, ?, ?)`,
                     [optId, advance1, tranferPayment.bank]
                 );
                 await updateOrderPayment(advance1);
             }
         }
+
         return res.status(201).json({
             success: true,
             message: "Order placed successfully",
@@ -8897,7 +8776,6 @@ router.get("/sales-summary", async (req, res) => {
         return res.status(500).json({ success: false, message: "Server error", error: err.message });
     }
 });
-
 
 //  Get Sales Team Targets
 router.get("/sales-team-targets", async (req, res) => {

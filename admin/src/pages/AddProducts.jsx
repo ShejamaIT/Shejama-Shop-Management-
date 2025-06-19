@@ -5,16 +5,19 @@ import "../style/addProduct.css"; // Import CSS
 
 const AddItem = () => {
     const [formData, setFormData] = useState({
-        I_Id: "", I_name: "", Ca_Id: "", sub_one: "", sub_two: "", descrip: "", color: "", material: "", otherMaterial: "", price: "", warrantyPeriod: "", cost: "", img: null, img1: null, img2: null, img3: null, s_Id: "", minQty: ""
+        I_Id: "", I_name: "", Ca_Id: "", sub_one: "", sub_two: "", descrip: "", color: "", material: "", otherMaterial: "", price: "", warrantyPeriod: "", cost: "", img: null, img1: null, img2: null, img3: null, s_Id: "", minQty: "",stockQty:""
     });
     const [categories, setCategories] = useState([]);
     const [suppliers, setSuppliers] = useState([]);
     const [subCatOne, setSubCatOne] = useState([]);
     const [subCatTwo, setSubCatTwo] = useState([]);
+    const [PurchaseId, setPurchaseId] = useState("");
+    const currentDate = new Date().toLocaleDateString();
+    const currentTime = new Date().toLocaleTimeString();
 
     // Fetch Categories
     useEffect(() => {
-        fetchCategories();
+        fetchCategories();fetchSuppliers();fetchPurchaseID();
     }, []);
 
     const fetchCategories = async () => {
@@ -27,12 +30,6 @@ const AddItem = () => {
             setCategories([]); // Default to empty array on error
         }
     };
-
-// Fetch Suppliers
-    useEffect(() => {
-        fetchSuppliers();
-    }, []);
-
     const fetchSuppliers = async () => {
         try {
             const response = await fetch("http://localhost:5001/api/admin/main/suppliers");
@@ -45,6 +42,16 @@ const AddItem = () => {
         } catch (err) {
             console.error("Error fetching suppliers:", err);
             setSuppliers([]); // Default to empty array on error
+        }
+    };
+    const fetchPurchaseID = async () => {
+        try {
+            const response = await fetch("http://localhost:5001/api/admin/main/newPurchasenoteID");
+            const data = await response.json();
+            console.log(data);
+            setPurchaseId(data.PurchaseID);
+        } catch (err) {
+            toast.error("Failed to load Purchase ID.");
         }
     };
 
@@ -121,6 +128,31 @@ const AddItem = () => {
             if (formData.img1) formDataToSend.append("img1", formData.img1);
             if (formData.img2) formDataToSend.append("img2", formData.img2);
             if (formData.img3) formDataToSend.append("img3", formData.img3);
+            const cost = Number(formData.cost);
+            const quantity = Number(formData.stockQty);
+            const itemTotal = cost * quantity;
+
+
+            const orderData = {
+                purchase_id: PurchaseId,         // assuming these come from state/context
+                supplier_id: formData.s_Id,
+                date: currentDate,
+                time: currentTime,
+                itemTotal: itemTotal,
+                delivery: 0,
+                invoice: "-",
+                items: [
+                    {
+                        I_Id: formData.I_Id,
+                        material: materialToSend,
+                        color: formData.color || "N/A",
+                        unit_price: Number(formData.price),
+                        price: cost,
+                        quantity: quantity,
+                        total_price: itemTotal.toFixed(2)
+                    }
+                ]
+            };
 
             const submitResponse = await fetch("http://localhost:5001/api/admin/main/add-item", {
                 method: "POST",
@@ -131,6 +163,19 @@ const AddItem = () => {
 
             if (submitResponse.ok) {
                 toast.success("✅ Item added successfully!");
+                const stockResponse = await fetch("http://localhost:5001/api/admin/main/addStock", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(orderData)
+                });
+
+                const stockResult = await stockResponse.json();
+                if (!stockResponse.ok) {
+                    toast.error(stockResult.message || "❌ Failed to save purchase.");
+                    return;
+                }
+
+                toast.success("✅ Purchase saved successfully!");
 
                 // Reset form fields but keep image
                 setFormData((prevData) => ({
@@ -152,7 +197,6 @@ const AddItem = () => {
             toast.error("❌ An error occurred while adding the item.");
         }
     };
-
 
     const handleClear = () => {
         setFormData({
@@ -298,6 +342,10 @@ const AddItem = () => {
                         <FormGroup>
                             <Label for="minQty">Min Quantity (for production)</Label>
                             <Input type="number" name="minQty" id="minQty" value={formData.minQty} onChange={handleChange} required />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label for="stockQty">Available Stock Qty</Label>
+                            <Input type="number" name="stockQty" id="stockQty" value={formData.stockQty} onChange={handleChange} required />
                         </FormGroup>
                         <FormGroup>
                             <Label for="img">Main Image (Required)</Label>

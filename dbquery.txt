@@ -579,7 +579,7 @@ CREATE TABLE accountNumbers(
     sbID INT,
     number TEXT,
         CONSTRAINT FOREIGN KEY (sbID) REFERENCES shop_Banks (sbID)
-                                 ON DELETE CASCADE ON UPDATE CASCADE,
+                                 ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 ALTER TABLE order_payment

@@ -535,7 +535,6 @@ router.post("/orders", async (req, res) => {
                     );
                     await updateOrderPayment(0, advance1);
                 }
-
                 else if (subPayment === 'Cash & Transfer' && combinedTransferPayment) {
                     await db.query(
                         `INSERT INTO ord_Transfer_Pay (optId, amount, acnID) VALUES (?, ?, ?)`,
@@ -547,14 +546,12 @@ router.post("/orders", async (req, res) => {
                     );
                     await updateOrderPayment(0, advance1);
                 }
-
             }
             await db.query(
                 `UPDATE Customer SET balance = ? WHERE c_ID = ?`,
                 [customerBalance, Cust_id]
             );
         }
-
         return res.status(201).json({
             success: true,
             message: "Order placed successfully",

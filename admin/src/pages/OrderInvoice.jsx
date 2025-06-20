@@ -459,18 +459,29 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         }
     };
     const handleSearchChange = (e) => {
-        fetchItems();
         const value = e.target.value;
         setSearchTerm(value);
         if (!value.trim()) {
             setFilteredItems(items);
         } else {
             const filtered = items.filter((item) =>
-                item.I_Id.toString().includes(value) || item.I_name.toLowerCase().includes(value.toLowerCase())
+                item.I_Id.toString().includes(value) ||
+                item.I_name.toLowerCase().includes(value.toLowerCase())
             );
             setFilteredItems(filtered);
         }
     };
+
+    // Fetch items only once, e.g., in useEffect
+    useEffect(() => {
+        const fetchItemsOnce = async () => {
+            const data = await fetchItems(); // Assume fetchItems returns data
+            setItems(data);
+            setFilteredItems(data); // Initially show all
+        };
+        fetchItemsOnce();
+    }, []);
+
     const handleSelectItem = (item) => {
         setSelectedItem(item);
         setQuantity(1);
@@ -1576,7 +1587,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                 </Input>
                             </Col>
                         </Row>
-
                         <h2 className="text-l font-bold mb-2 mt-2">Customer Details</h2>
                         <hr/>
 

@@ -116,7 +116,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             // Credit: ['30 Days', '60 Days'],
             Combined: ['Cash & Card','Cash & Cheque','Cash & Credit','Cash & Transfer']
     };
-     const currentDate = new Date().toLocaleDateString();
+    const currentDate = new Date().toLocaleDateString();
     const currentTime = new Date().toLocaleTimeString();
 
     useEffect(() => {
@@ -135,7 +135,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             return [];  // ✅ Return an empty array if there's an error
         }
     };
-
     const fetchBankDetails = async () => {
         try {
             // Fetch shop banks
@@ -157,7 +156,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             return { banks: [], accounts: [] };
         }
     };
-
     const fetchCoupons = async () => {
         try {
             const response = await fetch("http://localhost:5001/api/admin/main/coupon-details");
@@ -200,7 +198,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         }, 0);
         setChequeBalance(total);
     }, [cheques]);
-
     useEffect(() => {
         calculateTotalPrice();
     }, [selectedItems, deliveryPrice, discountAmount,advance,balance,previousbalance]); 
@@ -319,7 +316,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             setFullTotalPay(0);
         }
     }, [formData.payment, formData.subPayment, formData.cashAmount, totalBillPrice,cheques,grossAmount,combinedCardBalance,combinedTransferBalance,combinedChequeBalance, creditAmount, ChequeBalance,transferPortion ]);
-
     const calculateTotalPrice = () => {
         const totalSpecialDiscount = selectedItems.reduce((total, item) => {
             const specialDiscount = item.discount || 0;
@@ -427,7 +423,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             ...(name === 'payment' && { subPayment: '' })
         }));
     };
-
     const secondOptions = subPaymentOptions[formData.payment] || [];
     const checkDeliveryAvailability = async (date) => {
         try {
@@ -564,7 +559,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
 
         // Optionally reset `formData` or other states if needed
     };
-
     const handleRemoveItem = (index) => {
         const updatedItems = [...selectedItems];
         const removedItem = updatedItems.splice(index, 1)[0]; // Remove and capture the item
@@ -589,7 +583,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             setLoadingSuppliers(false);
         }
     };
-    // Handle form changes
     const handleFormChange = (e) => {
         const { name, value } = e.target;
         setProductionData((prevFormData) => ({
@@ -597,7 +590,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             [name]: value
         }));
     };
-
     const handleCustomerBalanceAction = (balanceValue, paymentAmt, billValue) => {
         const remaining = parseFloat(balanceValue);
         const grossvalue = parseFloat(paymentAmt);
@@ -674,7 +666,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             }
         });
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -1053,7 +1044,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         setShowModal2(false);
         setShowModal3(true);
     };
-
     const handleClear = () => {
         setFormData({c_ID:"",title:"",FtName: "",id:"" ,SrName: "", phoneNumber: "", otherNumber: "", address: "",occupation:"",workPlace:"",
             city: "", district: "",specialNote: "", expectedDate: "", couponCode: "", dvStatus: "",type:"",category:"",balance:"",advance:""});
@@ -1094,11 +1084,9 @@ const OrderInvoice = ({ onPlaceOrder }) => {
     };
     const handlePhoneNumberBlur = async (phoneNumber) => {
         if (!phoneNumber) return;
-
         try {
             const response = await fetch(`http://localhost:5001/api/admin/main/customer/check-customer?phone=${phoneNumber}`);
             const data = await response.json();
-
             if (data.exists) {
                 toast.info(`Customer already exists: ${data.customerName}`);
                 setCustomer("Previous");
@@ -1113,21 +1101,47 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             toast.error("Failed to check customer.");
         }
     };
+    const handleShopNameBlur = async (shopName, type) => {
+        if (!shopName || !type) return;
+
+        try {
+            const response = await fetch("http://localhost:5001/api/admin/main/customer/check-shop", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ type, shopName }),
+            });
+
+            const data = await response.json();
+
+            if (data.exists && data.results.length > 0) {
+                const customer = data.results[0];
+                toast.info(`Customer already exists: ${customer.customerName}`);
+                setCustomer("Previous");
+                handleSelectCustomer(customer.data);
+                setPreviousBalance(customer.data.balance);
+            } else {
+                toast.success("Customer does not exist, continue creating order.");
+                setCustomer("New");
+            }
+        } catch (error) {
+            console.error("Error checking customer:", error.message);
+            toast.error("Failed to check customer.");
+        }
+    }
     const handleButtonClick = () => {
         setShowModal(true);
     };
     const handleAddNewCoupon = () => {
         setShowModal1(true);
     };
-
     const handleAddNewBank = () => {
         setSetShowBank(true);
     };
-
     const handleAddNewAccountNumber = () => {
         setSetShowAccountNumber(true);
     };
-
     const fetchPurchaseID = async () => {
         try {
             const response = await fetch("http://localhost:5001/api/admin/main/newPurchasenoteID");
@@ -1256,7 +1270,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             toast.error("❌ An unexpected error occurred.");
         }
     };
-
     const handleAddCoupon = async (newCoupon) => {
         const { couponCode, saleteamCode, discount } = newCoupon;
         try {
@@ -1330,8 +1343,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             alert("Failed to add account number. Please try again.");
         }
     };
-
-   const handleStatusChange = (index, newStatus, item) => {
+    const handleStatusChange = (index, newStatus, item) => {
         const updatedItems = [...selectedItemsQty];
         const updatedItem = { ...updatedItems[index], status: newStatus };
         updatedItems[index] = updatedItem;
@@ -1369,7 +1381,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             console.log("📦 Booked:", processedItems.filter(i => i.status === "Booked"));
         }, 200);
     };
-
     const handleProduction = (e) => {
         e.preventDefault();
 
@@ -1403,8 +1414,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         });
         setShowStockModal2(false);
     };
-
-   const ReservedItem = async (selectedItems, selectedItemForReserve) => {
+    const ReservedItem = async (selectedItems, selectedItemForReserve) => {
         if (!selectedItems || selectedItems.length === 0 || !selectedItemForReserve) return;
 
         const reservedWithPid = selectedItems.map(item => ({
@@ -1424,7 +1434,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
 
         setShowStockModal1(false);
     };
-
     const handleSearchChange1 = (e) => {
         const term = e.target.value;
         setSearchTerm(term);
@@ -1483,8 +1492,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         setFilteredItems([]);
         setDropdownOpen(false); // Close dropdown after selection
     };
-
-   const handleCheque = () => {
+    const handleCheque = () => {
         if (!chequeNumber || !chequeDate || !chequeAmount) return;
 
         setCheques([
@@ -1573,11 +1581,67 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                     <option value="Later">Later</option>
                                 </Input>
                             </Col>
-
                         </Row>
 
                         <h2 className="text-l font-bold mb-2 mt-2">Customer Details</h2>
                         <hr/>
+
+                        <Row>
+                            <Col md={6}>
+                                <FormGroup>
+                                    <Label className="fw-bold">Category</Label>
+                                    <Input type="select" name="category" id="category" value={formData.category}
+                                           onChange={handleChange} required>
+                                        <option value="">Select Category</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Credit">Credit</option>
+                                        <option value="Loyal">Loyal</option>
+                                    </Input>
+                                </FormGroup>
+                            </Col>
+
+                            <Col md={6}>
+                                <FormGroup>
+                                    <Label className="fw-bold">Type</Label>
+                                    <Input type="select" name="type" id="type" value={formData.type}
+                                           onChange={handleChange} required>
+                                        <option value="">Select type</option>
+                                        <option value="Walking">Walking</option>
+                                        <option value="On site">On site</option>
+                                        <option value="Shop">Shop</option>
+                                        <option value="Force">Force</option>
+                                        <option value="Hotel">Hotel</option>
+                                    </Input>
+                                </FormGroup>
+                            </Col>
+                        </Row>
+                        {/* Show t_name input only for Shop, Force, Hotel */}
+                        {["Shop", "Force", "Hotel"].includes(formData.type) && (
+                            <FormGroup>
+                                <Label for="t_name" className="fw-bold">{formData.type} Name</Label>
+                                <Input type="text" name="t_name" value={formData.t_name} onChange={handleChange}
+                                       onBlur={() => handleShopNameBlur(formData.t_name,formData.type)}
+                                       required/>
+                                {errors.t_name && <small className="text-danger">{errors.t_name}</small>}
+                            </FormGroup>
+                        )}
+                        {["Walking", "On site"].includes(formData.type) && (
+                            <>
+                                <FormGroup>
+                                    <Label for="occupation" className="fw-bold">Occupation</Label>
+                                    <Input type="text" name="occupation" value={formData.occupation}
+                                           onChange={handleChange} required/>
+                                    {errors.occupation &&
+                                        <small className="text-danger">{errors.occupation}</small>}
+                                </FormGroup>
+                                <FormGroup>
+                                    <Label for="workPlace" className="fw-bold">Work Place</Label>
+                                    <Input type="text" name="workPlace" value={formData.workPlace}
+                                           onChange={handleChange} required/>
+                                    {errors.workPlace && <small className="text-danger">{errors.workPlace}</small>}
+                                </FormGroup>
+                            </>
+                        )}
                         <Row>
                             <Col md={6}>
                                 <FormGroup>
@@ -1660,61 +1724,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                             <Input type="text" name="address" value={formData.address} onChange={handleChange}
                                    required/>
                         </FormGroup>
-                        <Row>
-                            <Col md={6}>
-                                <FormGroup>
-                                    <Label className="fw-bold">Category</Label>
-                                    <Input type="select" name="category" id="category" value={formData.category}
-                                           onChange={handleChange} required>
-                                        <option value="">Select Category</option>
-                                        <option value="Cash">Cash</option>
-                                        <option value="Credit">Credit</option>
-                                        <option value="Loyal">Loyal</option>
-                                    </Input>
-                                </FormGroup>
-                            </Col>
 
-                            <Col md={6}>
-                                <FormGroup>
-                                    <Label className="fw-bold">Type</Label>
-                                    <Input type="select" name="type" id="type" value={formData.type}
-                                           onChange={handleChange} required>
-                                        <option value="">Select type</option>
-                                        <option value="Walking">Walking</option>
-                                        <option value="On site">On site</option>
-                                        <option value="Shop">Shop</option>
-                                        <option value="Force">Force</option>
-                                        <option value="Hotel">Hotel</option>
-                                    </Input>
-                                </FormGroup>
-                            </Col>
-                        </Row>
-                        {/* Show t_name input only for Shop, Force, Hotel */}
-                        {["Shop", "Force", "Hotel"].includes(formData.type) && (
-                            <FormGroup>
-                                <Label for="t_name" className="fw-bold">{formData.type} Name</Label>
-                                <Input type="text" name="t_name" value={formData.t_name} onChange={handleChange}
-                                       required/>
-                                {errors.t_name && <small className="text-danger">{errors.t_name}</small>}
-                            </FormGroup>
-                        )}
-                        {["Walking", "On site"].includes(formData.type) && (
-                            <>
-                                <FormGroup>
-                                    <Label for="occupation" className="fw-bold">Occupation</Label>
-                                    <Input type="text" name="occupation" value={formData.occupation}
-                                           onChange={handleChange} required/>
-                                    {errors.occupation &&
-                                        <small className="text-danger">{errors.occupation}</small>}
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label for="workPlace" className="fw-bold">Work Place</Label>
-                                    <Input type="text" name="workPlace" value={formData.workPlace}
-                                           onChange={handleChange} required/>
-                                    {errors.workPlace && <small className="text-danger">{errors.workPlace}</small>}
-                                </FormGroup>
-                            </>
-                        )}
                     </div>
 
                     <div className='order-details's>

@@ -114,6 +114,10 @@ const AddOtherDetails = () => {
                     subcattwo_img: null,
                 });
                 setSelectedSubcategory(""); // Reset selection
+                // Auto-refresh the page
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             } else {
                 toast.error(result.message);
             }

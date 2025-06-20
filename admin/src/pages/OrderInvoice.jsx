@@ -126,7 +126,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         try {
             const response = await fetch("http://localhost:5001/api/admin/main/allitems");
             const data = await response.json();
-            console.log(data);
             setItems(data || []);
             setFilteredItems(data || []);
             return data;  // ✅ This ensures that fetchItems returns the data
@@ -140,13 +139,11 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             // Fetch shop banks
             const banksResponse = await fetch("http://localhost:5001/api/admin/main/shop-banks");
             const banksData = await banksResponse.json();
-            console.log(banksData);
             setBanks(banksData || []);
 
             // Fetch account numbers
             const accResponse = await fetch("http://localhost:5001/api/admin/main/account-numbers/grouped");
             const accData = await accResponse.json();
-            console.log(accData);
             setAccountNumbers(accData || []);
 
             return { banks: banksData, accounts: accData }; // optional return
@@ -501,7 +498,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
 
         // Stock check (if issuable is 'Now')
         if (formData.issuable === 'Now') {
-            console.log("Latest AvailableQty:", updatedSelectedItem.availableQty, "Requested:", quantity);
             if (updatedSelectedItem.availableQty < quantity) {
                 Swal.fire("There are not enough stocks for the requirement.");
                 return;
@@ -693,8 +689,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         advance: updatedAdvance,
         balance: updatedBalance,
     } = await handleCustomerBalanceAction(balance, advance, grossBillTotal);
-
-
         let cardPayment = null;
         let cashPayment = null;
         let tranferPayment = null;

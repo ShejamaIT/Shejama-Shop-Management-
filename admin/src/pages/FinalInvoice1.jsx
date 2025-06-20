@@ -21,9 +21,16 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
     const discount = Number(selectedOrder.discount) || 0;  // Default to 0 if undefined or NaN
     const delivery = Number(selectedOrder.deliveryCharge) || 0;  // Default to 0 if undefined or NaN
     const subtotal = Number(selectedOrder.items.reduce((sum, item) => sum + calculateTotal(item), 0)) || 0;  // Ensure subtotal is a valid number
-    const totalAdvance = Number(advance) + Number(nowPay) || 0;  // Ensure advance is valid
-    const netTotal = (subtotal + delivery - (Number(selectedOrder.discount) || 0));  // Default discount to 0 if undefined or NaN
-    const balance = netTotal - totalAdvance;
+    const totalAdvance = (Number(advance) || 0) + (Number(nowPay) || 0);
+    const netTotal = (Number(subtotal) || 0) + (Number(delivery) || 0) - (Number(selectedOrder?.discount) || 0);
+
+    let balance = netTotal - totalAdvance;
+
+// Ensure balance is not negative
+    if (totalAdvance > netTotal) {
+        balance = 0;
+    }
+
     useEffect(() => {
         if (balance === 0) {
             setPaymentType('Settled');

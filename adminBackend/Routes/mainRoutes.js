@@ -1631,6 +1631,66 @@ router.get("/customer/check-customer", async (req, res) => {
     }
 });
 
+// Check if customer exists by shop name
+router.post("/customer/check-shop", async (req, res) => {
+    const { type, shopName } = req.body;
+
+    if (!type && !shopName) {
+        return res.status(400).json({
+            exists: false,
+            message: "At least 'type' or 'shopName' must be provided.",
+        });
+    }
+
+    try {
+        const conditions = [];
+        const values = [];
+
+        if (type) {
+            conditions.push("type LIKE ?");
+            values.push(`%${type}%`);
+        }
+
+        if (shopName) {
+            conditions.push("t_name LIKE ?");
+            values.push(`%${shopName}%`);
+        }
+
+        const whereClause = conditions.length ? "WHERE " + conditions.join(" AND ") : "";
+
+        const [customers] = await db.query(
+            `SELECT * FROM Customer ${whereClause}`,
+            values
+        );
+
+        if (customers.length > 0) {
+            return res.status(200).json({
+                exists: true,
+                results: customers.map(c => ({
+                    customerName: `${c.FtName} ${c.SrName}`,
+                    type: c.type,
+                    shopName: c.t_name,
+                    data: c
+                }))
+            });
+        } else {
+            return res.status(200).json({
+                exists: false,
+                message: "No matching customer found.",
+            });
+        }
+    } catch (err) {
+        console.error("Error checking shop customer:", err.message);
+        return res.status(500).json({
+            exists: false,
+            message: "Database error.",
+            details: err.message,
+        });
+    }
+});
+
+
+
 // Get one accept order in-detail
 router.get("/accept-order-details", async (req, res) => {
     try {

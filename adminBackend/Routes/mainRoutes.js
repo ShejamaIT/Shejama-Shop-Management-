@@ -5489,7 +5489,6 @@ router.post("/add-stock-received", upload.single("image"), async (req, res) => {
 router.post("/addStock", upload.single("image"), async (req, res) => {
     try {
         const { purchase_id, supplier_id, date, itemTotal, delivery, invoice, items } = req.body;
-        console.log(req.body);
         const imageFile = req.file;
 
         const total = Number(itemTotal) || 0;
@@ -5506,49 +5505,54 @@ router.post("/addStock", upload.single("image"), async (req, res) => {
             fs.writeFileSync(savePath, imageFile.buffer);
             imagePath = `/uploads/images/${imageName}`;
         }
+
         const formattedDate = moment(date, ['D/M/YYYY', 'M/D/YYYY']).format('YYYY-MM-DD');
-        const insertQuery = `
-            INSERT INTO purchase (pc_Id, s_ID, rDate, total, pay, balance, deliveryCharge, invoiceId)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-        await db.query(insertQuery, [purchase_id, supplier_id, formattedDate, total, 0, total, deliveryPrice, invoice]);
+
+        await db.query(
+            `INSERT INTO purchase (pc_Id, s_ID, rDate, total, pay, balance, deliveryCharge, invoiceId)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [purchase_id, supplier_id, formattedDate, total, 0, total, deliveryPrice, invoice]
+        );
 
         const stockCount = items.length;
         const stockDetails = [];
 
         for (let i = 0; i < stockCount; i++) {
-            const { I_Id, unit_price, quantity,material,price } = items[i];
+            const { I_Id, unit_price, quantity, material, price } = items[i];
             const totalPrice = parseFloat(unit_price) * Number(quantity);
 
-            const checkUnitPriceQuery = `SELECT unit_cost FROM item_supplier WHERE I_Id = ? AND s_ID = ?`;
-            const [unitPriceResult] = await db.query(checkUnitPriceQuery, [I_Id, supplier_id]);
+            const [unitPriceResult] = await db.query(
+                `SELECT unit_cost FROM item_supplier WHERE I_Id = ? AND s_ID = ?`,
+                [I_Id, supplier_id]
+            );
 
             if (unitPriceResult.length > 0) {
                 const existingUnitPrice = unitPriceResult[0].unit_cost;
                 if (parseFloat(existingUnitPrice) !== parseFloat(unit_price)) {
-                    const updateUnitPriceQuery = `
-                        UPDATE item_supplier
-                        SET unit_cost = ?
-                        WHERE I_Id = ? AND s_ID = ?`;
-                    await db.query(updateUnitPriceQuery, [unit_price, I_Id, supplier_id]);
+                    await db.query(
+                        `UPDATE item_supplier SET unit_cost = ? WHERE I_Id = ? AND s_ID = ?`,
+                        [unit_price, I_Id, supplier_id]
+                    );
                 }
             } else {
-                const insertUnitPriceQuery = `
-                    INSERT INTO item_supplier (I_Id, s_ID, unit_cost)
-                    VALUES (?, ?, ?)`;
-                await db.query(insertUnitPriceQuery, [I_Id, supplier_id, unit_price]);
+                await db.query(
+                    `INSERT INTO item_supplier (I_Id, s_ID, unit_cost) VALUES (?, ?, ?)`,
+                    [I_Id, supplier_id, unit_price]
+                );
             }
 
-            const purchaseDetailQuery = `
-                INSERT INTO purchase_detail (pc_Id, I_Id, rec_count, unitPrice, total, stock_range)
-                VALUES (?, ?, ?, ?, ?, ?)`;
-            await db.query(purchaseDetailQuery, [purchase_id, I_Id, quantity, unit_price, totalPrice, ""]);
+            await db.query(
+                `INSERT INTO purchase_detail (pc_Id, I_Id, rec_count, unitPrice, total, stock_range)
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+                [purchase_id, I_Id, quantity, unit_price, totalPrice, ""]
+            );
 
-            stockDetails.push({ I_Id, quantity ,material,price});
+            stockDetails.push({ I_Id, quantity, material, price });
         }
 
         const insertBarcodeQuery = `
-            INSERT INTO p_i_detail (pc_Id, I_Id, stock_Id, barcode_img, status, orID, datetime,material,price)
-            VALUES (?, ?, ?, ?, ?, ?, ?,?,?)`;
+            INSERT INTO p_i_detail (pc_Id, I_Id, stock_Id, barcode_img, status, orID, datetime, material, price)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         const barcodeFolderPath = path.join("./uploads/barcodes");
         if (!fs.existsSync(barcodeFolderPath)) {
@@ -5558,30 +5562,47 @@ router.post("/addStock", upload.single("image"), async (req, res) => {
         const stockRanges = [];
 
         for (let i = 0; i < stockCount; i++) {
-            const { I_Id, quantity,material,price } = stockDetails[i];
+            const { I_Id, quantity, material, price } = stockDetails[i];
 
             const [lastStockResult] = await db.query(
                 `SELECT MAX(stock_Id) AS lastStockId FROM p_i_detail WHERE I_Id = ?`,
                 [I_Id]
             );
+
             let lastStockId = lastStockResult[0]?.lastStockId || 0;
             let startStockId = lastStockId + 1;
 
             for (let j = 1; j <= quantity; j++) {
                 lastStockId++;
                 const barcodeData = `${I_Id}-${lastStockId}`;
-                const barcodeImageName = `barcode_${barcodeData}.png`;
+                const barcodeImageName = `qrcode_${barcodeData}.png`;
                 const barcodeImagePath = path.join(barcodeFolderPath, barcodeImageName);
 
-                const pngBuffer = await bwipjs.toBuffer({bcid: "code128", text: barcodeData, scale: 3, height: 10, includetext: true, textxalign: "center",});
+                // Generate QR code image
+                const pngBuffer = await bwipjs.toBuffer({
+                    bcid: 'qrcode',
+                    text: barcodeData,
+                    scale: 4,       // Adjust scale for size (try 3-4)
+                    includetext: false,
+                    padding: 5
+                });
 
                 fs.writeFileSync(barcodeImagePath, pngBuffer);
 
-                await db.query(insertBarcodeQuery, [purchase_id, I_Id, lastStockId, barcodeImagePath, "Available", null,  mysql.raw('NOW()'),material,price]);
-
+                await db.query(insertBarcodeQuery, [
+                    purchase_id,
+                    I_Id,
+                    lastStockId,
+                    barcodeImagePath,
+                    "Available",
+                    null,
+                    mysql.raw("NOW()"),
+                    material,
+                    price
+                ]);
             }
 
-            // ✅ Update stock only ONCE per item
+            // Update stock in Item table
             await db.query(
                 `UPDATE Item SET stockQty = stockQty + ?, availableQty = availableQty + ? WHERE I_Id = ?`,
                 [quantity, quantity, I_Id]
@@ -5591,23 +5612,27 @@ router.post("/addStock", upload.single("image"), async (req, res) => {
             stockRanges.push({ I_Id, stockRange });
         }
 
+        // Update stock ranges in purchase_detail
         for (let { I_Id, stockRange } of stockRanges) {
-            const updateStockRangeQuery = `
-                UPDATE purchase_detail
-                SET stock_range = ?
-                WHERE pc_Id = ? AND I_Id = ?`;
-            await db.query(updateStockRangeQuery, [stockRange, purchase_id, I_Id]);
+            await db.query(
+                `UPDATE purchase_detail SET stock_range = ? WHERE pc_Id = ? AND I_Id = ?`,
+                [stockRange, purchase_id, I_Id]
+            );
         }
 
         return res.status(201).json({
             success: true,
-            message: "Stock received successfully, image uploaded, and barcodes saved!",
+            message: "Stock received successfully, image uploaded, and QR codes saved!",
             imagePath,
         });
 
     } catch (error) {
         console.error("Error adding stock received:", error);
-        return res.status(500).json({ success: false, message: "Server error", error: error.message });
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
     }
 });
 

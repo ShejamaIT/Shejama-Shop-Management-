@@ -20,6 +20,8 @@
     width: 80%;
     max-width: 700px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    color: #000;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .receipt-title {
@@ -28,18 +30,22 @@
     font-weight: bold;
     margin-bottom: 1rem;
 }
+
 p {
     font-size: 1rem;
     margin: 0.5rem 0;
-    color: #333;  /* Darken the text color of p tags */
+    color: #333;
 }
+
+/* Table Styles */
 .receipt-table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 1.5rem;
 }
 
-.receipt-table th, .receipt-table td {
+.receipt-table th,
+.receipt-table td {
     border: 1px solid #ddd;
     padding: 0.75rem;
     text-align: center;
@@ -50,25 +56,28 @@ p {
     font-weight: 600;
 }
 
+/* Summary section */
 .receipt-summary p {
     font-size: 1rem;
     margin: 0.5rem 0;
     color: #333;
 }
+
+/* Delivery Note Info Section */
 .delivery-note-info {
-    display: flex;            /* Use flexbox to align items on one line */
-    flex-wrap: wrap;          /* Allow wrapping if there's not enough space */
-    justify-content: flex-start; /* Align items to the left */
-    gap: 15px;                /* Space between items */
-    margin-bottom: 15px;      /* Space below the info */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 15px;
+    margin-bottom: 15px;
 }
 
 .delivery-note-info p {
-    margin: 0;                /* Remove margin for <p> elements to keep the layout tight */
-    display: inline;          /* Ensure <p> elements stay inline */
+    margin: 0;
+    display: inline;
 }
 
-
+/* Button Area */
 .modal-buttons {
     display: flex;
     justify-content: flex-end;
@@ -76,7 +85,8 @@ p {
     margin-top: 1.5rem;
 }
 
-.print-btn, .close-btn {
+.print-btn,
+.close-btn {
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
     border: none;
@@ -103,16 +113,57 @@ p {
     background-color: #e53935;
 }
 
-/* Print Styles */
+/* ✅ Print-Specific Styles for 80mm Receipt */
 @media print {
-    .modal-overlay, .close-btn {
-        display: none;
+    body * {
+        visibility: hidden !important;
+    }
+
+    .receipt-modal, 
+    .receipt-modal * {
+        visibility: visible !important;
     }
 
     .receipt-modal {
-        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 80mm !important;
         height: auto;
-        box-shadow: none;
-        border: none;
+        padding: 0.5rem;
+        background: #fff !important;
+        box-shadow: none !important;
+        border: none !important;
+        font-size: 11px !important;
+        font-family: monospace !important;
+    }
+
+    .receipt-table th,
+    .receipt-table td {
+        border: 1px dashed #000 !important;
+        padding: 4px !important;
+        font-size: 11px !important;
+    }
+
+    .receipt-summary p,
+    p {
+        font-size: 11px !important;
+        margin: 2px 0 !important;
+    }
+
+    h3, h5 {
+        text-align: center;
+        margin: 4px 0 !important;
+        font-size: 12px !important;
+    }
+
+    hr {
+        border-top: 1px dashed #000 !important;
+        margin: 6px 0 !important;
+    }
+
+    .modal-buttons,
+    .modal-overlay {
+        display: none !important;
     }
 }

@@ -25,6 +25,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
     const [quantity, setQuantity] = useState("");
     const [selectedItems, setSelectedItems] = useState([]);
     const [selectedItems1, setSelectedItems1] = useState([]);
+    const [selectedItem2 , setSeletedItem2] = useState([]);
     const [selectedItemsQty, setSelectedItemsQTY] = useState([]);
     const [interestValue , setInterestValue] = useState(0);
     const [rate , setRate] = useState(0);
@@ -943,26 +944,67 @@ const OrderInvoice = ({ onPlaceOrder }) => {
     }
 
     };
+    // const handleSubmit3 = async (formData) => {
+    //     console.log(formData);
+    //     setsele
+    //     const updatedData = {
+    //         orID: selectedOrder.orderId,
+    //         orderDate: selectedOrder.orderDate,
+    //         delStatus: formData.deliveryStatus,
+    //         delPrice: formData.delivery,
+    //         deliveryStatus: formData.deliveryStatus,
+    //         discount: selectedOrder.discount,
+    //         subtotal: formData.subtotal,
+    //         total: formData.billTotal,
+    //         advance: formData.totalAdvance,
+    //         payStatus: formData.paymentType,
+    //         stID: saleteam[0]?.id,
+    //         paymentAmount: formData.addedAdvance || 0,
+    //         selectedItems: formData.selectedItems,
+    //         balance: formData.billTotal - formData.totalAdvance, // assuming balance calculation
+    //         salesperson: saleteam[0]?.name,
+    //         items: selectedOrder.items,
+    //     };
+    //     console.log(updatedData);
+       
+    // };
     const handleSubmit3 = async (formData) => {
-        const updatedData = {
-            orID: selectedOrder.orderId,
-            orderDate: selectedOrder.orderDate,
-            delStatus: formData.deliveryStatus,
-            delPrice: formData.delivery,
-            deliveryStatus: formData.deliveryStatus,
-            discount: selectedOrder.discount,
-            subtotal: formData.subtotal,
-            total: formData.billTotal,
-            advance: formData.totalAdvance,
-            payStatus: formData.paymentType,
-            stID: saleteam[0]?.id,
-            paymentAmount: formData.addedAdvance || 0,
-            selectedItems: formData.selectedItems,
-            balance: formData.billTotal - formData.totalAdvance, // assuming balance calculation
-            salesperson: saleteam[0]?.name,
-            items: selectedOrder.items,
-        };
-        try {
+    // Optional: Clean or format the items if needed
+    const filteredSelectedItems = (formData.selectedItems || []).map(item => ({
+        I_Id: item.I_Id,
+        stock_Id: item.stock_Id,
+        pc_Id: item.pc_Id,
+        pid_Id: item.pid_Id,
+        price: item.price,
+        material: item.material,
+        datetime: item.datetime,
+    }));
+
+    // ✅ Update state with selected items
+    setSeletedItem2(filteredSelectedItems);
+
+    const updatedData = {
+        orID: selectedOrder.orderId,
+        orderDate: selectedOrder.orderDate,
+        delStatus: formData.deliveryStatus,
+        delPrice: formData.delivery,
+        deliveryStatus: formData.deliveryStatus,
+        discount: selectedOrder.discount,
+        subtotal: formData.subtotal,
+        total: formData.billTotal,
+        advance: formData.totalAdvance,
+        payStatus: formData.paymentType,
+        stID: saleteam[0]?.id,
+        paymentAmount: formData.addedAdvance || 0,
+        selectedItems: filteredSelectedItems,
+        balance: formData.billTotal - formData.totalAdvance,
+        salesperson: saleteam[0]?.name,
+        items: selectedOrder.items,
+    };
+
+    console.log("Updated Data:", updatedData);
+    console.log("Selected Items Set to State:", filteredSelectedItems);
+     try {
             // Make API request to the /isssued-order endpoint
             const response = await fetch('http://localhost:5001/api/admin/main/issued-items-Now', {
                 method: 'POST',
@@ -982,7 +1024,10 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         } catch (error) {
             console.error("Error making API request:", error.message);
         }
-    };
+
+    // Optional: send to API if needed
+};
+
     const handleSubmit2 = async (formData1) => {
         const updatedReceiptData = {
             order:{
@@ -994,6 +1039,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                 contact2:formData.otherNumber,
                 total:totalBillPrice,
                 advance:advance,
+                selectedItem:selectedItem2,
             },
             vehicleId: formData1.vehicleId,
             driverName: formData1.driverName,

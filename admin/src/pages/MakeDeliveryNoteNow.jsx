@@ -98,26 +98,18 @@ const MakeDeliveryNoteNow = ({ selectedOrders, setShowModal, handleDeliveryUpdat
         setFilteredDriver([]);
     };
 
-    const handleSelectVehicle = (vehicle) => {
-        setVehicle(vehicle.registration_no);
+   const handleSelectVehicle = (vehicle) => {
+        console.log(vehicle);
+        setVehicle(vehicle.registration_no); // for displaying in input
+        setVehicleId(vehicle.registration_no); // for saving actual value
         setFilteredVehicle([]);
     };
+
 
     return (
         <div className="modal-overlay">
             <div className="modal-content make-delivery-note">
                 <h2 className="invoice-title">Make Delivery Note</h2>
-
-                {/* Single Order Summary */}
-                {/*<div className="invoice-section">*/}
-                {/*    <div className="single-order-details">*/}
-                {/*        <p><strong>Order ID:</strong> {order.orderId}</p>*/}
-                {/*        <p><strong>Customer Name:</strong> {order.customerName}</p>*/}
-                {/*        <p><strong>Total:</strong> Rs.{order.totalPrice}</p>*/}
-                {/*        <p><strong>Advance:</strong> Rs.{order.advance}</p>*/}
-                {/*        <p><strong>Balance:</strong> Rs.{order.balance}</p>*/}
-                {/*    </div>*/}
-                {/*</div>*/}
                 <div className="invoice-section">
                     <table className="receipt-table">
                         <thead>

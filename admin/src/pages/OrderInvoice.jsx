@@ -917,7 +917,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                 toast.success("Order placed successfully!");
                 const newOrder = {
                     orderId: orderId,
-                    orderDate: new Date().toLocaleDateString(),
+                    orderDate: result.data.orderDate,
                     phoneNumber: formData.phoneNumber,
                     payStatus: formData.advance > 0 ? 'Advanced' : 'Pending',
                     deliveryStatus: formData.dvStatus,
@@ -969,6 +969,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
        
     // };
     const handleSubmit3 = async (formData) => {
+        console.log(formData);
     // Optional: Clean or format the items if needed
     const filteredSelectedItems = (formData.selectedItems || []).map(item => ({
         I_Id: item.I_Id,
@@ -1049,6 +1050,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             selectedDeliveryDate: formData.expectedDate, // Default to today's date if empty
             district: formData.district || "Unknown",
         };
+        console.log(updatedReceiptData);
         try {
             // Prepare the data for the API request
             const deliveryNoteData = {

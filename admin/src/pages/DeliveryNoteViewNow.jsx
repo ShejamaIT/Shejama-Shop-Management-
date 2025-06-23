@@ -43,28 +43,36 @@ const DeliveryNoteViewNow = ({ receiptData, setShowDeliveryView }) => {
                   font-size: 15px;
                   color: #000;
                 }
-                h3, h4, h5 {
+                h3 {
                   text-align: center;
                   margin: 4px 0;
-                  font-weight: bold;
                   font-size: 17px;
+                  border-bottom: 1px solid #000;
+                  padding-bottom: 4px;
                 }
-                p, table {
+                p {
+                  margin: 2px 0;
                   font-size: 15px;
-                  margin: 4px 0;
                 }
                 table {
                   width: 100%;
                   border-collapse: collapse;
                   margin-top: 8px;
+                  font-size: 15px;
+                }
+                th {
+                  background-color: #f0f0f0;
                 }
                 th, td {
                   border: 1px dashed #000;
                   padding: 6px;
                   text-align: center;
                 }
-                th {
-                  background-color: #f0f0f0;
+                .balance-row {
+                  display: flex;
+                  justify-content: space-between;
+                  margin: 4px 0;
+                  font-size: 15px;
                 }
                 hr {
                   border: none;
@@ -76,9 +84,6 @@ const DeliveryNoteViewNow = ({ receiptData, setShowDeliveryView }) => {
                   font-size: 13px;
                   margin-top: 10px;
                 }
-              }
-              .no-print {
-                display: none;
               }
             </style>
           </head>
@@ -97,24 +102,18 @@ const DeliveryNoteViewNow = ({ receiptData, setShowDeliveryView }) => {
 
   return (
     <div className="modal-overlay">
-      <div
-        className="receipt-modal"
-        ref={receiptRef}
-        style={{ fontSize: "15px", fontFamily: "monospace" }}
-      >
-        <h3 style={{ fontSize: "19px" }}>Shejama Group</h3>
-        <h5 style={{ fontSize: "17px" }}>No.75, Sri Premarathana Mw, Moratumulla</h5>
-        <h5 style={{ fontSize: "17px" }}>071 3 608 108 / 077 3 608 108</h5>
+      <div className="receipt-modal" ref={receiptRef}>
+        <h3>Shejama Group - Delivery Note</h3>
         <hr />
 
-        <p><strong>Date:</strong> {formatDate(selectedDeliveryDate) || currentDateTime}</p>
+        <p><strong>Print Date & Time:</strong> {currentDateTime}</p>
+        <p><strong>Delivery Date:</strong> {formatDate(selectedDeliveryDate) || currentDateTime}</p>
         <p><strong>Vehicle ID:</strong> {vehicleId}</p>
         <p><strong>Driver Name:</strong> {driverName}</p>
         <p><strong>Hire:</strong> Rs. {Dhire.toFixed(2)}</p>
         <p><strong>Order ID:</strong> {order.orderId}</p>
         <p><strong>Customer:</strong> {order.customerName}</p>
 
-        {/* Table for Selected Items */}
         <table>
           <thead>
             <tr>
@@ -125,37 +124,23 @@ const DeliveryNoteViewNow = ({ receiptData, setShowDeliveryView }) => {
             </tr>
           </thead>
           <tbody>
-            {Array.isArray(order.selectedItem) && order.selectedItem.map((item, idx) => (
-              <tr key={idx}>
-                <td>{item.I_Id}</td>
-                <td>{item.stock_Id}</td>
-                <td>{item.pc_Id}</td>
-                <td>Rs. {Number(item.price).toFixed(2)}</td>
-              </tr>
-            ))}
+            {Array.isArray(order.selectedItem) &&
+              order.selectedItem.map((item, idx) => (
+                <tr key={idx}>
+                  <td>{item.I_Id}</td>
+                  <td>{item.stock_Id}</td>
+                  <td>{item.pc_Id}</td>
+                  <td>Rs. {Number(item.price).toFixed(2)}</td>
+                </tr>
+              ))}
           </tbody>
         </table>
 
-        {/* <table style={{ marginTop: "12px" }}>
-          <thead>
-            <tr>
-              <th>Total</th>
-              <th>Advance</th>
-              <th>Balance</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Rs. {order.total.toFixed(2)}</td>
-              <td>Rs. {order.advance.toFixed(2)}</td>
-              <td>Rs. {order.balance.toFixed(2)}</td>
-            </tr>
-          </tbody>
-        </table> */}
-
-        <p style={{ marginTop: "13px" }}>
-          <strong>Balance to Collect:</strong> Rs. {balanceToCollect.toFixed(2)}
-        </p>
+        {/* Balance Row */}
+        <div className="balance-row">
+          <span><strong>Balance:</strong></span>
+          <span>Rs. {balanceToCollect.toFixed(2)}</span>
+        </div>
 
         <table>
           <thead>
@@ -174,13 +159,13 @@ const DeliveryNoteViewNow = ({ receiptData, setShowDeliveryView }) => {
           </tbody>
         </table>
 
-        <div className="footer-note" style={{ fontSize: "13px" }}>
+        <div className="footer-note">
           <p>Thank you for your business!</p>
           <p>--- Shejama Group ---</p>
         </div>
       </div>
 
-      <div className="modal-buttons no-print" style={{ marginTop: "13px" }}>
+      <div className="modal-buttons no-print">
         <button onClick={printDeliveryNote} className="print-btn">Print</button>
         <button onClick={handleClose} className="close-btn">Close</button>
       </div>

@@ -166,6 +166,7 @@ const PurchaseDetails = () => {
                 total_price: (item.unitPrice * item.quantity).toFixed(2)
             })),
         };
+        console.log(orderData);
         try {
             // Send data to the backend
             const response = await fetch("http://localhost:5001/api/admin/main/addStock", {

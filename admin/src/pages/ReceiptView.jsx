@@ -26,43 +26,56 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
                                     width: 80mm;
                                     margin: 0;
                                     font-family: monospace;
-                                    font-size: 15px; /* Increased from 11px */
+                                    font-size: 15px;
                                     color: #000;
                                 }
 
                                 h3, h5 {
                                     text-align: center;
                                     margin: 2px 0;
-                                    font-size: 17px; /* Increased */
+                                    font-size: 17px;
+                                }
+
+                                h3.underline {
+                                    border-bottom: 1px solid #000;
+                                    padding-bottom: 3px;
+                                    margin-bottom: 6px;
                                 }
 
                                 p {
                                     margin: 2px 0;
-                                    font-size: 15px; /* Increased */
+                                    font-size: 15px;
                                 }
 
                                 table {
                                     width: 100%;
                                     border-collapse: collapse;
                                     margin-top: 8px;
-                                    font-size: 15px; /* Increased */
-                                }
-
-                                th, td {
-                                    border: 1px dashed #000;
-                                    padding: 6px; /* Slightly increased padding */
-                                    text-align: center;
+                                    font-size: 15px;
                                 }
 
                                 th {
                                     background-color: #f0f0f0;
                                 }
 
+                                th, td {
+                                    border: 1px dashed #000;
+                                    padding: 6px;
+                                    text-align: center;
+                                }
+
                                 .receipt-summary {
                                     margin-top: 8px;
                                     border-top: 1px dashed #000;
                                     padding-top: 8px;
-                                    font-size: 15px; /* Increased */
+                                    font-size: 15px;
+                                }
+
+                                .receipt-summary p {
+                                    display: flex;
+                                    justify-content: space-between;
+                                    font-size: 11px !important;
+                                    margin: 2px 0 !important;
                                 }
 
                                 hr {
@@ -74,7 +87,7 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
                                 .footer-note {
                                     text-align: center;
                                     margin-top: 10px;
-                                    font-size: 13px; /* Increased */
+                                    font-size: 13px;
                                 }
                             }
                         </style>
@@ -90,11 +103,8 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
 
     return (
         <div className="modal-overlay">
-            <div
-                className="receipt-modal"
-                ref={receiptRef}
-                style={{ fontSize: "15px", fontFamily: "monospace" }} // Increased font size for on-screen
-            >
+            <div className="receipt-modal" ref={receiptRef} style={{ fontSize: "15px", fontFamily: "monospace" }}>
+                <h3 className="underline" style={{ fontSize: "19px" }}>Cash Receipt</h3>
                 <h3 style={{ fontSize: "19px" }}>Shejama Group</h3>
                 <h5 style={{ fontSize: "17px" }}>No.75, Sri Premarathana Mw, Moratumulla</h5>
                 <h5 style={{ fontSize: "17px" }}>071 3 608 108 / 077 3 608 108</h5>
@@ -120,7 +130,7 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
                     <tbody>
                         {receiptData.items.map((item, index) => (
                             <tr key={index}>
-                                <td>{item.itemName}</td>
+                                <td className="text-left">{item.itemName}</td>
                                 <td>{item.quantity}</td>
                                 <td>Rs. {item.unitPrice.toFixed(2)}</td>
                                 <td>Rs. {item.discount.toFixed(2)}</td>
@@ -131,11 +141,12 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
                 </table>
 
                 <div className="receipt-summary">
-                    <p><strong>Net Total:</strong> Rs. {receiptData.total.toFixed(2)}</p>
-                    <p><strong>Discount:</strong> Rs. {receiptData.discount.toFixed(2)}</p>
-                    <p><strong>Delivery Price:</strong> Rs. {receiptData.delPrice.toFixed(2)}</p>
-                    <p><strong>Advance:</strong> Rs. {receiptData.advance.toFixed(2)}</p>
-                    <p><strong>Balance:</strong> Rs. {receiptData.balance.toFixed(2)}</p>
+                    <p><span><strong>Gross Total:</strong></span><span>Rs. {receiptData.subtotal.toFixed(2)}</span></p>
+                    <p><span><strong>Delivery Price:</strong></span><span>Rs. {receiptData.delPrice.toFixed(2)}</span></p>
+                    <p><span><strong>Special Discount:</strong></span><span>Rs. {receiptData.discount.toFixed(2)}</span></p>
+                    <p><span><strong>Net Total:</strong></span><span>Rs. {receiptData.total.toFixed(2)}</span></p>
+                    <p><span><strong>Advance:</strong></span><span>Rs. {receiptData.advance.toFixed(2)}</span></p>
+                    <p><span><strong>Balance:</strong></span><span>Rs. {receiptData.balance.toFixed(2)}</span></p>
                 </div>
 
                 <div className="footer-note" style={{ fontSize: "13px" }}>

@@ -72,7 +72,6 @@ const AddNewSupplier = ({ setShowModal, handleSubmit2 }) => {
                             id="address"
                             value={formData.address}
                             onChange={handleChange}
-                            required
                         />
                     </FormGroup>
 
@@ -84,7 +83,6 @@ const AddNewSupplier = ({ setShowModal, handleSubmit2 }) => {
                             id="contact"
                             value={formData.contact}
                             onChange={handleChange}
-                            required
                         />
                     </FormGroup>
 

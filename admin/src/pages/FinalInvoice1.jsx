@@ -142,35 +142,48 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
         setDropdownOpen(filtered.length > 0);
     };
     const handleSelectItem = (item) => {
-        const orderedItem = selectedOrder.items.find(orderItem => orderItem.itemId === item.I_Id);
-        if (!orderedItem) {
-            toast.error("Selected stock does not belong to the order.");
-            return;
-        }
-        const requestedQty = orderedItem.quantity;
-        const selectedCount = selectedItems.filter(selected => selected.I_Id === item.I_Id).length;
-        const isAlreadySelected = selectedItems.some(selected => selected.stock_Id === item.stock_Id);
-        if (isAlreadySelected) {
-            toast.error("This stock item has already been selected.");
-            return;
-        }
-        if (selectedCount >= requestedQty) {
-            toast.error(`You cannot select more than ${requestedQty} stock items for this order.`);
-            return;
-        }
-        // Calculate price per item (unit price)
-        const unitPrice = orderedItem.price && orderedItem.quantity
-            ? orderedItem.price / orderedItem.quantity
-            : 0;
-        // Add price to the item object
-        const itemWithPrice = {
-            ...item,
-            price: unitPrice
-        };
-        setSelectedItems(prevItems => [...prevItems, itemWithPrice]);
-        setSearchTerm('');
-        setDropdownOpen(false);
+    const orderedItem = selectedOrder.items.find(orderItem => orderItem.itemId === item.I_Id);
+
+    if (!orderedItem) {
+        toast.error("Selected stock does not belong to the order.");
+        return;
+    }
+
+    const requestedQty = orderedItem.quantity;
+
+    // ✅ Count how many stock items have already been selected for this I_Id
+    const selectedCount = selectedItems.filter(selected => selected.I_Id === item.I_Id).length;
+
+    if (selectedCount >= requestedQty) {
+        toast.error(`You cannot select more than ${requestedQty} stock items for item ID ${item.I_Id}.`);
+        return;
+    }
+
+    // ✅ Prevent duplicate stock_Id *only within same itemId*
+    const isAlreadySelected = selectedItems.some(
+        selected => selected.I_Id === item.I_Id && selected.stock_Id === item.stock_Id
+    );
+
+    if (isAlreadySelected) {
+        toast.error("This stock item has already been selected.");
+        return;
+    }
+
+    const unitPrice = orderedItem.price && orderedItem.quantity
+        ? orderedItem.price / orderedItem.quantity
+        : 0;
+
+    const itemWithPrice = {
+        ...item,
+        price: unitPrice
     };
+
+    setSelectedItems(prev => [...prev, itemWithPrice]);
+    setSearchTerm('');
+    setDropdownOpen(false);
+
+    console.log("✅ Item added to selection:", itemWithPrice);
+};
 
     const handlePaymentTypeChange = (e) => {
         setPaymentType(e.target.value);
@@ -292,7 +305,6 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
           const val = e.target.value.trim();
           setSearchTerm(val);
 
-          // Filter items matching input value partially
           const filtered = items.filter(
             (item) =>
               item.I_Id.includes(val) || item.stock_Id.includes(val)
@@ -300,15 +312,14 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
           setFilteredItems(filtered);
           setDropdownOpen(filtered.length > 0);
 
-          // Auto-select if exact match found
           const exactMatch = items.find(
             (item) => item.I_Id === val || item.stock_Id === val
           );
           if (exactMatch) {
-            // Call your select handler
             handleSelectItem(exactMatch);
-            setSearchTerm("");       // Clear input after select
-            setDropdownOpen(false);  // Close dropdown
+            setSearchTerm("");
+            setDropdownOpen(false);
+            return;
           }
         }}
         placeholder="Search for item..."
@@ -322,16 +333,22 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
             backgroundColor: "white",
             border: "1px solid #ddd",
             width: "100%",
+            maxHeight: "150px",
+            overflowY: "auto",
           }}
         >
           {filteredItems.map((item) => (
             <div
-              key={item.I_Id}
-              onClick={() => handleSelectItem(item)}
+              key={item.stock_Id}
+              onClick={() => {
+                handleSelectItem(item);
+                setSearchTerm('');
+                setDropdownOpen(false);
+              }}
               className="dropdown-item"
               style={{ padding: "8px", cursor: "pointer" }}
             >
-              {item.I_Id}-{item.stock_Id}
+              {item.I_Id} - {item.stock_Id}
             </div>
           ))}
         </div>
@@ -345,6 +362,7 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
           <th>Item ID</th>
           <th>Batch ID</th>
           <th>Stock ID</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -353,6 +371,18 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
             <td>{item.I_Id}</td>
             <td>{item.pc_Id}</td>
             <td>{item.stock_Id}</td>
+            <td>
+              <button
+                className="btn btn-sm btn-danger"
+                onClick={() =>
+                  setSelectedItems(prev =>
+                    prev.filter(i => i.stock_Id !== item.stock_Id)
+                  )
+                }
+              >
+                Remove
+              </button>
+            </td>
           </tr>
         ))}
       </tbody>

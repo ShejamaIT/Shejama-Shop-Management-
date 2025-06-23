@@ -59,6 +59,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
     const [totalBillPrice, setTotalBillPrice] = useState(0);
     const [fulltotalPay , setFullTotalPay] = useState(0);
     const [creditAmount , setCreditAmount] = useState(0);
+    const [cardPayment , setCardPayment] = useState(0);
     const [creditExpectedDate , setCreditExpectedDate] = useState('');
     const [customers, setCustomers] = useState([]);
     const [filteredCustomers, setFilteredCustomers] = useState([]); // Stores search results
@@ -108,6 +109,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
     const [selectedBankId, setSelectedBankId] = useState("");
     const [availableAccounts, setAvailableAccounts] = useState([]);
     const [selectedAccount, setSelectedAccount] = useState("");
+    const fixedRate = 2.5;
 
     const [ChequeBalance, setChequeBalance] = useState(0);
     const subPaymentOptions = {
@@ -198,10 +200,57 @@ const OrderInvoice = ({ onPlaceOrder }) => {
     }, [cheques]);
     useEffect(() => {
         calculateTotalPrice();
-    }, [selectedItems, deliveryPrice, discountAmount,advance,balance,previousbalance]); 
+    }, [formData.payment, formData.subPayment,selectedItems, deliveryPrice, discountAmount,advance,balance,previousbalance]);
+    const calculateTotalPrice = () => {
+        const isCardPayment = formData.payment === "Card" &&
+            (formData.subPayment === "Debit Card" || formData.subPayment === "Credit Card");
+
+        const totalSpecialDiscount = selectedItems.reduce((total, item) => {
+            const specialDiscount = item.discount || 0;
+            return total + specialDiscount * item.qty;
+        }, 0);
+        setSpecialDiscountAmount(totalSpecialDiscount);
+
+        const itemTotal = selectedItems.reduce((total, item) => {
+            const unitPrice = item.originalPrice ?? item.price;
+            const specialDiscount = item.discount || 0;
+            const discountedPrice = unitPrice - specialDiscount;
+            return total + discountedPrice * item.qty;
+        }, 0);
+        setTotalItemPrice(itemTotal);
+
+        const grossTotal = itemTotal - Number(discountAmount || 0) + Number(deliveryPrice || 0);
+        const total = grossTotal - Number(previousbalance || 0);
+
+        setTotalBillPrice(total);
+        setGrossAmount(total);
+        setGrossBillTotal(grossTotal);
+
+        const adv = parseFloat(advance) || 0;
+
+        if (isCardPayment) {
+            const interestOnPaid = (adv * fixedRate) / 100;
+            const netPaid = adv + interestOnPaid;
+
+            const interestOnBill = (grossTotal * fixedRate) / 100;
+            const netBill = grossTotal + interestOnBill;
+
+            const balance = netPaid - netBill;
+
+            setBalance(balance.toFixed(2));
+            setBalance1(balance.toFixed(2));
+        } else {
+            const remaining = adv - total;
+            setBalance(remaining.toFixed(2));
+            setBalance1(remaining.toFixed(2));
+        }
+    };
+
+
     useEffect(() => {
-        const fixedRate = 2.5;
+
         const numericBill = parseFloat(totalBillPrice) || 0;
+        const cardPay = parseFloat(cardPayment) || 0;
         const cashAmount = parseFloat(formData.cashAmount || 0);
         const cardCash = parseFloat(combinedCardBalance) || 0;
         const chequeCash = parseFloat(combinedChequeBalance) || 0;
@@ -229,18 +278,22 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         const isChequePayment = formData.payment === "Cheque";
 
         if (isCardPayment) {
-            const interest = (numericBill * fixedRate) / 100;
-            const net = numericBill + interest;
+            const interestOnCardPay = (cardPay * fixedRate) / 100;
+            const netCardPay = cardPay + interestOnCardPay;
+
+            const interestOnBill = (numericBill * fixedRate) / 100;
+            const netBillPay = numericBill + interestOnBill;
+
+            const balanceValue = netCardPay - netBillPay;
 
             setRate(fixedRate);
-            setInterestValue(interest);
-            setNetAmount(net);
-            setAdvance(numericBill);
-            setBalance((0).toFixed(2));
-            setCardPortion(numericBill);
-            setFullTotalPay(net);
+            setInterestValue(interestOnCardPay);
+            setNetAmount(netCardPay);
+            setAdvance(cardPay);
+            setBalance(balanceValue.toFixed(2));
+            setCardPortion(cardPay);
+            setFullTotalPay(netCardPay);
         }
-
         else if (isChequePayment) {
             const totalPaid = totalChequeAmount;
             const newBalance = totalPaid - parseFloat(grossAmount);
@@ -313,37 +366,8 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             setBalance((0).toFixed(2));
             setFullTotalPay(0);
         }
-    }, [formData.payment, formData.subPayment, formData.cashAmount, totalBillPrice,cheques,grossAmount,combinedCardBalance,combinedTransferBalance,combinedChequeBalance, creditAmount, ChequeBalance,transferPortion ]);
-    const calculateTotalPrice = () => {
-        const totalSpecialDiscount = selectedItems.reduce((total, item) => {
-            const specialDiscount = item.discount || 0;
-            return total + specialDiscount * item.qty;
-        }, 0);
+    }, [formData.payment, formData.subPayment, formData.cashAmount,cardPayment, totalBillPrice,cheques,grossAmount,combinedCardBalance,combinedTransferBalance,combinedChequeBalance, creditAmount, ChequeBalance,transferPortion ]);
 
-        setSpecialDiscountAmount(totalSpecialDiscount);
-
-        const itemTotal = selectedItems.reduce((total, item) => {
-            const unitPrice = item.originalPrice ?? item.price;
-            const specialDiscount = item.discount || 0;
-            const discountedPrice = unitPrice - specialDiscount;
-            return total + discountedPrice * item.qty;
-        }, 0);
-
-        setTotalItemPrice(itemTotal);
-
-        const total = Number(itemTotal) - Number(discountAmount || 0) + Number(deliveryPrice || 0) - Number(previousbalance);
-        const grostotal = Number(itemTotal) - Number(discountAmount || 0) + Number(deliveryPrice || 0);
-
-        setTotalBillPrice(total);
-        setGrossAmount(total);
-        setGrossBillTotal(grostotal);
-
-        const adv = parseFloat(advance) || 0;
-        const remaining = adv - total;  // Positive = overpaid, Negative = still to pay
-
-        setBalance(remaining.toFixed(2));
-        setBalance1(remaining.toFixed(2));
-    };
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
 
@@ -1778,7 +1802,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                         </FormGroup>
 
                     </div>
-
                     <div className='order-details's>
                         <h2 className="text-xl font-bold mb-2">Order Details</h2>
                         <hr/>
@@ -2189,7 +2212,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                             </div>
 
                             {[
-                                { label: 'Previous Balance  (➕/➖)', value: previousbalance },
+                                { label: 'Previous OutStanding  (➕/➖)', value: previousbalance },
                             ].map((item, index) => (
                                 <div key={index} className="custom-line-item flex justify-between border-b pb-1">
                                     <span className="custom-label">{item.label}</span>
@@ -2246,7 +2269,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                 </FormGroup>
                             </Col>
                         </Row>
-                        
                         {formData.payment === "Cash" && (formData.subPayment === "Cash") && (
                             <>
                                 <div className="custom-info-row">
@@ -2398,39 +2420,76 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                             </>
                         )}
 
-                        {formData.payment === "Card" && (formData.subPayment === "Debit Card" || formData.subPayment === "Credit Card") && (
-                            <>
-                                <div className="custom-info-row">
-                                    <span className="custom-info-label">Net Amount</span>
-                                    <span className="custom-info-value">Rs.{grossAmount.toFixed(2)}</span>
-                                </div>
-                                <div className="custom-info-row">
-                                    <span className="custom-info-label">Payment Amount</span>
-                                    <span className="custom-info-value">Rs.{parseFloat(totalBillPrice).toFixed(2)}</span>
-                                </div>
-                                <div className="custom-info-row">
-                                    <span className="custom-info-label">Interest Rate (%)</span>
-                                    <span className="custom-info-value">{rate}</span>
-                                </div>
-                                <div className="custom-info-row">
-                                    <span className="custom-info-label">Interest Value</span>
-                                    <span className="custom-info-value">Rs.{interestValue.toFixed(2)}</span>
-                                </div>
-                                <div className="custom-info-row">
-                                    <span className="custom-info-label">Payable Amount</span>
-                                    <span className="custom-info-value">Rs.{netAmount.toFixed(2)}</span>
-                                </div>
-                                <div className="custom-info-row">
-                                    <span className="custom-info-label">Balance</span>
-                                    <span className="custom-info-value">Rs.{balance}</span>
-                                </div>
+                        {/*{formData.payment === "Card" && (formData.subPayment === "Debit Card" || formData.subPayment === "Credit Card") && (*/}
+                        {/*    <>*/}
+                        {/*        <div className="custom-info-row">*/}
+                        {/*            <span className="custom-info-label">Payment Amount</span>*/}
+                        {/*            <span className="custom-info-value">Rs.{parseFloat(totalBillPrice).toFixed(2)}</span>*/}
+                        {/*        </div>*/}
+                        {/*        <div className="custom-info-row">*/}
+                        {/*            <span className="custom-info-label">Interest Rate (%)</span>*/}
+                        {/*            <span className="custom-info-value">{rate}</span>*/}
+                        {/*        </div>*/}
+                        {/*        <div className="custom-info-row">*/}
+                        {/*            <span className="custom-info-label">Interest Value</span>*/}
+                        {/*            <span className="custom-info-value">Rs.{interestValue.toFixed(2)}</span>*/}
+                        {/*        </div>*/}
+                        {/*        <div className="custom-info-row">*/}
+                        {/*            <span className="custom-info-label">Net Amount</span>*/}
+                        {/*            <span className="custom-info-value">Rs.{netAmount.toFixed(2)}</span>*/}
+                        {/*        </div>*/}
+                        {/*        <div className="custom-info-row">*/}
+                        {/*            <span className="custom-info-label">Balance</span>*/}
+                        {/*            <span className="custom-info-value">Rs.{balance}</span>*/}
+                        {/*        </div>*/}
+                        {/*            <div className="custom-info-row">*/}
+                        {/*            <span className="custom-info-label">Balance</span>*/}
+                        {/*            <span className="custom-info-value">Rs.{balance}</span>*/}
+                        {/*        </div>*/}
+                        {/*        */}
+                        {/*    </>*/}
+                        {/*)}*/}
+
+                        {formData.payment === "Card" &&
+                            (formData.subPayment === "Debit Card" || formData.subPayment === "Credit Card") && (
+                                <>
                                     <div className="custom-info-row">
-                                    <span className="custom-info-label">Balance</span>
-                                    <span className="custom-info-value">Rs.{balance}</span>
-                                </div>
-                                
-                            </>
-                        )}
+                                        <span className="custom-info-label">Payment Amount</span>
+                                        <span className="custom-info-value">
+                                            <Input
+                                                type="text"
+                                                name="amount"
+                                                value={cardPayment}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (/^\d*\.?\d*$/.test(val)) {
+                                                        setCardPayment(val);
+                                                        setAdvance(val); // Reflect in general payment state
+                                                    }
+                                                }}
+                                                required
+                                                className="w-full text-right"
+                                            />
+                                        </span>
+                                    </div>
+                                    <div className="custom-info-row">
+                                        <span className="custom-info-label">Interest Rate (%)</span>
+                                        <span className="custom-info-value">{rate}</span>
+                                    </div>
+                                    <div className="custom-info-row">
+                                        <span className="custom-info-label">Interest Value</span>
+                                        <span className="custom-info-value">Rs.{interestValue.toFixed(2)}</span>
+                                    </div>
+                                    <div className="custom-info-row">
+                                        <span className="custom-info-label">Net Amount</span>
+                                        <span className="custom-info-value">Rs.{netAmount.toFixed(2)}</span>
+                                    </div>
+                                    <div className="custom-info-row">
+                                        <span className="custom-info-label">Balance</span>
+                                        <span className="custom-info-value">Rs.{balance}</span>
+                                    </div>
+                                </>
+                            )}
 
                         {formData.payment === "Cheque" && (
                             <>

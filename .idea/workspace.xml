@@ -5,12 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update order invoice view with api">
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_20_06_2025_12_41_[Changes]/shelved.patch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_20_06_2025_12_41__Changes_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_20_06_2025_14_16_[Changes]/shelved.patch" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/FinalInvoice1.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/FinalInvoice1.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/node_modules/.package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/adminBackend/utils/db.js" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/utils/db.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -372,14 +371,9 @@
       <workItem from="1750318322645" duration="421000" />
       <workItem from="1750324496425" duration="1384000" />
       <workItem from="1750394164213" duration="10838000" />
-      <workItem from="1750408221206" duration="720000" />
-    </task>
-    <task id="LOCAL-00169" summary="update with complete form">
-      <created>1739421479223</created>
-      <option name="number" value="00169" />
-      <option name="presentableId" value="LOCAL-00169" />
-      <option name="project" value="LOCAL" />
-      <updated>1739421479223</updated>
+      <workItem from="1750408221206" duration="2010000" />
+      <workItem from="1750410712700" duration="1918000" />
+      <workItem from="1750564453982" duration="7761000" />
     </task>
     <task id="LOCAL-00170" summary="update with complete form">
       <created>1739430275750</created>
@@ -717,7 +711,14 @@
       <option name="project" value="LOCAL" />
       <updated>1750403024472</updated>
     </task>
-    <option name="localTasksCounter" value="405" />
+    <task id="LOCAL-00405" summary="update order invoice view with api">
+      <created>1750409135218</created>
+      <option name="number" value="00405" />
+      <option name="presentableId" value="LOCAL-00405" />
+      <option name="project" value="LOCAL" />
+      <updated>1750409135218</updated>
+    </task>
+    <option name="localTasksCounter" value="406" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -6,6 +6,7 @@ import path from "path";
 import fs from "fs";
 import moment from 'moment';
 import mysql from "mysql2";
+import PDFDocument from "pdfkit";
 import { console } from 'inspector';
 const router = express.Router();
 // const fs = require('fs');
@@ -5487,154 +5488,198 @@ router.post("/add-stock-received", upload.single("image"), async (req, res) => {
 
 // add purchase note and add stock- Generate barcodes for each stock
 router.post("/addStock", upload.single("image"), async (req, res) => {
-    try {
-        const { purchase_id, supplier_id, date, itemTotal, delivery, invoice, items } = req.body;
-        const imageFile = req.file;
+  try {
+    const { purchase_id, supplier_id, date, itemTotal, delivery, invoice, items } = req.body;
+    const imageFile = req.file;
 
-        const total = Number(itemTotal) || 0;
-        const deliveryPrice = Number(delivery) || 0;
+    const total = Number(itemTotal) || 0;
+    const deliveryPrice = Number(delivery) || 0;
 
-        if (!supplier_id || !itemTotal || !date || !purchase_id || !items) {
-            return res.status(400).json({ success: false, message: "All fields are required!" });
-        }
-
-        let imagePath = null;
-        if (imageFile) {
-            const imageName = `item_${purchase_id}_${Date.now()}.${imageFile.mimetype.split("/")[1]}`;
-            const savePath = path.join("./uploads/images", imageName);
-            fs.writeFileSync(savePath, imageFile.buffer);
-            imagePath = `/uploads/images/${imageName}`;
-        }
-
-        const formattedDate = moment(date, ['D/M/YYYY', 'M/D/YYYY']).format('YYYY-MM-DD');
-
-        await db.query(
-            `INSERT INTO purchase (pc_Id, s_ID, rDate, total, pay, balance, deliveryCharge, invoiceId)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            [purchase_id, supplier_id, formattedDate, total, 0, total, deliveryPrice, invoice]
-        );
-
-        const stockCount = items.length;
-        const stockDetails = [];
-
-        for (let i = 0; i < stockCount; i++) {
-            const { I_Id, unit_price, quantity, material, price } = items[i];
-            const totalPrice = parseFloat(unit_price) * Number(quantity);
-
-            const [unitPriceResult] = await db.query(
-                `SELECT unit_cost FROM item_supplier WHERE I_Id = ? AND s_ID = ?`,
-                [I_Id, supplier_id]
-            );
-
-            if (unitPriceResult.length > 0) {
-                const existingUnitPrice = unitPriceResult[0].unit_cost;
-                if (parseFloat(existingUnitPrice) !== parseFloat(unit_price)) {
-                    await db.query(
-                        `UPDATE item_supplier SET unit_cost = ? WHERE I_Id = ? AND s_ID = ?`,
-                        [unit_price, I_Id, supplier_id]
-                    );
-                }
-            } else {
-                await db.query(
-                    `INSERT INTO item_supplier (I_Id, s_ID, unit_cost) VALUES (?, ?, ?)`,
-                    [I_Id, supplier_id, unit_price]
-                );
-            }
-
-            await db.query(
-                `INSERT INTO purchase_detail (pc_Id, I_Id, rec_count, unitPrice, total, stock_range)
-                 VALUES (?, ?, ?, ?, ?, ?)`,
-                [purchase_id, I_Id, quantity, unit_price, totalPrice, ""]
-            );
-
-            stockDetails.push({ I_Id, quantity, material, price });
-        }
-
-        const insertBarcodeQuery = `
-            INSERT INTO p_i_detail (pc_Id, I_Id, stock_Id, barcode_img, status, orID, datetime, material, price)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-        const barcodeFolderPath = path.join("./uploads/barcodes");
-        if (!fs.existsSync(barcodeFolderPath)) {
-            fs.mkdirSync(barcodeFolderPath, { recursive: true });
-        }
-
-        const stockRanges = [];
-
-        for (let i = 0; i < stockCount; i++) {
-            const { I_Id, quantity, material, price } = stockDetails[i];
-
-            const [lastStockResult] = await db.query(
-                `SELECT MAX(stock_Id) AS lastStockId FROM p_i_detail WHERE I_Id = ?`,
-                [I_Id]
-            );
-
-            let lastStockId = lastStockResult[0]?.lastStockId || 0;
-            let startStockId = lastStockId + 1;
-
-            for (let j = 1; j <= quantity; j++) {
-                lastStockId++;
-                const barcodeData = `${I_Id}-${lastStockId}`;
-                const barcodeImageName = `qrcode_${barcodeData}.png`;
-                const barcodeImagePath = path.join(barcodeFolderPath, barcodeImageName);
-
-                // Generate QR code image
-                const pngBuffer = await bwipjs.toBuffer({
-                    bcid: 'qrcode',
-                    text: barcodeData,
-                    scale: 4,       // Adjust scale for size (try 3-4)
-                    includetext: false,
-                    padding: 5
-                });
-
-                fs.writeFileSync(barcodeImagePath, pngBuffer);
-
-                await db.query(insertBarcodeQuery, [
-                    purchase_id,
-                    I_Id,
-                    lastStockId,
-                    barcodeImagePath,
-                    "Available",
-                    null,
-                    mysql.raw("NOW()"),
-                    material,
-                    price
-                ]);
-            }
-
-            // Update stock in Item table
-            await db.query(
-                `UPDATE Item SET stockQty = stockQty + ?, availableQty = availableQty + ? WHERE I_Id = ?`,
-                [quantity, quantity, I_Id]
-            );
-
-            const stockRange = `${startStockId}-${lastStockId}`;
-            stockRanges.push({ I_Id, stockRange });
-        }
-
-        // Update stock ranges in purchase_detail
-        for (let { I_Id, stockRange } of stockRanges) {
-            await db.query(
-                `UPDATE purchase_detail SET stock_range = ? WHERE pc_Id = ? AND I_Id = ?`,
-                [stockRange, purchase_id, I_Id]
-            );
-        }
-
-        return res.status(201).json({
-            success: true,
-            message: "Stock received successfully, image uploaded, and QR codes saved!",
-            imagePath,
-        });
-
-    } catch (error) {
-        console.error("Error adding stock received:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Server error",
-            error: error.message,
-        });
+    if (!supplier_id || !itemTotal || !date || !purchase_id || !items) {
+      return res.status(400).json({ success: false, message: "All fields are required!" });
     }
+
+    let imagePath = null;
+    if (imageFile) {
+      const imageName = `item_${purchase_id}_${Date.now()}.${imageFile.mimetype.split("/")[1]}`;
+      const savePath = path.join("./uploads/images", imageName);
+      fs.writeFileSync(savePath, imageFile.buffer);
+      imagePath = `/uploads/images/${imageName}`;
+    }
+
+    const formattedDate = moment(date, ['D/M/YYYY', 'M/D/YYYY']).format('YYYY-MM-DD');
+
+    await db.query(
+      `INSERT INTO purchase (pc_Id, s_ID, rDate, total, pay, balance, deliveryCharge, invoiceId)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [purchase_id, supplier_id, formattedDate, total, 0, total, deliveryPrice, invoice]
+    );
+
+    const parsedItems = typeof items === "string" ? JSON.parse(items) : items;
+    const stockDetails = [];
+
+    for (const item of parsedItems) {
+      const { I_Id, unit_price, quantity, material, price } = item;
+      const totalPrice = parseFloat(unit_price) * Number(quantity);
+
+      const [unitPriceResult] = await db.query(
+        `SELECT unit_cost FROM item_supplier WHERE I_Id = ? AND s_ID = ?`,
+        [I_Id, supplier_id]
+      );
+
+      if (unitPriceResult.length > 0) {
+        const existingUnitPrice = unitPriceResult[0].unit_cost;
+        if (parseFloat(existingUnitPrice) !== parseFloat(unit_price)) {
+          await db.query(
+            `UPDATE item_supplier SET unit_cost = ? WHERE I_Id = ? AND s_ID = ?`,
+            [unit_price, I_Id, supplier_id]
+          );
+        }
+      } else {
+        await db.query(
+          `INSERT INTO item_supplier (I_Id, s_ID, unit_cost) VALUES (?, ?, ?)`,
+          [I_Id, supplier_id, unit_price]
+        );
+      }
+
+      await db.query(
+        `INSERT INTO purchase_detail (pc_Id, I_Id, rec_count, unitPrice, total, stock_range)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [purchase_id, I_Id, quantity, unit_price, totalPrice, ""]
+      );
+
+      stockDetails.push({ I_Id, quantity, material, price });
+    }
+
+    const insertBarcodeQuery = `
+      INSERT INTO p_i_detail (pc_Id, I_Id, stock_Id, barcode_img, status, orID, datetime, material, price)
+      VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?)`;
+
+    const barcodeFolderPath = path.join("./uploads/barcodes");
+    if (!fs.existsSync(barcodeFolderPath)) fs.mkdirSync(barcodeFolderPath, { recursive: true });
+
+    const stockRanges = [];
+
+    for (const { I_Id, quantity, material, price } of stockDetails) {
+      const [lastStockResult] = await db.query(
+        `SELECT MAX(stock_Id) AS lastStockId FROM p_i_detail WHERE I_Id = ?`,
+        [I_Id]
+      );
+
+      let lastStockId = lastStockResult[0]?.lastStockId || 0;
+      let startStockId = lastStockId + 1;
+
+      for (let j = 1; j <= quantity; j++) {
+        lastStockId++;
+        const barcodeData = `${I_Id}-${lastStockId}-${purchase_id}`;
+        const barcodeImageName = `qrcode_${barcodeData}.png`;
+        const barcodeImagePath = path.join(barcodeFolderPath, barcodeImageName);
+
+        const pngBuffer = await bwipjs.toBuffer({
+          bcid: 'qrcode',
+          text: barcodeData,
+          scale: 4,
+          includetext: false,
+          padding: 5
+        });
+
+        fs.writeFileSync(barcodeImagePath, pngBuffer);
+
+        await db.query(insertBarcodeQuery, [
+          purchase_id, I_Id, lastStockId, barcodeImagePath, "Available", null, material, price
+        ]);
+      }
+
+      await db.query(
+        `UPDATE Item SET stockQty = stockQty + ?, availableQty = availableQty + ? WHERE I_Id = ?`,
+        [quantity, quantity, I_Id]
+      );
+
+      const stockRange = `${startStockId}-${lastStockId}`;
+      stockRanges.push({ I_Id, stockRange });
+    }
+
+    for (let { I_Id, stockRange } of stockRanges) {
+      await db.query(
+        `UPDATE purchase_detail SET stock_range = ? WHERE pc_Id = ? AND I_Id = ?`,
+        [stockRange, purchase_id, I_Id]
+      );
+    }
+
+    // Generate PDF
+    const pdfFolder = path.join("./uploads/barcodes/pdf");
+    if (!fs.existsSync(pdfFolder)) fs.mkdirSync(pdfFolder, { recursive: true });
+
+    const pdfPath = path.join(pdfFolder, `qrcodes_${purchase_id}.pdf`);
+    const doc = new PDFDocument({ autoFirstPage: true });
+    doc.pipe(fs.createWriteStream(pdfPath));
+
+    const qrCodesPerRow = 5;
+    const imageSize = 100;
+    const padding = 20;
+    const brandWarningText = "SHEJAMA - warranty void if removed";
+    let x = padding;
+    let y = padding;
+    let imageCount = 0;
+
+    const allBarcodeImages = fs.readdirSync(barcodeFolderPath)
+      .filter(file => file.startsWith("qrcode_") && file.endsWith(".png") && file.includes(`-${purchase_id}`))
+      .map(file => {
+        const parts = file.replace("qrcode_", "").replace(".png", "").split("-");
+        return {
+          path: path.join(barcodeFolderPath, file),
+          itemId: parts[0],
+          stockId: parts[1]
+        };
+      });
+
+    for (const { path: imgPath, itemId, stockId } of allBarcodeImages) {
+      doc.rect(x, y, imageSize, imageSize).stroke();
+      doc.image(imgPath, x + 5, y + 5, { width: imageSize - 10, height: imageSize - 25 });
+
+      doc.fontSize(6).text(brandWarningText, x + 5, y + imageSize - 15, {
+        width: imageSize - 10,
+        align: "center"
+      });
+
+      doc.fontSize(10).text(`${itemId} - ${stockId}`, x, y + imageSize + 2, {
+        width: imageSize,
+        align: "center"
+      });
+
+      imageCount++;
+      x += imageSize + padding;
+      if (imageCount % qrCodesPerRow === 0) {
+        x = padding;
+        y += imageSize + 20;
+      }
+
+      if (imageCount > 0 && imageCount % 25 === 0) {
+        doc.addPage();
+        x = padding;
+        y = padding;
+      }
+    }
+
+    doc.end();
+
+    return res.status(201).json({
+      success: true,
+      message: "Stock added, QR codes generated and saved to PDF.",
+      imagePath,
+      qrCodePdfPath: `/uploads/barcodes/pdf/qrcodes_${purchase_id}.pdf`
+    });
+
+  } catch (error) {
+    console.error("Error adding stock received:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
 });
+
 
 // Find cost by sid and iid
 router.get("/find-cost", async (req, res) => {

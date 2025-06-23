@@ -105,7 +105,7 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
                 <p><strong>Print Date:</strong> {currentDateTime}</p>
                 <p><strong>Salesperson:</strong> {receiptData.salesperson}</p>
                 <p><strong>Delivery:</strong> {receiptData.delStatus}</p>
-                <p><strong>Payment:</strong> {receiptData.payStatus}</p>
+                <p><strong>Payment:</strong> {receiptData.balance === 0 ? "Settled" : receiptData.payStatus}</p>
 
                 <table>
                     <thead>
@@ -131,9 +131,9 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
                 </table>
 
                 <div className="receipt-summary">
-                    <p><strong>Delivery Price:</strong> Rs. {receiptData.delPrice.toFixed(2)}</p>
-                    <p><strong>Discount:</strong> Rs. {receiptData.discount.toFixed(2)}</p>
                     <p><strong>Net Total:</strong> Rs. {receiptData.total.toFixed(2)}</p>
+                    <p><strong>Discount:</strong> Rs. {receiptData.discount.toFixed(2)}</p>
+                    <p><strong>Delivery Price:</strong> Rs. {receiptData.delPrice.toFixed(2)}</p>
                     <p><strong>Advance:</strong> Rs. {receiptData.advance.toFixed(2)}</p>
                     <p><strong>Balance:</strong> Rs. {receiptData.balance.toFixed(2)}</p>
                 </div>

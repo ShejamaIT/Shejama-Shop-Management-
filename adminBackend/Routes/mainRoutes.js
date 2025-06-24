@@ -192,6 +192,44 @@ router.put("/update-item", upload.fields([{ name: "img", maxCount: 1 }, { name: 
     }
 });
 
+// Express route in item.js or stock.js
+
+router.put("/update-stock-status", (req, res) => {
+  const { pid_Id, status } = req.body;
+
+  if (!pid_Id || !status) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing pid_Id or status.",
+    });
+  }
+
+  const sql = "UPDATE p_i_detail SET status = ? WHERE pid_Id = ?";
+  db.query(sql, [status, pid_Id], (err, result) => {
+    if (err) {
+      console.error("❌ Error updating stock status:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error.",
+        error: err.message,
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Item not found or no changes made.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Status updated successfully.",
+      data: { pid_Id, status },
+    });
+  });
+});
+
 // Save a order
 router.post("/orders", async (req, res) => {
     const {

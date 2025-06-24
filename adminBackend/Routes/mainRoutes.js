@@ -1687,8 +1687,6 @@ router.post("/customer/check-shop", async (req, res) => {
     }
 });
 
-
-
 // Get one accept order in-detail
 router.get("/accept-order-details", async (req, res) => {
     try {
@@ -3846,6 +3844,97 @@ router.get("/supplier-items", async (req, res) => {
     }
 });
 
+//Fetch individual supplier's current details
+router.get("/supplier-details", async (req, res) => {
+    const { s_ID } = req.query;
+
+    if (!s_ID) {
+        return res.status(400).json({ success: false, message: "Supplier ID is required" });
+    }
+
+    try {
+        const [rows] = await db.query(`SELECT * FROM Supplier WHERE s_ID = ?`, [s_ID]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: "Supplier not found" });
+        }
+
+        return res.status(200).json({ success: true, supplier: rows[0] });
+    } catch (error) {
+        console.error("Error fetching supplier details:", error.message);
+        return res.status(500).json({ success: false, message: "Server error", error: error.message });
+    }
+});
+
+//Update supplier information
+router.put("/supplier/:s_ID", async (req, res) => {
+    const { s_ID } = req.params;
+    const { name, address, contact, contact2 } = req.body;
+
+    if (!name || !address || !contact) {
+        return res.status(400).json({ success: false, message: "Required fields missing" });
+    }
+
+    try {
+        const [result] = await db.query(
+            `UPDATE Supplier SET name = ?, address = ?, contact = ?, contact2 = ? WHERE s_ID = ?`,
+            [name, address, contact, contact2 || null, s_ID]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: "Supplier not found" });
+        }
+
+        return res.status(200).json({ success: true, message: "Supplier updated successfully" });
+    } catch (error) {
+        console.error("Error updating supplier:", error.message);
+        return res.status(500).json({ success: false, message: "Server error", error: error.message });
+    }
+});
+
+// Remove item from supplier (from item_supplier table only)
+router.delete("/supplier-item", async (req, res) => {
+    const { I_Id, s_ID } = req.body;
+
+    if (!I_Id || !s_ID) {
+        return res.status(400).json({ success: false, message: "Item ID and Supplier ID are required" });
+    }
+
+    try {
+        const [result] = await db.query(
+            `DELETE FROM item_supplier WHERE I_Id = ? AND s_ID = ?`,
+            [I_Id, s_ID]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: "No such item-supplier link found" });
+        }
+
+        return res.status(200).json({ success: true, message: "Item removed from supplier" });
+    } catch (error) {
+        console.error("Error removing item from supplier:", error.message);
+        return res.status(500).json({ success: false, message: "Server error", error: error.message });
+    }
+});
+
+//Delete a supplier
+router.delete("/supplier/:s_ID", async (req, res) => {
+    const { s_ID } = req.params;
+
+    try {
+        const [result] = await db.query(`DELETE FROM Supplier WHERE s_ID = ?`, [s_ID]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: "Supplier not found" });
+        }
+
+        return res.status(200).json({ success: true, message: "Supplier deleted" });
+    } catch (error) {
+        console.error("Error deleting supplier:", error.message);
+        return res.status(500).json({ success: false, message: "Server error", error: error.message });
+    }
+});
+
 // get all have to payment to supplier
 router.get("/unpaid-stock-details", async (req, res) => {
     try {
@@ -3882,7 +3971,6 @@ router.get("/unpaid-stock-details", async (req, res) => {
         return res.status(500).json({ success: false, message: "Server error", error: error.message });
     }
 });
-
 
 // Get all suppliers
 router.get("/suppliers", async (req, res) => {

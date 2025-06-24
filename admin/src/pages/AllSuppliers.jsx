@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import SupplierDetails from "./SupplierDetails";
 import { toast } from "react-toastify";
 import AddSupplier from "./AddSupplier";
+import UpdateSupplier from "./UpdateSupplier";
 
 const AllSuppliers = () => {
   const [activeTab, setActiveTab] = useState("addSupplier");
@@ -74,6 +75,14 @@ const AllSuppliers = () => {
                 View Supplier Details
               </NavLink>
             </NavItem>
+            <NavItem>
+              <NavLink
+                  className={activeTab === "updateSupplier" ? "active" : ""}
+                  onClick={() => setActiveTab("updateSupplier")}
+              >
+                Update & Delete
+              </NavLink>
+            </NavItem>
           </Nav>
 
           <TabContent activeTab={activeTab}>
@@ -112,6 +121,14 @@ const AllSuppliers = () => {
                   ) : (
                     <p>Please select a supplier to view details.</p>
                   )}
+                </Col>
+              </Row>
+            </TabPane>
+
+            <TabPane tabId="updateSupplier">
+              <Row>
+                <Col>
+                  <UpdateSupplier />
                 </Col>
               </Row>
             </TabPane>

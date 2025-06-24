@@ -4,14 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update order invoice with card payment">
+    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update supplier details">
+      <change afterPath="$PROJECT_DIR$/admin/src/pages/UpdateSupplier.jsx" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/pdf/qrcodes_PC_002.pdf" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KTSSB-1-PC_002.png" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KTSSB-2-PC_002.png" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KTSSB-3-PC_002.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/SupplierDetails.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/SupplierDetails.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/AllSuppliers.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/AllSuppliers.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/adminBackend/utils/db.js" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/utils/db.js" afterDir="false" />
     </list>
@@ -48,45 +48,45 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;js.last.introduce.type&quot;: &quot;CONST&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/VISHWA/Documents/testing/20250616/Shop_Website_withadmin&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;npm.start admin.executor&quot;: &quot;Run&quot;,
-    &quot;npm.start adminBackend.executor&quot;: &quot;Run&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.ide.settings.new.ui&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.1\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "main",
+    "js.last.introduce.type": "CONST",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/VISHWA/Documents/testing/20250616/Shop_Website_withadmin/admin/src/pages",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "npm.start admin.executor": "Run",
+    "npm.start adminBackend.executor": "Run",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "reference.settings.ide.settings.new.ui",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.1\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\VISHWA\Documents\testing\20250616\Shop_Website_withadmin\admin\src\pages" />
       <recent name="C:\Users\VISHWA\Documents\testing\20250616\Shop_Website_withadmin" />
       <recent name="C:\Users\VISHWA\Documents\testing\20250616\Shop_Website_withadmin\admin\src\pages\graphs" />
       <recent name="D:\shejama\Shop_Website_withadmin\admin\src\pages" />
       <recent name="D:\shejama\Shop_Website_withadmin\admin\src\components\tables" />
-      <recent name="D:\shejama\Shop_Website_withadmin\admin\src\pages\SideBar" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\VISHWA\Documents\testing\20250616\Shop_Website_withadmin\admin\src\pages\graphs" />
@@ -380,13 +380,7 @@
       <workItem from="1750737302751" duration="2692000" />
       <workItem from="1750748933329" duration="2382000" />
       <workItem from="1750751898012" duration="1078000" />
-    </task>
-    <task id="LOCAL-00171" summary="update with complete form">
-      <created>1739431549266</created>
-      <option name="number" value="00171" />
-      <option name="presentableId" value="LOCAL-00171" />
-      <option name="project" value="LOCAL" />
-      <updated>1739431549266</updated>
+      <workItem from="1750754177071" duration="4031000" />
     </task>
     <task id="LOCAL-00172" summary="update with complete form">
       <created>1739432915525</created>
@@ -724,7 +718,14 @@
       <option name="project" value="LOCAL" />
       <updated>1750682551029</updated>
     </task>
-    <option name="localTasksCounter" value="407" />
+    <task id="LOCAL-00407" summary="update supplier details">
+      <created>1750755094299</created>
+      <option name="number" value="00407" />
+      <option name="presentableId" value="LOCAL-00407" />
+      <option name="project" value="LOCAL" />
+      <updated>1750755094299</updated>
+    </task>
+    <option name="localTasksCounter" value="408" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -743,7 +744,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="update with driver apies" />
     <MESSAGE value="update place order" />
     <MESSAGE value="update navbar" />
     <MESSAGE value="rename place order - invoice" />
@@ -768,6 +768,7 @@
     <MESSAGE value="update order invoice view" />
     <MESSAGE value="update order invoice view with api" />
     <MESSAGE value="update order invoice with card payment" />
-    <option name="LAST_COMMIT_MESSAGE" value="update order invoice with card payment" />
+    <MESSAGE value="update supplier details" />
+    <option name="LAST_COMMIT_MESSAGE" value="update supplier details" />
   </component>
 </project>

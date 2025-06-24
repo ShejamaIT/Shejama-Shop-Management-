@@ -84,6 +84,36 @@ const ItemDetails = () => {
         setSupplierData(prev => ({ ...prev, [name]: value }));
     };
 
+    const updateStatus = async (pid_Id, newStatus) => {
+        console.log(pid_Id, newStatus);
+    if (!pid_Id || !newStatus) {
+        toast.error("❌ Missing Stock ID or Status.");
+        return;
+    }
+
+    try {
+        const response = await fetch("http://localhost:5001/api/admin/main/update-stock-status", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ pid_Id, status: newStatus }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            toast.success("✅ Status updated successfully!");
+        } else {
+            toast.error(result.message || "❌ Failed to update status.");
+        }
+    } catch (err) {
+        console.error("❌ Status update error:", err);
+        toast.error("❌ Error updating stock status. Please try again.");
+    }
+};
+
+
     const handleAddSupplier = async () => {
         try {
             // Assuming you want to save the item-supplier association
@@ -630,36 +660,67 @@ const ItemDetails = () => {
                         </Col>
 
                         <Col lg="12">
-                            <h4 className="mb-3 text-center topic">Stock Details</h4>
-                            <div className="item-details">
-                                <div className="item-details">
-                                    {stock && stock.length > 0 ? (
-                                        <table className="table table-striped table-bordered">
-                                            <thead>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Stock ID</th>
-                                                <th>Batch ID</th>
-                                                <th>Status</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {stock.map((stockItem) => (
-                                                <tr key={stockItem.pid_Id}>
-                                                    <td>{stockItem.pid_Id}</td>
-                                                    <td>{stockItem.stock_Id}</td>
-                                                    <td>{stockItem.pc_Id}</td>
-                                                    <td>{stockItem.status}</td>
-                                                </tr>
-                                            ))}
-                                            </tbody>
-                                        </table>
-                                    ) : (
-                                        <p className="text-center">No stock details available</p>
-                                    )}
-                                </div>
-                            </div>
-                        </Col>
+  <h4 className="mb-3 text-center topic">Stock Details</h4>
+  <div className="item-details">
+    {stock && stock.length > 0 ? (
+      <table className="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Stock ID</th>
+            <th>Batch ID</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {stock.map((stockItem, index) => (
+            <tr key={stockItem.pid_Id}>
+              <td>{stockItem.pid_Id}</td>
+              <td>{stockItem.stock_Id}</td>
+              <td>{stockItem.pc_Id}</td>
+              <td>
+                <select
+                  value={stockItem.status || "Available"}
+                  onChange={(e) => {
+                    const newStatus = e.target.value;
+                    setStock((prevStock) => {
+                      const updatedStock = [...prevStock];
+                      updatedStock[index] = {
+                        ...updatedStock[index],
+                        status: newStatus,
+                      };
+                      return updatedStock;
+                    });
+                  }}
+                  className="form-control"
+                >
+                  <option value="Available">Available</option>
+                  <option value="Damage">Damage</option>
+                  <option value="Dispatched">Dispatched</option>
+                </select>
+              </td>
+              <td>
+                <button
+                  className="btn btn-sm btn-primary"
+                  onClick={() =>
+                    updateStatus(stockItem.pid_Id, stockItem.status)
+                  }
+                >
+                  Update
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    ) : (
+      <p className="text-center">No stock details available</p>
+    )}
+  </div>
+</Col>
+
+
                     </Row>
                 </Container>
             </section>

@@ -3822,24 +3822,19 @@ router.get("/supplier-items", async (req, res) => {
                 Item.material,
                 Item.price
             FROM item_supplier
-                     JOIN Item ON Item.I_Id = item_supplier.I_Id
+            JOIN Item ON Item.I_Id = item_supplier.I_Id
             WHERE item_supplier.s_ID = ?
         `;
 
         const [itemsResult] = await db.query(query, [s_Id]);
 
-        // If no items found, return a 404 response
-        if (itemsResult.length === 0) {
-            return res.status(404).json({ success: false, message: "No items found for the given supplier" });
-        }
-
         // Convert image binary data to Base64
         const itemsWithImages = itemsResult.map(item => ({
             ...item,
-            img: item.img ? `data:image/jpeg;base64,${item.img.toString('base64')}` : null  // Convert LONGBLOB to Base64
+            img: item.img ? `data:image/jpeg;base64,${item.img.toString('base64')}` : null
         }));
 
-        // Return the supplier's items with cost, warranty period, and image
+        // Return the supplier's items (could be an empty array)
         return res.status(200).json({
             success: true,
             items: itemsWithImages,
@@ -3864,29 +3859,22 @@ router.get("/unpaid-stock-details", async (req, res) => {
         // Query to fetch unpaid stock details from the purchase table
         const query = `
             SELECT pc_Id, rDate, total, pay, balance, deliveryCharge, invoiceId 
-            FROM purchase 
-            WHERE s_ID = ? AND balance > 0;
+            FROM purchase WHERE s_ID = ? AND balance > 0;
         `;
 
         const totalQuery = `
             SELECT SUM(total) AS fullTotal 
-            FROM purchase 
-            WHERE s_ID = ? AND balance > 0;
+            FROM purchase WHERE s_ID = ? AND balance > 0;
         `;
 
         const [itemsResult] = await db.query(query, [s_Id]);
         const [[totalResult]] = await db.query(totalQuery, [s_Id]);
 
-        // If no unpaid items found, return a 404 response
-        if (itemsResult.length === 0) {
-            return res.status(404).json({ success: false, message: "No unpaid stock details found for the given supplier" });
-        }
-
-        // Return the unpaid stock details along with the full total
+        // Always return 200 with array and total (even if empty or 0)
         return res.status(200).json({
             success: true,
             unpaidStockDetails: itemsResult,
-            fullTotal: totalResult.fullTotal || 0, // Ensure fullTotal is returned even if null
+            fullTotal: totalResult.fullTotal || 0,
         });
 
     } catch (error) {
@@ -3894,6 +3882,7 @@ router.get("/unpaid-stock-details", async (req, res) => {
         return res.status(500).json({ success: false, message: "Server error", error: error.message });
     }
 });
+
 
 // Get all suppliers
 router.get("/suppliers", async (req, res) => {
@@ -5679,7 +5668,6 @@ router.post("/addStock", upload.single("image"), async (req, res) => {
     });
   }
 });
-
 
 // Find cost by sid and iid
 router.get("/find-cost", async (req, res) => {
@@ -10483,8 +10471,6 @@ router.put('/cheques/update-status/:id', async (req, res) => {
     }
 });
 
-
-
 // Get all bank transfers (deposits/withdrawals)
 router.get('/bank-transfers', async (req, res) => {
     try {
@@ -10584,13 +10570,11 @@ router.post('/deposit&withdrawals', async (req, res) => {
     }
 });
 
-
 // DELETE a transaction
 router.delete('/transfers/:id', async (req, res) => {
     await db.query(`DELETE FROM ord_Transfer_Pay WHERE id = ?`, [req.params.id]);
     res.json({ success: true, message: 'Deleted' });
 });
-
 
 // pass sale team value to review in month end
 

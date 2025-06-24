@@ -4,12 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update order invoice view with api">
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_20_06_2025_14_16_[Changes]/shelved.patch" afterDir="false" />
+    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update order invoice with card payment">
+      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/pdf/qrcodes_PC_002.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KTSSB-1-PC_002.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KTSSB-2-PC_002.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KTSSB-3-PC_002.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminBackend/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/node_modules/.package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminBackend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/SupplierDetails.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/SupplierDetails.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/adminBackend/utils/db.js" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/utils/db.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -373,14 +376,10 @@
       <workItem from="1750394164213" duration="10838000" />
       <workItem from="1750408221206" duration="2010000" />
       <workItem from="1750410712700" duration="1918000" />
-      <workItem from="1750564453982" duration="7761000" />
-    </task>
-    <task id="LOCAL-00170" summary="update with complete form">
-      <created>1739430275750</created>
-      <option name="number" value="00170" />
-      <option name="presentableId" value="LOCAL-00170" />
-      <option name="project" value="LOCAL" />
-      <updated>1739430275751</updated>
+      <workItem from="1750564453982" duration="8218000" />
+      <workItem from="1750737302751" duration="2692000" />
+      <workItem from="1750748933329" duration="2382000" />
+      <workItem from="1750751898012" duration="1078000" />
     </task>
     <task id="LOCAL-00171" summary="update with complete form">
       <created>1739431549266</created>
@@ -718,7 +717,14 @@
       <option name="project" value="LOCAL" />
       <updated>1750409135218</updated>
     </task>
-    <option name="localTasksCounter" value="406" />
+    <task id="LOCAL-00406" summary="update order invoice with card payment">
+      <created>1750682551029</created>
+      <option name="number" value="00406" />
+      <option name="presentableId" value="LOCAL-00406" />
+      <option name="project" value="LOCAL" />
+      <updated>1750682551029</updated>
+    </task>
+    <option name="localTasksCounter" value="407" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -737,7 +743,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="add new Dashboard &amp; sidebar (DRIVER)" />
     <MESSAGE value="update with driver apies" />
     <MESSAGE value="update place order" />
     <MESSAGE value="update navbar" />
@@ -762,6 +767,7 @@
     <MESSAGE value="update add product" />
     <MESSAGE value="update order invoice view" />
     <MESSAGE value="update order invoice view with api" />
-    <option name="LAST_COMMIT_MESSAGE" value="update order invoice view with api" />
+    <MESSAGE value="update order invoice with card payment" />
+    <option name="LAST_COMMIT_MESSAGE" value="update order invoice with card payment" />
   </component>
 </project>

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {Row, Col, Button, Input, Table, Label, Container, ModalHeader, ModalBody, FormGroup, ModalFooter, Modal} from 'reactstrap';
 import {toast} from "react-toastify";
 import Helmet from "../components/Helmet/Helmet";
-import {FaArrowRight} from "react-icons/fa";
 import {useNavigate} from "react-router-dom";
 
 const SupplierDetails = ({ supplier }) => {
@@ -45,24 +44,55 @@ const SupplierDetails = ({ supplier }) => {
     // Fetch supplier-specific items
     useEffect(() => {
         const fetchSupplierItems = async () => {
+            if (!supplier?.s_ID) return; // Avoid fetching if supplier ID is not available
+
             try {
                 const response = await fetch(`http://localhost:5001/api/admin/main/supplier-items?s_Id=${supplier.s_ID}`);
                 const data = await response.json();
+
                 if (response.ok) {
-                    setItemsList(data.items); // Set existing items for supplier
+                    console.log("Fetched items:", data.items); // Good for debugging
+                    setItemsList(data.items || []); // Always set items list (even if empty)
                 } else {
                     console.error("Failed to load supplier items:", data.message);
+                    setItemsList([]); // Clear items if backend returns an error
                 }
             } catch (error) {
                 console.error("Error fetching supplier items:", error);
+                setItemsList([]); // Clear items if there's a network or parsing error
             }
         };
+
         fetchSupplierItems();
-    }, [supplier.s_ID]); // Re-fetch when supplier changes
+    }, [supplier?.s_ID]);
+
     // Fetch supplier-specific items
     useEffect(() => {
-        fetchSupplierPayments();
-    }, [supplier.s_ID]); // Re-fetch when supplier changes
+        if (supplier?.s_ID) {
+            fetchSupplierPayments();
+        }
+    }, [supplier?.s_ID]); // Re-fetch when supplier ID changes
+
+    const fetchSupplierPayments = async () => {
+        try {
+            const response = await fetch(`http://localhost:5001/api/admin/main/unpaid-stock-details?s_Id=${supplier.s_ID}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                setPaymentList(data.unpaidStockDetails || []);
+                setFullPayAmount(data.fullTotal || 0);
+            } else {
+                console.error("Failed to load supplier payments:", data.message);
+                setPaymentList([]);      // Clear previous data if fetch failed
+                setFullPayAmount(0);
+            }
+        } catch (error) {
+            console.error("Error fetching supplier payments:", error);
+            setPaymentList([]);          // Clear state on error
+            setFullPayAmount(0);
+        }
+    };
+
 
     // Handle search term change
     const handleSearchChange = (e) => {
@@ -169,28 +199,11 @@ const SupplierDetails = ({ supplier }) => {
         setPaymentAmount(enteredAmount);
         setBalanceAmount(newBalance >= 0 ? newBalance : 0); // Prevent negative balance
     };
-    const fetchSupplierPayments = async () => {
-        try {
-            const response = await fetch(`http://localhost:5001/api/admin/main/unpaid-stock-details?s_Id=${supplier.s_ID}`);
-            const data = await response.json();
-
-            if (response.ok) {
-                setPaymentList(data.unpaidStockDetails); // Set unpaid stock items
-                setFullPayAmount(data.fullTotal || 0); // Ensure fullTotal exists
-            } else {
-                console.error("Failed to load supplier items:", data.message);
-            }
-        } catch (error) {
-            console.error("Error fetching supplier items:", error);
-        }
-    };
     const handleClearSelection = () => {
         setSelectedItem(null);
         setSearchTerm("");
         setAmount("");
     };
-
-
     const handlePaymentSettlement = async () => {
         if (!paymentAmount || paymentAmount <= 0) {
             toast.error("Enter a valid payment amount.");
@@ -223,7 +236,6 @@ const SupplierDetails = ({ supplier }) => {
             toast.error("Error processing payment.");
         }
     };
-
     const handleViewOrder = (noteId) => {
         navigate(`/purchase-detail/${noteId}`);
     };

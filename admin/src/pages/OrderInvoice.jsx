@@ -246,9 +246,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         }
     };
 
-
     useEffect(() => {
-
         const numericBill = parseFloat(totalBillPrice) || 0;
         const cardPay = parseFloat(cardPayment) || 0;
         const cashAmount = parseFloat(formData.cashAmount || 0);

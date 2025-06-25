@@ -103,11 +103,12 @@ const ItemDetails = () => {
                 body: JSON.stringify({ pid_Id, status: newStatus }),
             });
 
-            console.log(response);
             const result = await response.json();
-    console.log(result);
             if (response.ok) {
                 toast.success("✅ Status updated successfully!");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             } else {
                 toast.error(result.message || "❌ Failed to update status.");
             }
@@ -130,6 +131,10 @@ const ItemDetails = () => {
 
             if (res.success) {
                 setStock((prev) => prev.filter((item) => item.pid_Id !== pid_Id));
+                toast.success("✅ Stock deleted successfully!");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             } else {
                 alert(res.message || "Failed to delete stock.");
             }
@@ -155,6 +160,10 @@ const ItemDetails = () => {
 
             if (result.success) {
                 setStock((prev) => prev.filter((item) => !selectedItems.includes(item.pid_Id)));
+                toast.success("✅ Stocks deleted successfully!");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             } else {
                 alert(`${result.failed?.length || 0} item(s) failed to delete.`);
             }

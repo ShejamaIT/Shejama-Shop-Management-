@@ -192,42 +192,188 @@ router.put("/update-item", upload.fields([{ name: "img", maxCount: 1 }, { name: 
     }
 });
 
-// Express route in item.js or stock.js
+// update stock status
+router.put("/update-stock-status", async (req, res) => {
+    const { pid_Id, status } = req.body;
 
-router.put("/update-stock-status", (req, res) => {
-  const { pid_Id, status } = req.body;
-
-  if (!pid_Id || !status) {
-    return res.status(400).json({
-      success: false,
-      message: "Missing pid_Id or status.",
-    });
-  }
-
-  const sql = "UPDATE p_i_detail SET status = ? WHERE pid_Id = ?";
-  db.query(sql, [status, pid_Id], (err, result) => {
-    if (err) {
-      console.error("❌ Error updating stock status:", err);
-      return res.status(500).json({
-        success: false,
-        message: "Internal server error.",
-        error: err.message,
-      });
+    if (!pid_Id || !status) {
+        return res.status(400).json({
+            success: false,
+            message: "Missing pid_Id or status.",
+        });
     }
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Item not found or no changes made.",
-      });
+    try {
+        // Step 1: Fetch current item ID and current status
+        const [stockRows] = await db.query(
+            "SELECT I_Id, status FROM p_i_detail WHERE pid_Id = ?",
+            [pid_Id]
+        );
+
+        if (stockRows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Stock item not found.",
+            });
+        }
+
+        const { I_Id, status: currentStatus } = stockRows[0];
+
+        // Step 2: If status hasn't changed, skip update
+        if (status === currentStatus) {
+            return res.status(200).json({
+                success: true,
+                message: "Status is already up to date.",
+                data: { pid_Id, status },
+            });
+        }
+
+        // Step 3: Update status in p_i_detail
+        await db.query(
+            "UPDATE p_i_detail SET status = ? WHERE pid_Id = ?",
+            [status, pid_Id]
+        );
+
+        // Step 4: Handle quantity updates in Item table based on status transitions
+
+        // A. Status changed to Damage
+        if (status === "Damage" && currentStatus !== "Damage") {
+            await db.query(
+                `UPDATE Item SET
+                    availableQty = CASE WHEN availableQty > 0 THEN availableQty - 1 ELSE 0 END,
+                    damageQty = damageQty + 1
+                 WHERE I_Id = ?`,
+                [I_Id]
+            );
+        }
+
+        // B. Status changed to Available
+        if (status === "Available" && currentStatus !== "Available") {
+            const updateFields = [];
+
+            // Reduce damageQty if recovering from Damage
+            if (currentStatus === "Damage") {
+                updateFields.push("damageQty = CASE WHEN damageQty > 0 THEN damageQty - 1 ELSE 0 END");
+            }
+
+            // Add to availableQty in any case
+            updateFields.push("availableQty = availableQty + 1");
+
+            const updateQuery = `
+                UPDATE Item
+                SET ${updateFields.join(", ")}
+                WHERE I_Id = ?
+            `;
+
+            await db.query(updateQuery, [I_Id]);
+        }
+
+        // You can add similar logic here for other transitions like "Dispatched" if needed
+
+        // Step 5: Return success response
+        return res.status(200).json({
+            success: true,
+            message: "Status updated successfully.",
+            data: { pid_Id, status },
+        });
+
+    } catch (err) {
+        console.error("❌ Error updating stock status:", err);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error.",
+            error: err.message,
+        });
+    }
+});
+
+//delete one stock
+router.delete("/stock/:pid_Id", async (req, res) => {
+    const { pid_Id } = req.params;
+
+    if (!pid_Id) {
+        return res.status(400).json({ success: false, message: "Missing pid_Id" });
     }
 
-    return res.status(200).json({
-      success: true,
-      message: "Status updated successfully.",
-      data: { pid_Id, status },
-    });
-  });
+    const conn = await db.getConnection(); // for transaction safety
+
+    try {
+        await conn.beginTransaction();
+
+        // Step 1: Get stock entry to delete
+        const [stockRows] = await conn.query(
+            `SELECT pc_Id, I_Id FROM p_i_detail WHERE pid_Id = ?`,
+            [pid_Id]
+        );
+
+        if (stockRows.length === 0) {
+            await conn.release();
+            return res.status(404).json({ success: false, message: "Stock item not found" });
+        }
+
+        const { pc_Id, I_Id } = stockRows[0];
+
+        // Step 2: Get the unit cost from purchase_detail
+        const [purchaseDetailRows] = await conn.query(
+            `SELECT unitPrice FROM purchase_detail WHERE pc_Id = ? AND I_Id = ?`,
+            [pc_Id, I_Id]
+        );
+
+        if (purchaseDetailRows.length === 0) {
+            await conn.release();
+            return res.status(404).json({ success: false, message: "Purchase detail not found" });
+        }
+
+        const unitCost = parseFloat(purchaseDetailRows[0].unitPrice);
+
+        // Step 3: Delete from p_i_detail
+        await conn.query(`DELETE FROM p_i_detail WHERE pid_Id = ?`, [pid_Id]);
+
+        // Step 4: Update purchase_detail (reduce rec_count and total by cost)
+        await conn.query(
+            `UPDATE purchase_detail 
+       SET rec_count = GREATEST(rec_count - 1, 0),
+           total = GREATEST(total - ?, 0)
+       WHERE pc_Id = ? AND I_Id = ?`,
+            [unitCost, pc_Id, I_Id]
+        );
+
+        // Step 5: Update Item table (stockQty, availableQty)
+        await conn.query(
+            `UPDATE Item 
+       SET stockQty = GREATEST(stockQty - 1, 0),
+           availableQty = GREATEST(availableQty - 1, 0)
+       WHERE I_Id = ?`,
+            [I_Id]
+        );
+
+        // Step 6: Update purchase table (total and balance reduced by unit cost)
+        await conn.query(
+            `UPDATE purchase 
+       SET total = GREATEST(total - ?, 0),
+           balance = GREATEST(balance - ?, 0)
+       WHERE pc_Id = ?`,
+            [unitCost, unitCost, pc_Id]
+        );
+
+        await conn.commit();
+        await conn.release();
+
+        return res.status(200).json({
+            success: true,
+            message: "Stock item deleted and cost-adjusted purchase records updated.",
+        });
+
+    } catch (err) {
+        await conn.rollback();
+        await conn.release();
+        console.error("Error during stock deletion:", err);
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: err.message,
+        });
+    }
 });
 
 // Save a order
@@ -5603,196 +5749,197 @@ router.post("/add-stock-received", upload.single("image"), async (req, res) => {
 
 // add purchase note and add stock- Generate barcodes for each stock
 router.post("/addStock", upload.single("image"), async (req, res) => {
-  try {
-    const { purchase_id, supplier_id, date, itemTotal, delivery, invoice, items } = req.body;
-    const imageFile = req.file;
+    try {
+        const { purchase_id, supplier_id, date, itemTotal, delivery, invoice, items } = req.body;
+        const imageFile = req.file;
 
-    const total = Number(itemTotal) || 0;
-    const deliveryPrice = Number(delivery) || 0;
+        const total = Number(itemTotal) || 0;
+        const deliveryPrice = Number(delivery) || 0;
 
-    if (!supplier_id || !itemTotal || !date || !purchase_id || !items) {
-      return res.status(400).json({ success: false, message: "All fields are required!" });
-    }
-
-    let imagePath = null;
-    if (imageFile) {
-      const imageName = `item_${purchase_id}_${Date.now()}.${imageFile.mimetype.split("/")[1]}`;
-      const savePath = path.join("./uploads/images", imageName);
-      fs.writeFileSync(savePath, imageFile.buffer);
-      imagePath = `/uploads/images/${imageName}`;
-    }
-
-    const formattedDate = moment(date, ['D/M/YYYY', 'M/D/YYYY']).format('YYYY-MM-DD');
-
-    await db.query(
-      `INSERT INTO purchase (pc_Id, s_ID, rDate, total, pay, balance, deliveryCharge, invoiceId)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [purchase_id, supplier_id, formattedDate, total, 0, total, deliveryPrice, invoice]
-    );
-
-    const parsedItems = typeof items === "string" ? JSON.parse(items) : items;
-    const stockDetails = [];
-
-    for (const item of parsedItems) {
-      const { I_Id, unit_price, quantity, material, price } = item;
-      const totalPrice = parseFloat(unit_price) * Number(quantity);
-
-      const [unitPriceResult] = await db.query(
-        `SELECT unit_cost FROM item_supplier WHERE I_Id = ? AND s_ID = ?`,
-        [I_Id, supplier_id]
-      );
-
-      if (unitPriceResult.length > 0) {
-        const existingUnitPrice = unitPriceResult[0].unit_cost;
-        if (parseFloat(existingUnitPrice) !== parseFloat(unit_price)) {
-          await db.query(
-            `UPDATE item_supplier SET unit_cost = ? WHERE I_Id = ? AND s_ID = ?`,
-            [unit_price, I_Id, supplier_id]
-          );
+        if (!supplier_id || !itemTotal || !date || !purchase_id || !items) {
+            return res.status(400).json({ success: false, message: "All fields are required!" });
         }
-      } else {
+
+        let imagePath = null;
+        if (imageFile) {
+            const imageName = `item_${purchase_id}_${Date.now()}.${imageFile.mimetype.split("/")[1]}`;
+            const savePath = path.join("./uploads/images", imageName);
+            fs.writeFileSync(savePath, imageFile.buffer);
+            imagePath = `/uploads/images/${imageName}`;
+        }
+
+        const formattedDate = moment(date, ['D/M/YYYY', 'M/D/YYYY']).format('YYYY-MM-DD');
+
         await db.query(
-          `INSERT INTO item_supplier (I_Id, s_ID, unit_cost) VALUES (?, ?, ?)`,
-          [I_Id, supplier_id, unit_price]
+            `INSERT INTO purchase (pc_Id, s_ID, rDate, total, pay, balance, deliveryCharge, invoiceId)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [purchase_id, supplier_id, formattedDate, total, 0, total, deliveryPrice, invoice]
         );
-      }
 
-      await db.query(
-        `INSERT INTO purchase_detail (pc_Id, I_Id, rec_count, unitPrice, total, stock_range)
+        const parsedItems = typeof items === "string" ? JSON.parse(items) : items;
+        const stockDetails = [];
+
+        for (const item of parsedItems) {
+            const { I_Id, unit_price, quantity, material, price } = item;
+            const totalPrice = parseFloat(unit_price) * Number(quantity);
+
+            const [unitPriceResult] = await db.query(
+                `SELECT unit_cost FROM item_supplier WHERE I_Id = ? AND s_ID = ?`,
+                [I_Id, supplier_id]
+            );
+
+            if (unitPriceResult.length > 0) {
+                const existingUnitPrice = unitPriceResult[0].unit_cost;
+                if (parseFloat(existingUnitPrice) !== parseFloat(unit_price)) {
+                    await db.query(
+                        `UPDATE item_supplier SET unit_cost = ? WHERE I_Id = ? AND s_ID = ?`,
+                        [unit_price, I_Id, supplier_id]
+                    );
+                }
+            } else {
+                await db.query(
+                    `INSERT INTO item_supplier (I_Id, s_ID, unit_cost) VALUES (?, ?, ?)`,
+                    [I_Id, supplier_id, unit_price]
+                );
+            }
+
+            await db.query(
+                `INSERT INTO purchase_detail (pc_Id, I_Id, rec_count, unitPrice, total, stock_range)
          VALUES (?, ?, ?, ?, ?, ?)`,
-        [purchase_id, I_Id, quantity, unit_price, totalPrice, ""]
-      );
+                [purchase_id, I_Id, quantity, unit_price, totalPrice, ""]
+            );
 
-      stockDetails.push({ I_Id, quantity, material, price });
-    }
+            stockDetails.push({ I_Id, quantity, material, price });
+        }
 
-    const insertBarcodeQuery = `
+        const insertBarcodeQuery = `
       INSERT INTO p_i_detail (pc_Id, I_Id, stock_Id, barcode_img, status, orID, datetime, material, price)
       VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?)`;
 
-    const barcodeFolderPath = path.join("./uploads/barcodes");
-    if (!fs.existsSync(barcodeFolderPath)) fs.mkdirSync(barcodeFolderPath, { recursive: true });
+        const barcodeFolderPath = path.join("./uploads/barcodes");
+        if (!fs.existsSync(barcodeFolderPath)) fs.mkdirSync(barcodeFolderPath, { recursive: true });
 
-    const stockRanges = [];
+        const stockRanges = [];
 
-    for (const { I_Id, quantity, material, price } of stockDetails) {
-      const [lastStockResult] = await db.query(
-        `SELECT MAX(stock_Id) AS lastStockId FROM p_i_detail WHERE I_Id = ?`,
-        [I_Id]
-      );
+        for (const { I_Id, quantity, material, price } of stockDetails) {
+            const [lastStockResult] = await db.query(
+                `SELECT MAX(stock_Id) AS lastStockId FROM p_i_detail WHERE I_Id = ?`,
+                [I_Id]
+            );
 
-      let lastStockId = lastStockResult[0]?.lastStockId || 0;
-      let startStockId = lastStockId + 1;
+            let lastStockId = Number(lastStockResult[0]?.lastStockId) || 0;
+            let startStockId = lastStockId + 1;
+            let endStockId = lastStockId + quantity;
 
-      for (let j = 1; j <= quantity; j++) {
-        lastStockId++;
-        const barcodeData = `${I_Id}-${lastStockId}-${purchase_id}`;
-        const barcodeImageName = `qrcode_${barcodeData}.png`;
-        const barcodeImagePath = path.join(barcodeFolderPath, barcodeImageName);
+            for (let j = 0; j < quantity; j++) {
+                const currentStockId = startStockId + j;
+                const barcodeData = `${I_Id}-${currentStockId}-${purchase_id}`;
+                const barcodeImageName = `qrcode_${barcodeData}.png`;
+                const barcodeImagePath = path.join(barcodeFolderPath, barcodeImageName);
 
-        const pngBuffer = await bwipjs.toBuffer({
-          bcid: 'qrcode',
-          text: barcodeData,
-          scale: 4,
-          includetext: false,
-          padding: 5
+                const pngBuffer = await bwipjs.toBuffer({
+                    bcid: 'qrcode',
+                    text: barcodeData,
+                    scale: 4,
+                    includetext: false,
+                    padding: 5
+                });
+
+                fs.writeFileSync(barcodeImagePath, pngBuffer);
+
+                await db.query(insertBarcodeQuery, [
+                    purchase_id, I_Id, currentStockId, barcodeImagePath, "Available", null, material, price
+                ]);
+            }
+
+            await db.query(
+                `UPDATE Item SET stockQty = stockQty + ?, availableQty = availableQty + ? WHERE I_Id = ?`,
+                [quantity, quantity, I_Id]
+            );
+
+            const stockRange = `${startStockId}-${endStockId}`;
+            stockRanges.push({ I_Id, stockRange });
+        }
+
+        for (let { I_Id, stockRange } of stockRanges) {
+            await db.query(
+                `UPDATE purchase_detail SET stock_range = ? WHERE pc_Id = ? AND I_Id = ?`,
+                [stockRange, purchase_id, I_Id]
+            );
+        }
+
+        // Generate PDF
+        const pdfFolder = path.join("./uploads/barcodes/pdf");
+        if (!fs.existsSync(pdfFolder)) fs.mkdirSync(pdfFolder, { recursive: true });
+
+        const pdfPath = path.join(pdfFolder, `qrcodes_${purchase_id}.pdf`);
+        const doc = new PDFDocument({ autoFirstPage: true });
+        doc.pipe(fs.createWriteStream(pdfPath));
+
+        const qrCodesPerRow = 5;
+        const imageSize = 100;
+        const padding = 20;
+        const brandWarningText = "SHEJAMA - warranty void if removed";
+        let x = padding;
+        let y = padding;
+        let imageCount = 0;
+
+        const allBarcodeImages = fs.readdirSync(barcodeFolderPath)
+            .filter(file => file.startsWith("qrcode_") && file.endsWith(".png") && file.includes(`-${purchase_id}`))
+            .map(file => {
+                const parts = file.replace("qrcode_", "").replace(".png", "").split("-");
+                return {
+                    path: path.join(barcodeFolderPath, file),
+                    itemId: parts[0],
+                    stockId: parts[1]
+                };
+            });
+
+        for (const { path: imgPath, itemId, stockId } of allBarcodeImages) {
+            doc.rect(x, y, imageSize, imageSize).stroke();
+            doc.image(imgPath, x + 5, y + 5, { width: imageSize - 10, height: imageSize - 25 });
+
+            doc.fontSize(6).text(brandWarningText, x + 5, y + imageSize - 15, {
+                width: imageSize - 10,
+                align: "center"
+            });
+
+            doc.fontSize(10).text(`${itemId} - ${stockId}`, x, y + imageSize + 2, {
+                width: imageSize,
+                align: "center"
+            });
+
+            imageCount++;
+            x += imageSize + padding;
+            if (imageCount % qrCodesPerRow === 0) {
+                x = padding;
+                y += imageSize + 20;
+            }
+
+            if (imageCount > 0 && imageCount % 25 === 0) {
+                doc.addPage();
+                x = padding;
+                y = padding;
+            }
+        }
+
+        doc.end();
+
+        return res.status(201).json({
+            success: true,
+            message: "Stock added, QR codes generated and saved to PDF.",
+            imagePath,
+            qrCodePdfPath: `/uploads/barcodes/pdf/qrcodes_${purchase_id}.pdf`
         });
 
-        fs.writeFileSync(barcodeImagePath, pngBuffer);
-
-        await db.query(insertBarcodeQuery, [
-          purchase_id, I_Id, lastStockId, barcodeImagePath, "Available", null, material, price
-        ]);
-      }
-
-      await db.query(
-        `UPDATE Item SET stockQty = stockQty + ?, availableQty = availableQty + ? WHERE I_Id = ?`,
-        [quantity, quantity, I_Id]
-      );
-
-      const stockRange = `${startStockId}-${lastStockId}`;
-      stockRanges.push({ I_Id, stockRange });
+    } catch (error) {
+        console.error("Error adding stock received:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
     }
-
-    for (let { I_Id, stockRange } of stockRanges) {
-      await db.query(
-        `UPDATE purchase_detail SET stock_range = ? WHERE pc_Id = ? AND I_Id = ?`,
-        [stockRange, purchase_id, I_Id]
-      );
-    }
-
-    // Generate PDF
-    const pdfFolder = path.join("./uploads/barcodes/pdf");
-    if (!fs.existsSync(pdfFolder)) fs.mkdirSync(pdfFolder, { recursive: true });
-
-    const pdfPath = path.join(pdfFolder, `qrcodes_${purchase_id}.pdf`);
-    const doc = new PDFDocument({ autoFirstPage: true });
-    doc.pipe(fs.createWriteStream(pdfPath));
-
-    const qrCodesPerRow = 5;
-    const imageSize = 100;
-    const padding = 20;
-    const brandWarningText = "SHEJAMA - warranty void if removed";
-    let x = padding;
-    let y = padding;
-    let imageCount = 0;
-
-    const allBarcodeImages = fs.readdirSync(barcodeFolderPath)
-      .filter(file => file.startsWith("qrcode_") && file.endsWith(".png") && file.includes(`-${purchase_id}`))
-      .map(file => {
-        const parts = file.replace("qrcode_", "").replace(".png", "").split("-");
-        return {
-          path: path.join(barcodeFolderPath, file),
-          itemId: parts[0],
-          stockId: parts[1]
-        };
-      });
-
-    for (const { path: imgPath, itemId, stockId } of allBarcodeImages) {
-      doc.rect(x, y, imageSize, imageSize).stroke();
-      doc.image(imgPath, x + 5, y + 5, { width: imageSize - 10, height: imageSize - 25 });
-
-      doc.fontSize(6).text(brandWarningText, x + 5, y + imageSize - 15, {
-        width: imageSize - 10,
-        align: "center"
-      });
-
-      doc.fontSize(10).text(`${itemId} - ${stockId}`, x, y + imageSize + 2, {
-        width: imageSize,
-        align: "center"
-      });
-
-      imageCount++;
-      x += imageSize + padding;
-      if (imageCount % qrCodesPerRow === 0) {
-        x = padding;
-        y += imageSize + 20;
-      }
-
-      if (imageCount > 0 && imageCount % 25 === 0) {
-        doc.addPage();
-        x = padding;
-        y = padding;
-      }
-    }
-
-    doc.end();
-
-    return res.status(201).json({
-      success: true,
-      message: "Stock added, QR codes generated and saved to PDF.",
-      imagePath,
-      qrCodePdfPath: `/uploads/barcodes/pdf/qrcodes_${purchase_id}.pdf`
-    });
-
-  } catch (error) {
-    console.error("Error adding stock received:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-      error: error.message,
-    });
-  }
 });
 
 // Find cost by sid and iid

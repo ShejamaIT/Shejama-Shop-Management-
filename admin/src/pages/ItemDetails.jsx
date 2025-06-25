@@ -122,7 +122,7 @@ const ItemDetails = () => {
         if (!window.confirm("Are you sure you want to delete this stock item?")) return;
 
         try {
-            const response = await fetch(`http://localhost:5001/api/admin/main/stock/${pid_Id}`, {
+            const response = await fetch(`http://localhost:5001/api/admin/main/delete-one-stock/${pid_Id}`, {
                 method: "DELETE",
             });
 
@@ -145,21 +145,20 @@ const ItemDetails = () => {
         if (!window.confirm(`Delete ${selectedItems.length} selected stock item(s)?`)) return;
 
         try {
-            const deletePromises = selectedItems.map((pid_Id) =>
-                fetch(`http://localhost:5001/api/admin/main/stock/${pid_Id}`, {
-                    method: "DELETE",
-                }).then((res) => res.json())
-            );
+            const response = await fetch(`http://localhost:5001/api/admin/main/delete-more-stock/delete-multiple`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ pid_Ids: selectedItems }),
+            });
 
-            const results = await Promise.all(deletePromises);
+            const result = await response.json();
 
-            const failed = results.filter((res) => !res.success);
-            if (failed.length > 0) {
-                alert(`${failed.length} item(s) failed to delete.`);
+            if (result.success) {
+                setStock((prev) => prev.filter((item) => !selectedItems.includes(item.pid_Id)));
+            } else {
+                alert(`${result.failed?.length || 0} item(s) failed to delete.`);
             }
 
-            // Filter out deleted items from UI
-            setStock((prev) => prev.filter((item) => !selectedItems.includes(item.pid_Id)));
             setSelectedItems([]);
             setDeleteMode(false);
         } catch (err) {
@@ -167,6 +166,7 @@ const ItemDetails = () => {
             alert("Error deleting stock items.");
         }
     };
+
     const handleAddSupplier = async () => {
         try {
             // Assuming you want to save the item-supplier association

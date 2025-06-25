@@ -23,6 +23,9 @@ const ItemDetails = () => {
     const [showSupplierModal, setShowSupplierModal] = useState(false);
     const [stockData, setStockData] = useState({itemId:id, supplierId: "", stockCount: "", date: "", cost:"", comment:""});
     const [supplierData, setSupplierData] = useState({supplierName: "", contactInfo: "", cost:""});
+    const [deleteMode, setDeleteMode] = useState(false);
+    const [selectedItems, setSelectedItems] = useState([]);
+
     useEffect(() => {
         if (formData.maincategory) {
             fetch(`http://localhost:5001/api/admin/main/SubCatNames?categoryName=${formData.maincategory}`)
@@ -86,34 +89,84 @@ const ItemDetails = () => {
 
     const updateStatus = async (pid_Id, newStatus) => {
         console.log(pid_Id, newStatus);
-    if (!pid_Id || !newStatus) {
-        toast.error("❌ Missing Stock ID or Status.");
-        return;
-    }
-
-    try {
-        const response = await fetch("http://localhost:5001/api/admin/main/update-stock-status", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ pid_Id, status: newStatus }),
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            toast.success("✅ Status updated successfully!");
-        } else {
-            toast.error(result.message || "❌ Failed to update status.");
+        if (!pid_Id || !newStatus) {
+            toast.error("❌ Missing Stock ID or Status.");
+            return;
         }
-    } catch (err) {
-        console.error("❌ Status update error:", err);
-        toast.error("❌ Error updating stock status. Please try again.");
-    }
-};
 
+        try {
+            const response = await fetch("http://localhost:5001/api/admin/main/update-stock-status", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ pid_Id, status: newStatus }),
+            });
 
+            console.log(response);
+            const result = await response.json();
+    console.log(result);
+            if (response.ok) {
+                toast.success("✅ Status updated successfully!");
+            } else {
+                toast.error(result.message || "❌ Failed to update status.");
+            }
+        } catch (err) {
+            console.error("❌ Status update error:", err);
+            toast.error("❌ Error updating stock status. Please try again.");
+        }
+    };
+
+    // Single item delete
+    const deleteStock = async (pid_Id) => {
+        if (!window.confirm("Are you sure you want to delete this stock item?")) return;
+
+        try {
+            const response = await fetch(`http://localhost:5001/api/admin/main/stock/${pid_Id}`, {
+                method: "DELETE",
+            });
+
+            const res = await response.json();
+
+            if (res.success) {
+                setStock((prev) => prev.filter((item) => item.pid_Id !== pid_Id));
+            } else {
+                alert(res.message || "Failed to delete stock.");
+            }
+        } catch (err) {
+            console.error("Delete error:", err);
+            alert("Error deleting stock item.");
+        }
+    };
+
+    // Bulk delete
+    const deleteSelectedStocks = async () => {
+        if (selectedItems.length === 0) return;
+        if (!window.confirm(`Delete ${selectedItems.length} selected stock item(s)?`)) return;
+
+        try {
+            const deletePromises = selectedItems.map((pid_Id) =>
+                fetch(`http://localhost:5001/api/admin/main/stock/${pid_Id}`, {
+                    method: "DELETE",
+                }).then((res) => res.json())
+            );
+
+            const results = await Promise.all(deletePromises);
+
+            const failed = results.filter((res) => !res.success);
+            if (failed.length > 0) {
+                alert(`${failed.length} item(s) failed to delete.`);
+            }
+
+            // Filter out deleted items from UI
+            setStock((prev) => prev.filter((item) => !selectedItems.includes(item.pid_Id)));
+            setSelectedItems([]);
+            setDeleteMode(false);
+        } catch (err) {
+            console.error("Bulk delete error:", err);
+            alert("Error deleting stock items.");
+        }
+    };
     const handleAddSupplier = async () => {
         try {
             // Assuming you want to save the item-supplier association
@@ -256,7 +309,6 @@ const ItemDetails = () => {
             setLoading(false);
         }
     };
-
 
     const handleChange = (e, supplierId) => {
         const { name, value, type, files } = e.target;
@@ -600,7 +652,6 @@ const ItemDetails = () => {
                                             </Button>
 
                                             <Button color="secondary" className="ms-3" onClick={() => setShowSupplierModal(true)}>Add Supplier</Button>
-                                            {/*<Button color="danger" className="ms-3" onClick={() => setShowStockModal(true)}>Add Stock</Button>*/}
                                         </>
 
                                     ) : (
@@ -660,66 +711,113 @@ const ItemDetails = () => {
                         </Col>
 
                         <Col lg="12">
-  <h4 className="mb-3 text-center topic">Stock Details</h4>
-  <div className="item-details">
-    {stock && stock.length > 0 ? (
-      <table className="table table-striped table-bordered">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Stock ID</th>
-            <th>Batch ID</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {stock.map((stockItem, index) => (
-            <tr key={stockItem.pid_Id}>
-              <td>{stockItem.pid_Id}</td>
-              <td>{stockItem.stock_Id}</td>
-              <td>{stockItem.pc_Id}</td>
-              <td>
-                <select
-                  value={stockItem.status || "Available"}
-                  onChange={(e) => {
-                    const newStatus = e.target.value;
-                    setStock((prevStock) => {
-                      const updatedStock = [...prevStock];
-                      updatedStock[index] = {
-                        ...updatedStock[index],
-                        status: newStatus,
-                      };
-                      return updatedStock;
-                    });
-                  }}
-                  className="form-control"
-                >
-                  <option value="Available">Available</option>
-                  <option value="Damage">Damage</option>
-                  <option value="Dispatched">Dispatched</option>
-                </select>
-              </td>
-              <td>
-                <button
-                  className="btn btn-sm btn-primary"
-                  onClick={() =>
-                    updateStatus(stockItem.pid_Id, stockItem.status)
-                  }
-                >
-                  Update
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    ) : (
-      <p className="text-center">No stock details available</p>
-    )}
-  </div>
-</Col>
+                            <h4 className="mb-3 text-center topic">Stock Details</h4>
 
+                            {/* Delete mode toggle button */}
+                            <div className="mb-3 text-end">
+                                {!deleteMode ? (
+                                    <button className="btn btn-warning" onClick={() => setDeleteMode(true)}>
+                                        Delete One
+                                    </button>
+                                ) : (
+                                    <button className="btn btn-secondary me-2" onClick={() => {
+                                        setDeleteMode(false);
+                                        setSelectedItems([]);
+                                    }}>
+                                        Cancel
+                                    </button>
+                                )}
+                                {deleteMode && selectedItems.length > 0 && (
+                                    <button className="btn btn-danger ms-2" onClick={deleteSelectedStocks}>
+                                        Delete Selected
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="item-details">
+                                {stock && stock.length > 0 ? (
+                                    <table className="table table-striped table-bordered">
+                                        <thead>
+                                        <tr>
+                                            {deleteMode && <th>Select</th>}
+                                            <th>ID</th>
+                                            <th>Stock ID</th>
+                                            <th>Batch ID</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {stock.map((stockItem, index) => (
+                                            <tr key={stockItem.pid_Id}>
+                                                {deleteMode && (
+                                                    <td>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedItems.includes(stockItem.pid_Id)}
+                                                            onChange={(e) => {
+                                                                const isChecked = e.target.checked;
+                                                                setSelectedItems((prev) =>
+                                                                    isChecked
+                                                                        ? [...prev, stockItem.pid_Id]
+                                                                        : prev.filter((id) => id !== stockItem.pid_Id)
+                                                                );
+                                                            }}
+                                                        />
+                                                    </td>
+                                                )}
+                                                <td>{stockItem.pid_Id}</td>
+                                                <td>{stockItem.stock_Id}</td>
+                                                <td>{stockItem.pc_Id}</td>
+                                                <td>
+                                                    <select
+                                                        value={stockItem.status || "Available"}
+                                                        onChange={(e) => {
+                                                            const newStatus = e.target.value;
+                                                            setStock((prevStock) => {
+                                                                const updatedStock = [...prevStock];
+                                                                updatedStock[index] = {
+                                                                    ...updatedStock[index],
+                                                                    status: newStatus,
+                                                                };
+                                                                return updatedStock;
+                                                            });
+                                                        }}
+                                                        className="form-control"
+                                                    >
+                                                        <option value="Available">Available</option>
+                                                        <option value="Damage">Damage</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <Row>
+                                                        <Col lg={6}>
+                                                            <button
+                                                                className="btn btn-sm btn-primary w-100"
+                                                                onClick={() => updateStatus(stockItem.pid_Id, stockItem.status)}
+                                                            >
+                                                                Update
+                                                            </button>
+                                                        </Col>
+                                                        <Col lg={6}>
+                                                            <button
+                                                                className="btn btn-sm btn-danger w-100"
+                                                                onClick={() => deleteStock(stockItem.pid_Id)}
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        </Col>
+                                                    </Row>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    <p className="text-center">No stock details available</p>
+                                )}
+                            </div>
+                        </Col>
 
                     </Row>
                 </Container>

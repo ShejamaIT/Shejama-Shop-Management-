@@ -18,7 +18,6 @@ const TablePurchaseNote = () => {
         try {
             const response = await fetch("http://localhost:5001/api/admin/main/allPurchasenote");
             const data = await response.json();
-            console.log(data);
             if (!response.ok) {
                 throw new Error(data.message || "Failed to fetch orders");
             }
@@ -43,7 +42,31 @@ const TablePurchaseNote = () => {
         navigate(`/purchase-detail/${noteId}`);
     };
 
-    // Search function to filter by Order ID
+    const handleDeleteNote = async (noteId) => {
+        if (!window.confirm("Are you sure you want to delete this purchase note?")) return;
+
+        try {
+            const response = await fetch(`http://localhost:5001/api/admin/main/deletePurchase/${noteId}`, {
+                method: "DELETE",
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                toast.success("✅ Purchase note deleted successfully");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+                fetchNotes(); // Refresh the list
+            } else {
+                alert(result.message || "Failed to delete purchase note.");
+            }
+        } catch (err) {
+            console.error("Delete error:", err);
+            alert("Server error while deleting purchase note.");
+        }
+    };
+
     const handleSearch = (event) => {
         const query = event.target.value.toLowerCase();
         setSearchQuery(query);
@@ -58,7 +81,7 @@ const TablePurchaseNote = () => {
     return (
         <div className="table-container">
             <h4 className="table-title">Purchase Notes</h4>
-            {/* 🔍 Search Input */}
+
             <input
                 type="text"
                 placeholder="Search by Supplier ID..."
@@ -81,15 +104,15 @@ const TablePurchaseNote = () => {
                     <tbody>
                     {loading ? (
                         <tr>
-                            <td colSpan="10" className="loading-text text-center">Loading orders...</td>
+                            <td colSpan="5" className="loading-text text-center">Loading orders...</td>
                         </tr>
                     ) : error ? (
                         <tr>
-                            <td colSpan="10" className="error-text text-center">{error}</td>
+                            <td colSpan="5" className="error-text text-center">{error}</td>
                         </tr>
                     ) : filteredOrders.length === 0 ? (
                         <tr>
-                            <td colSpan="10" className="no-data text-center">No Issued orders found</td>
+                            <td colSpan="5" className="no-data text-center">No issued orders found</td>
                         </tr>
                     ) : (
                         filteredOrders.map((note) => (
@@ -104,6 +127,12 @@ const TablePurchaseNote = () => {
                                         onClick={() => handleViewOrder(note.noteId)}
                                     >
                                         👁️
+                                    </button>
+                                    <button
+                                        className="delete-btn"
+                                        onClick={() => handleDeleteNote(note.noteId)}
+                                    >
+                                        🗑️
                                     </button>
                                 </td>
                             </tr>

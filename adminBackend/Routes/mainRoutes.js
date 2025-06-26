@@ -6043,6 +6043,29 @@ router.post("/addStock", upload.single("image"), async (req, res) => {
     }
 });
 
+// DELETE Purchase Note API
+router.delete("/deletePurchase/:pc_Id", async (req, res) => {
+    const { pc_Id } = req.params;
+
+    try {
+        if (!pc_Id) {
+            return res.status(400).json({ success: false, message: "Missing purchase ID" });
+        }
+
+        // Delete from purchase (cascades to purchase_detail and p_i_detail via FK)
+        const [result] = await db.query("DELETE FROM purchase WHERE pc_Id = ?", [pc_Id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: "Purchase not found" });
+        }
+
+        return res.status(200).json({ success: true, message: "Purchase deleted successfully" });
+    } catch (err) {
+        console.error("Error deleting purchase:", err);
+        return res.status(500).json({ success: false, message: "Server error", error: err.message });
+    }
+});
+
 // Find cost by sid and iid
 router.get("/find-cost", async (req, res) => {
     try {

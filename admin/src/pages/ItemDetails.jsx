@@ -25,6 +25,128 @@ const ItemDetails = () => {
     const [supplierData, setSupplierData] = useState({supplierName: "", contactInfo: "", cost:""});
     const [deleteMode, setDeleteMode] = useState(false);
     const [selectedItems, setSelectedItems] = useState([]);
+    const [showStockModal1, setShowStockModal1] = useState(false);
+    const [suppliers2, setSuppliers2] = useState([]);
+    const [selectedSupplier, setSelectedSupplier] = useState("");
+    const [unitCost, setUnitCost] = useState("");
+    const [stockCount, setStockCount] = useState(1);
+    const [material, setMaterial] = useState("");
+    const [itemForStock, setItemIdForStock] = useState("");
+    const [totalCost, setTotalCost] = useState(0);
+    const [PurchaseId, setPurchaseId] = useState("");
+
+    const currentDate = new Date().toLocaleDateString();
+    const currentTime = new Date().toLocaleTimeString();
+
+    useEffect(() => {
+        const fetchPurchaseID = async () => {
+            try {
+                const response = await fetch("http://localhost:5001/api/admin/main/newPurchasenoteID");
+                const data = await response.json();
+                setPurchaseId(data.PurchaseID);
+            } catch (err) {
+                toast.error("Failed to load Purchase ID.");
+            }
+        };
+
+        fetchPurchaseID();
+    }, []);
+
+    // Fetch suppliers for this item
+    useEffect(() => {
+        if (!showStockModal1) return;
+
+        const fetchSuppliers = async () => {
+            const res = await fetch(`http://localhost:5001/api/admin/main/item-suppliers?I_Id=${id}`);
+            const data = await res.json();
+            setSuppliers2(data.suppliers || []);
+        };
+
+        fetchSuppliers();
+    }, [showStockModal1]);
+
+    const handleSupplierChange1 = async (e) => {
+        const supplierId = e.target.value;
+        setSelectedSupplier(supplierId);
+        console.log(supplierId);
+
+        const res = await fetch(`http://localhost:5001/api/admin/main/find-cost?s_ID=${supplierId}&I_Id=${id}`);
+        const data = await res.json();
+
+        if (data.cost?.unit_cost) {
+            setUnitCost(data.cost.unit_cost);
+            setTotalCost(data.cost.unit_cost * stockCount);
+        }
+    };
+
+    useEffect(() => {
+        setTotalCost(unitCost * stockCount);
+    }, [unitCost, stockCount]);
+    const handleAddStock = () => {
+        const stockData = {
+            purchase_id: PurchaseId,
+            date: currentDate,
+            time: currentTime,
+            supplier_id: selectedSupplier,
+            itemTotal: totalCost,
+            delivery: 0,
+            invoice: "",
+            items: [
+                {
+                    I_Id: item.I_Id,
+                    material: item.material,
+                    color: item.color || "N/A",
+                    unit_price: unitCost,
+                    price: item.price,
+                    quantity: stockCount,
+                    total_price: totalCost.toFixed(2)
+                }
+            ],
+        };
+
+        onAddStock(stockData);
+        setShowStockModal(false);
+    };
+
+    const onAddStock = async (stockData) => {
+        try {
+            const formData = new FormData();
+
+            // Append all fields
+            formData.append("purchase_id", stockData.purchase_id);
+            formData.append("supplier_id", stockData.supplier_id);
+            formData.append("date", stockData.date);
+            formData.append("itemTotal", stockData.itemTotal);
+            formData.append("delivery", stockData.delivery);
+            formData.append("invoice", stockData.invoice || "");
+
+            // Convert items array to JSON string
+            formData.append("items", JSON.stringify(stockData.items));
+
+            const response = await fetch("http://localhost:5001/api/admin/main/addStock", {
+                method: "POST",
+                body: formData,
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                setShowStockModal1(false);
+                toast.success("✅ Stock added successfully!");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                console.error("❌ Stock add failed:", result.message);
+                alert("Failed to add stock: " + result.message);
+            }
+        } catch (error) {
+            console.error("⚠️ Error during stock add:", error);
+            alert("Server error while adding stock.");
+        }
+    };
+
+
 
     useEffect(() => {
         if (formData.maincategory) {
@@ -63,7 +185,6 @@ const ItemDetails = () => {
             }));
         }
     };
-
     const handleImageChange = (e) => {
         const { name, files } = e.target;
         const file = files[0];
@@ -115,6 +236,27 @@ const ItemDetails = () => {
         } catch (err) {
             console.error("❌ Status update error:", err);
             toast.error("❌ Error updating stock status. Please try again.");
+        }
+    };
+
+    const deleteItem = async (I_Id) => {
+        if (!window.confirm("Are you sure you want to delete this item?")) return;
+
+        try {
+            const response = await fetch(`http://localhost:5001/api/admin/main/drop-item/${I_Id}`, {
+                method: "DELETE",
+            });
+
+            const res = await response.json();
+            if (res.success) {
+                toast.success("✅ Item deleted successfully.!");
+                // Refresh list or remove item from UI
+            } else {
+                alert(res.message || "Failed to delete item.");
+            }
+        } catch (err) {
+            console.error("Delete item error:", err);
+            alert("Server error while deleting item.");
         }
     };
 
@@ -233,6 +375,7 @@ const ItemDetails = () => {
 
             if (updateResponse.ok && updateResult.success) {
                 toast.success("✅ Item updated successfully!");
+                console.log(updateResult);
                 fetchItem1(updateResult.data.I_Id);
                 setIsEditing(false);
                 setFormData(updateResult.data);
@@ -264,7 +407,7 @@ const ItemDetails = () => {
 
     // Fetch all suppliers when the modal opens
     useEffect(() => {
-        const fetchSuppliers = async () => {
+        const fetchAllSuppliers = async () => {
             try {
                 const response = await fetch("http://localhost:5001/api/admin/main/suppliers");
                 if (!response.ok) throw new Error("Failed to fetch suppliers");
@@ -280,7 +423,7 @@ const ItemDetails = () => {
         };
 
         if (showSupplierModal) {
-            fetchSuppliers();
+            fetchAllSuppliers();
         }
     }, [showSupplierModal]); // Re-run this when the modal is opened
 
@@ -649,27 +792,50 @@ const ItemDetails = () => {
                                     {!isEditing ? (
                                         <>
                                             <Button
-                                            color="primary"
-                                            className="ms-3"
-                                            onClick={() => {
-                                                setPreviousId(item.I_Id);     // store original ID
-                                                setFormData(item);            // populate form with item values
-                                                setIsEditing(true);           // toggle edit mode
-                                            }}
+                                                color="primary"
+                                                className="ms-3"
+                                                onClick={() => {
+                                                    setPreviousId(item.I_Id);     // store original ID
+                                                    setFormData(item);            // populate form with item values
+                                                    setIsEditing(true);           // toggle edit mode
+                                                }}
                                             >
-                                            Edit Item
+                                                Edit Item
                                             </Button>
 
-                                            <Button color="secondary" className="ms-3" onClick={() => setShowSupplierModal(true)}>Add Supplier</Button>
-                                        </>
+                                            <Button
+                                                color="secondary"
+                                                className="ms-3"
+                                                onClick={() => setShowSupplierModal(true)}
+                                            >
+                                                Add Supplier
+                                            </Button>
 
+                                            <Button
+                                                color="info"
+                                                className="ms-3"
+                                                onClick={() => {
+                                                    setItemIdForStock(item.I_Id); // You should manage item ID in state for modal use
+                                                    setShowStockModal1(true);
+                                                }}
+                                            >
+                                                Add Stock
+                                            </Button>
+                                        </>
                                     ) : (
                                         <>
                                             <Button color="success" onClick={handleSave}>Save Changes</Button>
-                                            <Button color="secondary" className="ms-3" onClick={() => setIsEditing(false)}>Cancel</Button>
+                                            <Button
+                                                color="secondary"
+                                                className="ms-3"
+                                                onClick={() => setIsEditing(false)}
+                                            >
+                                                Cancel
+                                            </Button>
                                         </>
                                     )}
                                 </div>
+
                             </div>
                             {/* Add Supplier Modal */}
                             <Modal isOpen={showSupplierModal} toggle={() => setShowSupplierModal(!showSupplierModal)}>
@@ -717,6 +883,51 @@ const ItemDetails = () => {
                                     <Button color="secondary" onClick={() => setShowSupplierModal(false)}>Cancel</Button>
                                 </ModalFooter>
                             </Modal>
+
+                            <Modal isOpen={showStockModal1} toggle={() => setShowStockModal1(!showStockModal1)}>
+                                <ModalHeader toggle={() => setShowStockModal1(!showStockModal1)}>Add Stock</ModalHeader>
+                                <ModalBody>
+                                    <FormGroup>
+                                        <Label>Supplier</Label>
+                                        <Input
+                                            type="select"
+                                            value={selectedSupplier}
+                                            onChange={handleSupplierChange1}
+                                        >
+                                            <option value="">Select Supplier</option>
+                                            {suppliers.map((supplier) => (
+                                                <option key={supplier.s_ID} value={supplier.s_ID}>
+                                                    {supplier.s_ID} - {supplier.name}
+                                                </option>
+                                            ))}
+                                        </Input>
+                                    </FormGroup>
+
+                                    <FormGroup>
+                                        <Label>Unit Cost</Label>
+                                        <Input type="number" value={unitCost} disabled />
+                                    </FormGroup>
+
+                                    <FormGroup>
+                                        <Label>Quantity</Label>
+                                        <Input
+                                            type="number"
+                                            value={stockCount}
+                                            onChange={(e) => setStockCount(e.target.value)}
+                                        />
+                                    </FormGroup>
+
+                                    <FormGroup>
+                                        <Label>Total Cost</Label>
+                                        <Input type="number" value={totalCost} disabled />
+                                    </FormGroup>
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button color="primary" onClick={handleAddStock}>Add Stock</Button>
+                                    <Button color="secondary" onClick={() => setShowStockModal1(false)}>Cancel</Button>
+                                </ModalFooter>
+                            </Modal>
+
                         </Col>
 
                         <Col lg="12">

@@ -192,6 +192,28 @@ router.put("/update-item", upload.fields([{ name: "img", maxCount: 1 }, { name: 
     }
 });
 
+// Delete item
+router.delete("/drop-item/:I_Id", async (req, res) => {
+    const { I_Id } = req.params;
+
+    try {
+        // Check if the item exists
+        const [itemRows] = await db.query("SELECT I_Id FROM Item WHERE I_Id = ?", [I_Id]);
+
+        if (itemRows.length === 0) {
+            return res.status(404).json({ success: false, message: "Item not found." });
+        }
+
+        // Delete the item (will also delete from item_supplier and other FK tables via ON DELETE CASCADE)
+        await db.query("DELETE FROM Item WHERE I_Id = ?", [I_Id]);
+
+        return res.status(200).json({ success: true, message: "Item deleted successfully." });
+    } catch (error) {
+        console.error("Error deleting item:", error.message);
+        return res.status(500).json({ success: false, message: "Server error.", error: error.message });
+    }
+});
+
 // update stock status
 router.put("/update-stock-status", async (req, res) => {
     const { pid_Id, status } = req.body;
@@ -454,7 +476,6 @@ router.post("/delete-more-stock/delete-multiple", async (req, res) => {
         message: "All selected stock items deleted successfully.",
     });
 });
-
 
 // Save a order
 router.post("/orders", async (req, res) => {
@@ -6052,6 +6073,34 @@ router.get("/find-cost", async (req, res) => {
     } catch (error) {
         console.error("Error fetching cost:", error.message);
         return res.status(500).json({ message: "Error fetching cost" });
+    }
+});
+
+// find suppliers with cost by iid
+router.get("/item-suppliers", async (req, res) => {
+    try {
+        const { I_Id } = req.query;
+
+        if (!I_Id) {
+            return res.status(400).json({ success: false, message: "Item ID (I_Id) is required." });
+        }
+
+        const [rows] = await db.query(`
+            SELECT  s.s_ID,s.name,s.contact_info,isup.unit_cost
+            FROM item_supplier isup JOIN supplier s ON isup.s_ID = s.s_ID WHERE isup.I_Id = ?;`, [I_Id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: "No suppliers found for this item." });
+        }
+
+        return res.status(200).json({
+            success: true,
+            suppliers: rows
+        });
+
+    } catch (error) {
+        console.error("Error fetching item suppliers:", error.message);
+        return res.status(500).json({ success: false, message: "Server error fetching item suppliers." });
     }
 });
 

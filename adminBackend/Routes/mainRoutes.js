@@ -6044,27 +6044,95 @@ router.post("/addStock", upload.single("image"), async (req, res) => {
 });
 
 // DELETE Purchase Note API
+// router.delete("/deletePurchase/:pc_Id", async (req, res) => {
+//     const { pc_Id } = req.params;
+
+//     try {
+//         if (!pc_Id) {
+//             return res.status(400).json({ success: false, message: "Missing purchase ID" });
+//         }
+
+//         // Delete from purchase (cascades to purchase_detail and p_i_detail via FK)
+//         const [result] = await db.query("DELETE FROM purchase WHERE pc_Id = ?", [pc_Id]);
+
+//         if (result.affectedRows === 0) {
+//             return res.status(404).json({ success: false, message: "Purchase not found" });
+//         }
+
+//         return res.status(200).json({ success: true, message: "Purchase deleted successfully" });
+//     } catch (err) {
+//         console.error("Error deleting purchase:", err);
+//         return res.status(500).json({ success: false, message: "Server error", error: err.message });
+//     }
+// });
 router.delete("/deletePurchase/:pc_Id", async (req, res) => {
     const { pc_Id } = req.params;
 
+    if (!pc_Id) {
+        return res.status(400).json({ success: false, message: "Missing purchase ID" });
+    }
+
     try {
-        if (!pc_Id) {
-            return res.status(400).json({ success: false, message: "Missing purchase ID" });
+        // 1️⃣ Fetch item quantity summary from p_i_detail
+        const [details] = await db.query(
+            `SELECT I_Id, status, COUNT(*) as count
+             FROM p_i_detail
+             WHERE pc_Id = ?
+             GROUP BY I_Id, status`,
+            [pc_Id]
+        );
+
+        // 2️⃣ Prepare and execute update queries for Item table
+        const itemMap = {}; // { I_Id: { available: x, damage: y, total: z } }
+
+        for (const row of details) {
+            const { I_Id, status, count } = row;
+            if (!itemMap[I_Id]) itemMap[I_Id] = { available: 0, damage: 0, total: 0 };
+            itemMap[I_Id].total += count;
+
+            if (status === "Available") {
+                itemMap[I_Id].available += count;
+            } else if (status === "Damage") {
+                itemMap[I_Id].damage += count;
+            } else {
+                itemMap[I_Id].available += count; // Treat others as available
+            }
         }
 
-        // Delete from purchase (cascades to purchase_detail and p_i_detail via FK)
-        const [result] = await db.query("DELETE FROM purchase WHERE pc_Id = ?", [pc_Id]);
+        for (const I_Id in itemMap) {
+            const { total, available, damage } = itemMap[I_Id];
+            await db.query(
+                `UPDATE Item
+                 SET stockQty = stockQty - ?, 
+                     availableQty = availableQty - ?, 
+                     damageQty = damageQty - ?
+                 WHERE I_Id = ?`,
+                [total, available, damage, I_Id]
+            );
+        }
 
-        if (result.affectedRows === 0) {
+        // 3️⃣ Delete the purchase (will cascade to purchase_detail and p_i_detail)
+        const [deleteResult] = await db.query(
+            "DELETE FROM purchase WHERE pc_Id = ?",
+            [pc_Id]
+        );
+
+        if (deleteResult.affectedRows === 0) {
             return res.status(404).json({ success: false, message: "Purchase not found" });
         }
 
-        return res.status(200).json({ success: true, message: "Purchase deleted successfully" });
+        return res.status(200).json({ success: true, message: "Purchase deleted and stock updated." });
+
     } catch (err) {
-        console.error("Error deleting purchase:", err);
-        return res.status(500).json({ success: false, message: "Server error", error: err.message });
+        console.error("Error deleting purchase and updating stock:", err);
+        return res.status(500).json({
+            success: false,
+            message: "Server error while deleting purchase.",
+            error: err.message
+        });
     }
 });
+
 
 // Find cost by sid and iid
 router.get("/find-cost", async (req, res) => {

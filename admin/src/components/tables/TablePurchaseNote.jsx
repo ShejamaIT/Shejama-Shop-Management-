@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import "../../style/TableThree.css";
 
 const TablePurchaseNote = () => {
@@ -72,7 +73,7 @@ const TablePurchaseNote = () => {
         setSearchQuery(query);
 
         const filteredData = notes.filter((note) =>
-            note.supId.toString().toLowerCase().includes(query)
+            note.noteId.toString().toLowerCase().includes(query)
         );
 
         setFilteredOrders(filteredData);

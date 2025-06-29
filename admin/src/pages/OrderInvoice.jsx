@@ -966,64 +966,90 @@ const OrderInvoice = ({ onPlaceOrder }) => {
     }
 
     };
+    // const handleSubmit3 = async (formData) => {
+    //     console.log(formData);
+    //     setsele
+    //     const updatedData = {
+    //         orID: selectedOrder.orderId,
+    //         orderDate: selectedOrder.orderDate,
+    //         delStatus: formData.deliveryStatus,
+    //         delPrice: formData.delivery,
+    //         deliveryStatus: formData.deliveryStatus,
+    //         discount: selectedOrder.discount,
+    //         subtotal: formData.subtotal,
+    //         total: formData.billTotal,
+    //         advance: formData.totalAdvance,
+    //         payStatus: formData.paymentType,
+    //         stID: saleteam[0]?.id,
+    //         paymentAmount: formData.addedAdvance || 0,
+    //         selectedItems: formData.selectedItems,
+    //         balance: formData.billTotal - formData.totalAdvance, // assuming balance calculation
+    //         salesperson: saleteam[0]?.name,
+    //         items: selectedOrder.items,
+    //     };
+    //     console.log(updatedData);
+       
+    // };
     const handleSubmit3 = async (formData) => {
         console.log(formData);
-        // Optional: Clean or format the items if needed
-        const filteredSelectedItems = (formData.selectedItems || []).map(item => ({
-            I_Id: item.I_Id,
-            stock_Id: item.stock_Id,
-            pc_Id: item.pc_Id,
-            pid_Id: item.pid_Id,
-            price: item.price,
-            material: item.material,
-            datetime: item.datetime,
-        }));
+    // Optional: Clean or format the items if needed
+    const filteredSelectedItems = (formData.selectedItems || []).map(item => ({
+        I_Id: item.I_Id,
+        stock_Id: item.stock_Id,
+        pc_Id: item.pc_Id,
+        pid_Id: item.pid_Id,
+        price: item.price,
+        material: item.material,
+        datetime: item.datetime,
+    }));
 
-        // ✅ Update state with selected items
-        setSeletedItem2(filteredSelectedItems);
+    // ✅ Update state with selected items
+    setSeletedItem2(filteredSelectedItems);
 
-        const updatedData = {
-            orID: selectedOrder.orderId,
-            orderDate: selectedOrder.orderDate,
-            delStatus: formData.deliveryStatus,
-            delPrice: formData.delivery,
-            deliveryStatus: formData.deliveryStatus,
-            discount: selectedOrder.discount,
-            subtotal: formData.subtotal,
-            total: formData.billTotal,
-            advance: formData.totalAdvance,
-            payStatus: formData.paymentType,
-            stID: saleteam[0]?.id,
-            paymentAmount: formData.addedAdvance || 0,
-            selectedItems: filteredSelectedItems,
-            balance: formData.billTotal - formData.totalAdvance,
-            salesperson: saleteam[0]?.name,
-            items: selectedOrder.items,
-        };
-
-         try {
-                // Make API request to the /isssued-order endpoint
-                const response = await fetch('http://localhost:5001/api/admin/main/issued-items-Now', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(updatedData),
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    toast.success("Update order Successfully");
-                    setReceiptData(updatedData);  // Set data for receipt
-                    setShowReceiptView(true);         // Show receipt view
-                } else {
-                    console.error("Error:", result.message);
-                }
-            } catch (error) {
-                console.error("Error making API request:", error.message);
-            }
-
-        // Optional: send to API if needed
+    const updatedData = {
+        orID: selectedOrder.orderId,
+        orderDate: selectedOrder.orderDate,
+        delStatus: formData.deliveryStatus,
+        delPrice: formData.delivery,
+        deliveryStatus: formData.deliveryStatus,
+        discount: selectedOrder.discount,
+        subtotal: formData.subtotal,
+        total: formData.billTotal,
+        advance: formData.totalAdvance,
+        payStatus: formData.paymentType,
+        stID: saleteam[0]?.id,
+        paymentAmount: formData.addedAdvance || 0,
+        selectedItems: filteredSelectedItems,
+        balance: formData.billTotal - formData.totalAdvance,
+        salesperson: saleteam[0]?.name,
+        items: selectedOrder.items,
     };
+
+    console.log("Updated Data:", updatedData);
+    console.log("Selected Items Set to State:", filteredSelectedItems);
+     try {
+            // Make API request to the /isssued-order endpoint
+            const response = await fetch('http://localhost:5001/api/admin/main/issued-items-Now', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedData),
+            });
+            const result = await response.json();
+            if (response.ok) {
+                toast.success("Update order Successfully");
+                setReceiptData(updatedData);  // Set data for receipt
+                setShowReceiptView(true);         // Show receipt view
+            } else {
+                console.error("Error:", result.message);
+            }
+        } catch (error) {
+            console.error("Error making API request:", error.message);
+        }
+
+    // Optional: send to API if needed
+};
 
     const handleSubmit2 = async (formData1) => {
         const updatedReceiptData = {
@@ -1081,9 +1107,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             }
 
             toast.success("Delivery note created successfully.");
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
             setReceiptDataD(updatedReceiptData);
             setShowModal3(false);
             setShowDeliveryView(true);
@@ -1703,7 +1726,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                         value={formData.phoneNumber}
                                         onChange={handleChange}
                                         onBlur={() => handlePhoneNumberBlur(formData.phoneNumber)}
-                                        required
                                     />
                                 </FormGroup>
                             </Col>

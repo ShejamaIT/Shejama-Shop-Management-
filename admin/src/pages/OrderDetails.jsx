@@ -22,6 +22,7 @@ const OrderDetails = () => {
     const [items, setItems] = useState([]); // State to store supplier data
     const [filteredItems, setFilteredItems] = useState([]);
     const [selectedItems, setSelectedItems] = useState([]);
+    const [specialReservedItems , setSpecialReservedItems] = useState([]);
 
 
     useEffect(() => {
@@ -44,16 +45,33 @@ const OrderDetails = () => {
     const fetchOrder = async () => {
         try {
             const response = await fetch(`http://localhost:5001/api/admin/main/order-details?orID=${id}`);
+            const response1 = await fetch(`http://localhost:5001/api/admin/main/special-reserved-details?orID=${id}`);
+
             if (!response.ok) throw new Error("Failed to fetch order details.");
+
             const data = await response.json();
-            setOrder(data.order);
-            setFormData({
-                ...data.order,
-                items: data.order.items.map(item => ({
+            console.log(data);
+            const data1 = response1.ok ? await response1.json() : { data: [] }; // fallback if request fails
+            // Set special reserved items safely
+            setSpecialReservedItems(Array.isArray(data1.data) ? data1.data : []);
+
+
+            // Handle booked items
+            const bookedItems = Array.isArray(data.order.bookedItems)
+                ? data.order.bookedItems.map((booked) => booked.itemId)
+                : [];
+            //
+            const updatedItems = Array.isArray(data.order.items)
+                ? data.order.items.map((item) => ({
                     ...item,
-                    booked: item.booked || false,
+                    booked: bookedItems.includes(item.itemId),
                 }))
-            });
+                : [];
+
+            // Update state
+            setOrder({ ...data.order, items: updatedItems });
+            setFormData({ ...data.order, items: updatedItems });
+
             setLoading(false);
         } catch (err) {
             console.error("Error fetching order details:", err);
@@ -61,7 +79,6 @@ const OrderDetails = () => {
             setLoading(false);
         }
     };
-
     const calculateTotal = () => {
         const items = formData.items || [];
 
@@ -77,7 +94,6 @@ const OrderDetails = () => {
         return total.toFixed(2);
     };
 
-
     const calculateBalance = (total,advance) => {
         return Number(total) - Number(advance);
     }
@@ -90,6 +106,7 @@ const OrderDetails = () => {
             }, 0)
             : 0;
     };
+
 
     const handleRemoveItem = (index) => {
         setFormData((prevFormData) => ({
@@ -502,35 +519,37 @@ const OrderDetails = () => {
                                 <h5 className="mt-4">Ordered Items</h5>
                                 <ul className="order-items">
                                     <div className="order-general">
-                                        {formData.items.map((item, index) => (
-                                            <li key={index}>
-                                                <p><strong>Item:</strong> {item.itemName}</p>
-                                                <p><strong>Color:</strong> {item.color}</p>
-                                                <p><strong>Requested Quantity:</strong> {item.quantity}</p>
-                                                <p><strong>Unit Price:</strong> Rs. {item.unitPrice}</p>
-                                                <p><strong>Discount:</strong> Rs. {item.discount}</p>
-                                                <p><strong>Amount:</strong> Rs. {item.amount}</p>
-                                                <p><strong>Available Quantity:</strong> {item.availableQuantity}</p>
-                                                {isEditing && (
-                                                    <FormGroup check>
-                                                        <Label check>
-                                                            <Input
-                                                                type="checkbox" name="booked"
-                                                                checked={formData.items[index]?.booked || false}
-                                                                onChange={(e) => handleChange(e, index)}
-                                                            />
-                                                            Mark as Booked
-                                                        </Label>
-                                                        <Button color="danger" className="ms-2"
-                                                                onClick={() => handleRemoveItem(index, item)}>Remove</Button>
-                                                        <Button color="secondary" className="ms-2"
-                                                                onClick={() => handleEditClick2(item, order)}>Change
-                                                            Qty</Button>
-                                                    </FormGroup>
+                                        {formData.items.map((item, index) => {
+                                            const isReserved = specialReservedItems?.some(res => res.orderDetailId === item.id);
 
-                                                )}
-                                            </li>
-                                        ))}
+                                            return (
+                                                <li key={index} style={{ position: 'relative', marginBottom: "1rem", padding: "1rem", border: "1px solid #ccc", borderRadius: "6px" }}>
+                                                    <p><strong>Item:</strong> {item.itemName}</p>
+                                                    <p><strong>Color:</strong> {item.color}</p>
+                                                    <p><strong>Requested Quantity:</strong> {item.quantity}</p>
+                                                    <p><strong>Unit Price:</strong> Rs. {item.unitPrice}</p>
+                                                    <p><strong>Discount:</strong> Rs. {item.discount}</p>
+                                                    <p><strong>Amount:</strong> Rs. {item.amount}</p>
+                                                    <p><strong>Available Quantity:</strong> {item.availableQuantity}</p>
+
+                                                    {/* 🔴 Red check icon for special reserved */}
+                                                    {isReserved && (
+                                                        <i
+                                                            className="bx bx-check-circle"
+                                                            style={{
+                                                                color: 'red',
+                                                                position: 'absolute',
+                                                                top: 10,
+                                                                right: 10,
+                                                                fontSize: '24px'
+                                                            }}
+                                                            title="Specially Reserved"
+                                                        />
+                                                    )}
+                                                </li>
+                                            );
+                                        })}
+
                                     </div>
                                     {isEditing && (
                                         <Button color="primary" className="mt-3"

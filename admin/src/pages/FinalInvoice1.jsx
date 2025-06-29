@@ -142,48 +142,48 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
         setDropdownOpen(filtered.length > 0);
     };
     const handleSelectItem = (item) => {
-    const orderedItem = selectedOrder.items.find(orderItem => orderItem.itemId === item.I_Id);
+        const orderedItem = selectedOrder.items.find(orderItem => orderItem.itemId === item.I_Id);
 
-    if (!orderedItem) {
-        toast.error("Selected stock does not belong to the order.");
-        return;
-    }
+        if (!orderedItem) {
+            toast.error("Selected stock does not belong to the order.");
+            return;
+        }
 
-    const requestedQty = orderedItem.quantity;
+        const requestedQty = orderedItem.quantity;
 
-    // ✅ Count how many stock items have already been selected for this I_Id
-    const selectedCount = selectedItems.filter(selected => selected.I_Id === item.I_Id).length;
+        // ✅ Count how many stock items have already been selected for this I_Id
+        const selectedCount = selectedItems.filter(selected => selected.I_Id === item.I_Id).length;
 
-    if (selectedCount >= requestedQty) {
-        toast.error(`You cannot select more than ${requestedQty} stock items for item ID ${item.I_Id}.`);
-        return;
-    }
+        if (selectedCount >= requestedQty) {
+            toast.error(`You cannot select more than ${requestedQty} stock items for item ID ${item.I_Id}.`);
+            return;
+        }
 
-    // ✅ Prevent duplicate stock_Id *only within same itemId*
-    const isAlreadySelected = selectedItems.some(
-        selected => selected.I_Id === item.I_Id && selected.stock_Id === item.stock_Id
-    );
+        // ✅ Prevent duplicate stock_Id *only within same itemId*
+        const isAlreadySelected = selectedItems.some(
+            selected => selected.I_Id === item.I_Id && selected.stock_Id === item.stock_Id
+        );
 
-    if (isAlreadySelected) {
-        toast.error("This stock item has already been selected.");
-        return;
-    }
+        if (isAlreadySelected) {
+            toast.error("This stock item has already been selected.");
+            return;
+        }
 
-    const unitPrice = orderedItem.price && orderedItem.quantity
-        ? orderedItem.price / orderedItem.quantity
-        : 0;
+        const unitPrice = orderedItem.price && orderedItem.quantity
+            ? orderedItem.price / orderedItem.quantity
+            : 0;
 
-    const itemWithPrice = {
-        ...item,
-        price: unitPrice
+        const itemWithPrice = {
+            ...item,
+            price: unitPrice
+        };
+
+        setSelectedItems(prev => [...prev, itemWithPrice]);
+        setSearchTerm('');
+        setDropdownOpen(false);
+
+        console.log("✅ Item added to selection:", itemWithPrice);
     };
-
-    setSelectedItems(prev => [...prev, itemWithPrice]);
-    setSearchTerm('');
-    setDropdownOpen(false);
-
-    console.log("✅ Item added to selection:", itemWithPrice);
-};
 
     const handlePaymentTypeChange = (e) => {
         setPaymentType(e.target.value);
@@ -359,18 +359,18 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
                 <table className="selected-items-table">
                 <thead>
                     <tr>
-                    <th>Item ID</th>
-                    <th>Batch ID</th>
-                    <th>Stock ID</th>
-                    <th>Action</th>
+                        <th>Item ID</th>
+                        <th>Stock ID</th>
+                        <th>Batch ID</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {selectedItems.map((item, index) => (
                     <tr key={index}>
                         <td>{item.I_Id}</td>
-                        <td>{item.pc_Id}</td>
                         <td>{item.stock_Id}</td>
+                        <td>{item.pc_Id}</td>
                         <td>
                         <button
                             className="btn btn-sm btn-danger"

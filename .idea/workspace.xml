@@ -6,17 +6,162 @@
   <component name="ChangeListManager">
     <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="add item update">
       <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/pdf/qrcodes_PC_002.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KTSSB-1-PC_002.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KTSSB-2-PC_002.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KTSSB-3-PC_002.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_17_06_2025_17_40_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_17_06_2025_17_40__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_06_2025_11_41_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_06_2025_11_41__Changes_.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KT3DP-2-PC_002.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KT3DP-3-PC_002.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KT3DP-4-PC_002.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KT3DP-5-PC_002.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_06_2025_15_21_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_06_2025_15_21__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_06_2025_16_55_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_06_2025_16_55__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_06_2025_17_11_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_06_2025_17_11__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_20_06_2025_12_41_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_20_06_2025_12_41__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_20_06_2025_14_16_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_20_06_2025_14_16__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_20_06_2025_14_18__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_20_06_2025_14_33__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_22_06_2025_09_25__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_23_06_2025_16_32__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_24_06_2025_14_22__Changes_.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/ItemDetails.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/ItemDetails.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/FinalInvoice1.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/FinalInvoice1.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/OrderDetails.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/OrderDetails.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminBackend/utils/db.js" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/utils/db.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_DST13D-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_DST13D-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_DST13D-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_DST13D-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC-5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC-6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-1-15.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-1-22.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-10.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-2-15.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-2-22.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-3-15.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-3-22.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-4-15.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-5-15.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-7.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KRC01-9.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2DB-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2DB-10.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2DB-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2DB-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2DB-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2DB-5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2DB-6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2DB-7.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2DB-8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2DB-9.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2Dw-1-16.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2Dw-1-19.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2Dw-1-24.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2Dw-2-16.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2Dw-2-19.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2Dw-2-24.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2Dw-3-16.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2Dw-3-19.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2Dw-4-18.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2Dw-4-23.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2Dw-5-18.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2Dw-5-23.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2Dw-6-18.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT2Dw-7-18.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DB-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DB-10.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DB-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DB-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DB-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DB-5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DB-6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DB-7.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DB-8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DB-9.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-1-14.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-1-20.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-10.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-11.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-12.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-13.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-14.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-15.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-16.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-17.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-18.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-19.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-2-14.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-2-20.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-20.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-21.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-22.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-23.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-24.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-25.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-26.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-27.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-28.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-29.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-3-14.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-3-20.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-30.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-31.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-32.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-33.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-34.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-35.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-36.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-37.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-38.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-39.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-4-14.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-4-20.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-40.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-41.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-42.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-43.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-44.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-45.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-46.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-47.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-48.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-49.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-5-14.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-5-20.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-50.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-7.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KT3DP-9.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KTSSBMM-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KTSSBMM-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KTSSBMM-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_KTSSBMM-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_SSW-1-17.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_SSW-1-21.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_SSW-2-17.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_SSW-2-21.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_kt2dP-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/uploads/barcodes/barcode_kt2dP-2.png" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -388,6 +533,7 @@
       <workItem from="1750822874317" duration="10394000" />
       <workItem from="1750837306082" duration="319000" />
       <workItem from="1750841537865" duration="780000" />
+      <workItem from="1751171569448" duration="11098000" />
     </task>
     <task id="LOCAL-00174" summary="update item save">
       <created>1739502971716</created>

@@ -498,7 +498,7 @@ router.post("/orders", async (req, res) => {
         let Cust_id = c_ID;
         let Occupation = "-", WorkPlace = "-", tType = "-";
         let stID = null;
-        if (type === 'Walking' || type === 'On site') {
+        if (type === 'Walking' || type === 'On-site') {
             Occupation = occupation;
             WorkPlace = workPlace;
         } else {
@@ -580,7 +580,7 @@ router.post("/orders", async (req, res) => {
 
         let orderStatus = null;
 
-        if (type === 'On site') {
+        if (orderType === 'On-site') {
             orderStatus = "Pending";
         } else {
             // ✅ Set order status for Walking to 'Delivered' 0r 'Issued'
@@ -955,7 +955,7 @@ router.post("/later-order", async (req, res) => {
         }
         let orderStatus = null;
 
-        if (type === 'On site') {
+        if (orderType === 'On-site') {
             // ✅ Always set On-site orders as Pending
             orderStatus = "Pending";
         } else {
@@ -1439,6 +1439,7 @@ router.get("/allitems", async (req, res) => {
             warrantyPeriod: item.warrantyPeriod,
             img: `data:image/png;base64,${item.img.toString("base64")}`, // Convert LONGBLOB image to Base64
             color: item.color,
+
         }));
 
         // Send the formatted items as a JSON response
@@ -2061,7 +2062,7 @@ router.get("/accept-order-details", async (req, res) => {
                 discount: item.unitDiscount,
                 amountBeforeDiscount: item.unitPrice * item.qty,
                 totalDiscountAmount: item.unitDiscount * item.qty,
-                amount: item.tprice,
+                amount: ((item.unitPrice * item.qty) - item.unitDiscount),
                 booked: item.bookedQty > 0,
                 bookedQuantity: item.bookedQty,
                 availableQuantity: item.availableQty,
@@ -2559,29 +2560,22 @@ router.get("/order-details", async (req, res) => {
             expectedDeliveryDate: formatDate(orderData.expectedDate),
             specialNote: orderData.specialNote,
             salesTeam: orderData.salesEmployeeName ? { employeeName: orderData.salesEmployeeName } : null,
-            items: itemsResult.map(item => {
-                const { qty, unitPrice, unitDiscount } = item;
-                const amountBeforeDiscount = unitPrice * qty;
-                const totalDiscountAmount = unitDiscount * qty;
-                const finalAmount = item.tprice;
-
-                return {
-                    id: item.id,
-                    itemId: item.I_Id,
-                    itemName: item.I_name,
-                    color: item.color,
-                    quantity: qty,
-                    unitPrice: unitPrice,
-                    discount: unitDiscount,
-                    amountBeforeDiscount: amountBeforeDiscount,
-                    totalDiscountAmount: totalDiscountAmount,
-                    amount: finalAmount,
-                    booked: item.bookedQty > 0,
-                    bookedQuantity: item.bookedQty,
-                    availableQuantity: item.availableQty,
-                    stockQuantity: item.stockQty
-                };
-            }),
+            items: itemsResult.map(item => ({
+                id: item.id,
+                itemId: item.I_Id,
+                itemName: item.I_name,
+                color: item.color,
+                quantity: item.qty,
+                unitPrice: item.unitPrice,
+                discount: item.unitDiscount,
+                amountBeforeDiscount: item.unitPrice * item.qty,
+                totalDiscountAmount: item.unitDiscount * item.qty,
+                amount: (item.unitPrice * item.qty) - item.unitDiscount,
+                booked: item.bookedQty > 0,
+                bookedQuantity: item.bookedQty,
+                availableQuantity: item.availableQty,
+                stockQuantity: item.stockQty,
+            })),
         };
 
         // Fetch Delivery Info if it's a delivery order

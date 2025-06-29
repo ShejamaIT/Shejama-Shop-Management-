@@ -1030,6 +1030,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
     };
 
     const handleSubmit2 = async (formData1) => {
+        const today = new Date().toISOString().split("T")[0];
         const updatedReceiptData = {
             order:{
                 orderId: selectedOrder.orderId,
@@ -1047,28 +1048,31 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             driverId: formData1.driverId,
             hire: formData1.hire || 0,
             balanceToCollect: formData1.balanceToCollect || 0,
-            selectedDeliveryDate: formData.expectedDate, // Default to today's date if empty
+            selectedDeliveryDate: today, // Default to today's date if empty
             district: formData.district || "Unknown",
         };
         console.log(updatedReceiptData);
         try {
             // Prepare the data for the API request
+            const today = new Date().toISOString().split("T")[0];
+
             const deliveryNoteData = {
                 driverName: formData1.driverName,
                 driverId: formData1.driverId,
                 vehicleName: formData1.vehicleId, // Ensure correct field name
                 hire: formData1.hire || 0,
-                date: updatedReceiptData.selectedDeliveryDate,
-                order:{
+                date: today, // Just the date part
+                order: {
                     orderId: selectedOrder.orderId,
                     balance: parseFloat(balance) || 0,
-                    address:formData.address,
-                    contact1:formData.phoneNumber,
-                    contact2:formData.otherNumber,
+                    address: formData.address,
+                    contact1: formData.phoneNumber,
+                    contact2: formData.otherNumber,
                 },
                 district: formData.district || "Unknown",
                 balanceToCollect: formData.balanceToCollect || 0,
             };
+
             //Make the API call
             const response = await fetch("http://localhost:5001/api/admin/main/create-delivery-note-now", {
                 method: "POST",
@@ -1487,13 +1491,14 @@ const OrderInvoice = ({ onPlaceOrder }) => {
 
         setShowStockModal1(false);
     };
-    const handleSearchChange1 = (e) => {
+    const handleSearchChange1 = async (e) => {
         const term = e.target.value.trim();
         setSearchTerm(term);
 
         const parts = term.split("-");
         if (parts.length === 3) {
             const [itemId, stockId, batchId] = parts;
+            await fetchStockDetails(itemId); // ✅ wait for stockDetails to be updated
 
             const exactMatch = stockDetails.find(
                 (item) =>
@@ -1512,22 +1517,22 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         }
 
         const filtered = stockDetails.filter((item) =>
-            item.I_Id.toLowerCase().includes(term.toLowerCase()) ||
-            item.stock_Id.toString().includes(term)
+            item.I_Id?.toLowerCase().includes(term.toLowerCase()) ||
+            String(item.stock_Id || "").includes(term)
         );
         setFilteredItems(filtered);
         setDropdownOpen(term !== "" && filtered.length > 0);
     };
-
-
     const fetchStockDetails = async (itemId) => {
         if (!itemId) {
             setItemDetails([]);
+            setStockDetails([]);
             return;
         }
 
         try {
             setIsLoading(true);
+
             const response = await fetch("http://localhost:5001/api/admin/main/get-stock-detail", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -1539,9 +1544,11 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             }
 
             const data = await response.json();
-            console.log(data);
-            setItemDetails(data.stockDetails || []);
-            if (!data.stockDetails?.length) {
+            const stockData = data.stockDetails || [];
+
+            setItemDetails(stockData);
+            setStockDetails(stockData); // ✅ Now stockDetails is synced
+            if (!stockData.length) {
                 toast.error("No stock details found.");
             }
         } catch (error) {
@@ -1557,6 +1564,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                 selected.stock_Id === item.stock_Id &&
                 selected.pc_Id === item.pc_Id
         );
+
 
         if (!exists) {
             setSelectedItems1(prev => [...prev, { ...item, qty: 1, price: item.price || 0 }]);
@@ -1595,7 +1603,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         updatedCheques.splice(index, 1);
         setCheques(updatedCheques);
     };
-
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
 
@@ -3166,7 +3173,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                             className="dropdown-item"
                                             style={{ padding: "8px", cursor: "pointer" }}
                                         >
-                                            {item.I_Id} - {item.stock_Id} - {item.pc_Id}
+                                            {item.I_Id}-{item.stock_Id}-{item.pc_Id}
                                         </div>
                                     ))}
                                 </div>
@@ -3187,7 +3194,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                             {selectedItems1.map((item, index) => (
                                 <tr key={index}>
                                     <td>{item.I_Id}</td>
-                                    <td>{item.pid_Id}</td>
+                                    <td>{item.pc_Id}</td>
                                     <td>{item.stock_Id}</td>
                                 </tr>
                             ))}

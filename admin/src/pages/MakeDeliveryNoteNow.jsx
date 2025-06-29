@@ -18,7 +18,8 @@ const MakeDeliveryNoteNow = ({ selectedOrders, setShowModal, handleDeliveryUpdat
     const [filteredVehicle, setFilteredVehicle] = useState([]);
 
     useEffect(() => {
-        setBalanceToCollect(order.balance || 0);
+        console.log(order);
+        setBalanceToCollect(order.totalPrice - order.advance);
     }, [order]);
 
     useEffect(() => {
@@ -127,7 +128,7 @@ const MakeDeliveryNoteNow = ({ selectedOrders, setShowModal, handleDeliveryUpdat
                             <td>{order.customerName}</td>
                             <td>Rs.{order.totalPrice}</td>
                             <td>Rs.{order.advance}</td>
-                            <td>Rs.{order.balance}</td>
+                            <td>Rs.{balanceToCollect}</td>
                         </tr>
                         </tbody>
                     </table>

@@ -3,8 +3,8 @@ import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import { toast } from "react-toastify";
 import { Container, Row, Col, Form, FormGroup, Label,Table, Input, Button, ModalHeader, ModalBody, ModalFooter, Modal, Card, CardBody, CardTitle, CardText} from "reactstrap";
-import "../style/placeorder.css";
-import '../style/OrderManagement .css'
+ import "../style/placeorder.css";
+//import '../style/OrderManagement .css'
 import AddNewItem from "../pages/AddNewItem";
 import AddNewCoupone from "../pages/AddNewCoupone";
 import AddNewBank from "../pages/AddNewBank";
@@ -108,17 +108,16 @@ const OrderInvoice = ({ onPlaceOrder }) => {
     const [accountNumbers, setAccountNumbers] = useState([]);
     const [selectedBankId, setSelectedBankId] = useState("");
     const [availableAccounts, setAvailableAccounts] = useState([]);
-    const [stockDetails, setStockDetails] = useState([]);
     const [selectedAccount, setSelectedAccount] = useState("");
     const fixedRate = 2.5;
 
     const [ChequeBalance, setChequeBalance] = useState(0);
     const subPaymentOptions = {
-        Cash: ['Cash', 'Transfer'],
-        Card: ['Debit Card', 'Credit Card'],
-        // Cheque: ['Bank Cheque', 'Post-dated Cheque'],
-        // Credit: ['30 Days', '60 Days'],
-        Combined: ['Cash & Card','Cash & Cheque','Cash & Credit','Cash & Transfer']
+            Cash: ['Cash', 'Transfer'],
+            Card: ['Debit Card', 'Credit Card'],
+            // Cheque: ['Bank Cheque', 'Post-dated Cheque'],
+            // Credit: ['30 Days', '60 Days'],
+            Combined: ['Cash & Card','Cash & Cheque','Cash & Credit','Cash & Transfer']
     };
     const currentDate = new Date().toLocaleDateString();
     const currentTime = new Date().toLocaleTimeString();
@@ -483,14 +482,15 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         }
     };
     const handleSearchChange = (e) => {
-        const value = e.target.value;
+        const value = e.target.value.toLowerCase(); // lowercase once
         setSearchTerm(value);
+
         if (!value.trim()) {
             setFilteredItems(items);
         } else {
             const filtered = items.filter((item) =>
-                item.I_Id.toString().includes(value) ||
-                item.I_name.toLowerCase().includes(value.toLowerCase())
+                item.I_Id.toString().toLowerCase().includes(value) || // make ID search case-insensitive
+                item.I_name.toLowerCase().includes(value)
             );
             setFilteredItems(filtered);
         }
@@ -577,19 +577,21 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             originalPrice: updatedSelectedItem.price,
             itemName: updatedSelectedItem.I_name,
             unitPrice: updatedSelectedItem.price,
-            status: "",
+            status: formData.issuable === "Later" ? "Booked" : "",
         }));
 
         // Update selectedItemsQTY state
         setSelectedItemsQTY(prev => [...prev, ...newFlatItems]);
 
-        // Reset fields
-        setSelectedItem(updatedSelectedItem); // Optionally set `selectedItem` to the one just added
-        setQuantity(1);
-        setDiscount("");
+        // Reset fields after adding the item
+        setSelectedItem(null); // Clear selected item
+        setDiscount(0); // Clear discount
+        setQuantity(1); // Reset quantity to 1
 
         // Optionally reset `formData` or other states if needed
     };
+
+
     const handleRemoveItem = (index) => {
         const updatedItems = [...selectedItems];
         const removedItem = updatedItems.splice(index, 1)[0]; // Remove and capture the item
@@ -716,14 +718,14 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             return;
         }
         // ✅ Handle customer balance adjustment first
-        const {
-            finalBalance,
-            action,
-            paymentAmount: updatedPaymentAmount,
-            cashReturn: updatedCashReturn,
-            advance: updatedAdvance,
-            balance: updatedBalance,
-        } = await handleCustomerBalanceAction(balance, advance, grossBillTotal);
+       const {
+        finalBalance,
+        action,
+        paymentAmount: updatedPaymentAmount,
+        cashReturn: updatedCashReturn,
+        advance: updatedAdvance,
+        balance: updatedBalance,
+    } = await handleCustomerBalanceAction(balance, advance, grossBillTotal);
         let cardPayment = null;
         let cashPayment = null;
         let tranferPayment = null;
@@ -749,14 +751,14 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         }
         if (formData.payment === "Cash" && formData.subPayment === 'Transfer') {
             tranferPayment = {
-                bank : transferAccount,
+               bank : transferAccount,
             };
         }
-        if (formData.payment === "Cash" && formData.subPayment === 'Cash') {
+         if (formData.payment === "Cash" && formData.subPayment === 'Cash') {
             cashPayment = {
-                type : formData.payment,
-                subtype : formData.subPayment,
-                payment : formData.advance,
+               type : formData.payment,
+               subtype : formData.subPayment,
+               payment : formData.advance,
             };
         }
         if (formData.payment === 'Card') {
@@ -817,7 +819,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         }
 
         // ✅ Assemble and clean the final form data
-        const updatedFormData = {
+       const updatedFormData = {
             ...formData,
             advance: parseFloat(updatedAdvance || 0).toFixed(2),
             balance: parseFloat(updatedBalance || 0).toFixed(2),
@@ -865,22 +867,22 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         const totalBillPrice = totalItemPrice + parseFloat(deliveryPrice || 0) - parseFloat(discountAmount || 0) - parseFloat(specialdiscountAmount || 0);
 
         const orderData = {
-            ...updatedFormData,
-            isNewCustomer,
-            orderType,
-            items: itemList,
-            deliveryPrice,
-            discountAmount,
-            totalItemPrice: totalItemPrice.toFixed(2),
-            totalBillPrice: totalBillPrice.toFixed(2),
-            specialdiscountAmount,
-            previousbalance: previousbalance,
-            grossAmount: grossAmount,
-            customerBalanceDecision: action,
-            finalCustomerBalance: finalBalance,
-            paymentAmount: parseFloat(updatedPaymentAmount),
-            cashReturn: parseFloat(updatedCashReturn),
-        };
+        ...updatedFormData,
+        isNewCustomer,
+        orderType,
+        items: itemList,
+        deliveryPrice,
+        discountAmount,
+        totalItemPrice: totalItemPrice.toFixed(2),
+        totalBillPrice: totalBillPrice.toFixed(2),
+        specialdiscountAmount,
+        previousbalance: previousbalance,
+        grossAmount: grossAmount,
+        customerBalanceDecision: action,
+        finalCustomerBalance: finalBalance,
+        paymentAmount: parseFloat(updatedPaymentAmount),
+        cashReturn: parseFloat(updatedCashReturn),
+    };
         const fullOrderData = {
             ...orderData,
             processedItems,
@@ -888,86 +890,85 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         console.log(fullOrderData);
 
         try {
-            if (formData.issuable === 'Later') {
-                try {
-                    const fullOrderData = {
-                        ...orderData,
-                        processedItems,
-                    };
+        if (formData.issuable === 'Later') {
+            try {
+                const fullOrderData = {
+                    ...orderData,
+                    processedItems,
+                };
 
-                    console.log("📝 Sending Full Order Data:", fullOrderData);
+                console.log("📝 Sending Full Order Data:", fullOrderData);
 
-                    const response = await fetch("http://localhost:5001/api/admin/main/later-order", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(fullOrderData),
-                    });
-
-                    const result = await response.json();
-                    console.log("📝 API Response:", result); // Log the response to check its structure
-
-                    if (response.ok && result.success && result.data) {
-                        const { orderId, orderDate, expectedDate } = result.data;
-                        toast.success(`Order placed successfully! Order ID: ${orderId}`);
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        toast.error(result.message || "Failed to place the order.");
-                        console.error("❌ Order Error:", result.message || result);
-                    }
-
-                } catch (error) {
-                    toast.error("An error occurred while placing the order.");
-                    console.error("❌ Network/Server Error:", error);
-                }
-            } else if (formData.issuable === 'Now') {
-                const response = await fetch("http://localhost:5001/api/admin/main/orders", {
+                const response = await fetch("http://localhost:5001/api/admin/main/later-order", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(orderData),
+                    body: JSON.stringify(fullOrderData),
                 });
 
                 const result = await response.json();
                 console.log("📝 API Response:", result); // Log the response to check its structure
 
                 if (response.ok && result.success && result.data) {
-                    const { orderId } = result.data;
-                    toast.success("Order placed successfully!");
-                    const newOrder = {
-                        orderId: orderId,
-                        orderDate: result.data.orderDate,
-                        phoneNumber: formData.phoneNumber,
-                        payStatus: formData.advance > 0 ? 'Advanced' : 'Pending',
-                        deliveryStatus: formData.dvStatus,
-                        deliveryCharge: deliveryPrice,
-                        discount: discountAmount,
-                        specialDiscount: specialdiscountAmount,
-                        advance: parseFloat(advance),
-                        items: items,
-                        balance: parseFloat(balance),
-                        totalPrice: totalBillPrice,
-                        customerName: formData.FtName + " " + formData.SrName,
-                    };
-                    setSelectedOrder(newOrder);
-                    // Optionally, open invoice modal here
-                    setShowModal2(true);
+                    const { orderId, orderDate, expectedDate } = result.data;
+                    toast.success(`Order placed successfully! Order ID: ${orderId}`);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
                 } else {
-                    toast.error(result.message || "Something went wrong. Please try again.");
+                    toast.error(result.message || "Failed to place the order.");
+                    console.error("❌ Order Error:", result.message || result);
                 }
-            }
 
-        } catch (error) {
-            console.error("Error submitting order data:", error);
-            toast.error("Error submitting order data. Please try again.");
+            } catch (error) {
+                toast.error("An error occurred while placing the order.");
+                console.error("❌ Network/Server Error:", error);
+            }
+        } else if (formData.issuable === 'Now') {
+            const response = await fetch("http://localhost:5001/api/admin/main/orders", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(orderData),
+            });
+
+            const result = await response.json();
+            console.log("📝 API Response:", result); // Log the response to check its structure
+
+            if (response.ok && result.success && result.data) {
+                const { orderId } = result.data;
+                toast.success("Order placed successfully!");
+                const newOrder = {
+                    orderId: orderId,
+                    orderDate: result.data.orderDate,
+                    phoneNumber: formData.phoneNumber,
+                    payStatus: formData.advance > 0 ? 'Advanced' : 'Pending',
+                    deliveryStatus: formData.dvStatus,
+                    deliveryCharge: deliveryPrice,
+                    discount: discountAmount,
+                    specialDiscount: specialdiscountAmount,
+                    advance: parseFloat(advance),
+                    items: items,
+                    balance: parseFloat(balance),
+                    totalPrice: totalBillPrice,
+                    customerName: formData.FtName + " " + formData.SrName,
+                };
+                setSelectedOrder(newOrder);
+                // Optionally, open invoice modal here
+                setShowModal2(true);
+            } else {
+                toast.error(result.message || "Something went wrong. Please try again.");
+            }
         }
 
-    };
+    } catch (error) {
+        console.error("Error submitting order data:", error);
+        toast.error("Error submitting order data. Please try again.");
+    }
 
+    };
     const handleSubmit3 = async (formData) => {
         console.log(formData);
         // Optional: Clean or format the items if needed
@@ -1003,34 +1004,31 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             items: selectedOrder.items,
         };
 
-        console.log("Updated Data:", updatedData);
-        console.log("Selected Items Set to State:", filteredSelectedItems);
-        try {
-            // Make API request to the /isssued-order endpoint
-            const response = await fetch('http://localhost:5001/api/admin/main/issued-items-Now', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedData),
-            });
-            const result = await response.json();
-            if (response.ok) {
-                toast.success("Update order Successfully");
-                setReceiptData(updatedData);  // Set data for receipt
-                setShowReceiptView(true);         // Show receipt view
-            } else {
-                console.error("Error:", result.message);
+         try {
+                // Make API request to the /isssued-order endpoint
+                const response = await fetch('http://localhost:5001/api/admin/main/issued-items-Now', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updatedData),
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    toast.success("Update order Successfully");
+                    setReceiptData(updatedData);  // Set data for receipt
+                    setShowReceiptView(true);         // Show receipt view
+                } else {
+                    console.error("Error:", result.message);
+                }
+            } catch (error) {
+                console.error("Error making API request:", error.message);
             }
-        } catch (error) {
-            console.error("Error making API request:", error.message);
-        }
 
         // Optional: send to API if needed
     };
 
     const handleSubmit2 = async (formData1) => {
-        const today = new Date().toISOString().split("T")[0];
         const updatedReceiptData = {
             order:{
                 orderId: selectedOrder.orderId,
@@ -1048,31 +1046,28 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             driverId: formData1.driverId,
             hire: formData1.hire || 0,
             balanceToCollect: formData1.balanceToCollect || 0,
-            selectedDeliveryDate: today, // Default to today's date if empty
+            selectedDeliveryDate: formData.expectedDate, // Default to today's date if empty
             district: formData.district || "Unknown",
         };
         console.log(updatedReceiptData);
         try {
             // Prepare the data for the API request
-            const today = new Date().toISOString().split("T")[0];
-
             const deliveryNoteData = {
                 driverName: formData1.driverName,
                 driverId: formData1.driverId,
                 vehicleName: formData1.vehicleId, // Ensure correct field name
                 hire: formData1.hire || 0,
-                date: today, // Just the date part
-                order: {
+                date: updatedReceiptData.selectedDeliveryDate,
+                order:{
                     orderId: selectedOrder.orderId,
                     balance: parseFloat(balance) || 0,
-                    address: formData.address,
-                    contact1: formData.phoneNumber,
-                    contact2: formData.otherNumber,
+                    address:formData.address,
+                    contact1:formData.phoneNumber,
+                    contact2:formData.otherNumber,
                 },
                 district: formData.district || "Unknown",
                 balanceToCollect: formData.balanceToCollect || 0,
             };
-
             //Make the API call
             const response = await fetch("http://localhost:5001/api/admin/main/create-delivery-note-now", {
                 method: "POST",
@@ -1089,6 +1084,9 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             }
 
             toast.success("Delivery note created successfully.");
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
             setReceiptDataD(updatedReceiptData);
             setShowModal3(false);
             setShowDeliveryView(true);
@@ -1491,48 +1489,34 @@ const OrderInvoice = ({ onPlaceOrder }) => {
 
         setShowStockModal1(false);
     };
-    const handleSearchChange1 = async (e) => {
-        const term = e.target.value.trim();
+    const handleSearchChange1 = (e) => {
+        const term = e.target.value;
         setSearchTerm(term);
+        console.log(term)
 
-        const parts = term.split("-");
-        if (parts.length === 3) {
-            const [itemId, stockId, batchId] = parts;
-            await fetchStockDetails(itemId); // ✅ wait for stockDetails to be updated
-
-            const exactMatch = stockDetails.find(
-                (item) =>
-                    item.I_Id === itemId &&
-                    item.stock_Id === stockId &&
-                    item.pc_Id === batchId
-            );
-
-            if (exactMatch) {
-                handleSelectedItem(exactMatch);
-                setSearchTerm("");
-                setFilteredItems([]);
-                setDropdownOpen(false);
-                return;
-            }
-        }
-
-        const filtered = stockDetails.filter((item) =>
-            item.I_Id?.toLowerCase().includes(term.toLowerCase()) ||
-            String(item.stock_Id || "").includes(term)
+        const filtered = itemdetails.filter((item) =>
+            item.I_Id.toString().toLowerCase().includes(term.toLowerCase())
         );
         setFilteredItems(filtered);
-        setDropdownOpen(term !== "" && filtered.length > 0);
+        setDropdownOpen(term.trim() !== "" && filtered.length > 0);
+
+        if (debounceTimeout.current) {
+            clearTimeout(debounceTimeout.current);
+        }
+
+        debounceTimeout.current = setTimeout(() => {
+            const itemId = selectedItemForReserve?.itemId || selectedItemForReserve?.I_Id;
+            fetchStockDetails(itemId);
+        }, 500);
     };
     const fetchStockDetails = async (itemId) => {
         if (!itemId) {
             setItemDetails([]);
-            setStockDetails([]);
             return;
         }
 
         try {
             setIsLoading(true);
-
             const response = await fetch("http://localhost:5001/api/admin/main/get-stock-detail", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -1544,11 +1528,9 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             }
 
             const data = await response.json();
-            const stockData = data.stockDetails || [];
-
-            setItemDetails(stockData);
-            setStockDetails(stockData); // ✅ Now stockDetails is synced
-            if (!stockData.length) {
+            console.log(data);
+            setItemDetails(data.stockDetails || []);
+            if (!data.stockDetails?.length) {
                 toast.error("No stock details found.");
             }
         } catch (error) {
@@ -1558,23 +1540,13 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         }
     };
     const handleSelectedItem = (item) => {
-        const exists = selectedItems1.some(
-            (selected) =>
-                selected.I_Id === item.I_Id &&
-                selected.stock_Id === item.stock_Id &&
-                selected.pc_Id === item.pc_Id
-        );
-
-
-        if (!exists) {
-            setSelectedItems1(prev => [...prev, { ...item, qty: 1, price: item.price || 0 }]);
+        if (!selectedItems1.some((selected) => selected.I_Id === item.I_Id)) {
+            setSelectedItems1([...selectedItems1, { ...item, qty: 1, price: item.price }]); // Ensure price is initialized
         }
-
         setSearchTerm("");
         setFilteredItems([]);
-        setDropdownOpen(false);
+        setDropdownOpen(false); // Close dropdown after selection
     };
-
     const handleCheque = () => {
         if (!chequeNumber || !chequeDate || !chequeAmount) return;
 
@@ -1603,6 +1575,11 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         updatedCheques.splice(index, 1);
         setCheques(updatedCheques);
     };
+    const handleRemoveSelectedItem = (indexToRemove) => {
+        const updatedItems = selectedItems1.filter((_, index) => index !== indexToRemove);
+        setSelectedItems1(updatedItems);
+    };
+
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
 
@@ -1655,7 +1632,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                         <Row>
                             <Col md={6}>
                                 <Label className="block text-sm font-medium text-gray-700 mb-1">Issuable</Label>
-
+                                
                                 <Input type="select" name="issuable" id="issuable" value={formData.issuable}
                                        onChange={handleChange} required>
                                     <option >--Select--</option>
@@ -1711,14 +1688,14 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                 <FormGroup>
                                     <Label for="occupation" className="fw-bold">Occupation</Label>
                                     <Input type="text" name="occupation" value={formData.occupation}
-                                           onChange={handleChange} required/>
+                                           onChange={handleChange} />
                                     {errors.occupation &&
                                         <small className="text-danger">{errors.occupation}</small>}
                                 </FormGroup>
                                 <FormGroup>
                                     <Label for="workPlace" className="fw-bold">Work Place</Label>
                                     <Input type="text" name="workPlace" value={formData.workPlace}
-                                           onChange={handleChange} required/>
+                                           onChange={handleChange} />
                                     {errors.workPlace && <small className="text-danger">{errors.workPlace}</small>}
                                 </FormGroup>
                             </>
@@ -1733,6 +1710,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                         value={formData.phoneNumber}
                                         onChange={handleChange}
                                         onBlur={() => handlePhoneNumberBlur(formData.phoneNumber)}
+                                        required
                                     />
                                 </FormGroup>
                             </Col>
@@ -1861,20 +1839,20 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                         </FormGroup>
                         <FormGroup className="flex flex-col mb-4">
                             {/* Row 1: Unit Price, Quantity, Discount, Total, Remove Button */}
-                            <div className="w-full flex flex-wrap gap-2 px-2">
+                            <div className="item-entry-row">
                                 {/* Unit Price */}
-                                <div className="flex-1 min-w-[150px]">
-                                    <label className="block text-sm font-medium text-gray-700">Unit Price</label>
+                                <div className="item-entry-field">
+                                    <label>Unit Price</label>
                                     <input
                                         type="number"
                                         value={selectedItem ? selectedItem.price : ""}
-                                        className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                                         disabled
                                     />
                                 </div>
-                                {/* Special Discount */}
-                                <div className="flex-1 min-w-[150px]">
-                                    <label className="block text-sm font-medium text-gray-700">Special Discount</label>
+
+                                {/* Item Discount */}
+                                <div className="item-entry-field">
+                                    <label>Item Discount</label>
                                     <input
                                         type="text"
                                         value={discount}
@@ -1884,14 +1862,13 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                                 setDiscount(value);
                                             }
                                         }}
-                                        className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                                         placeholder="Enter discount"
                                     />
                                 </div>
 
-                                {/* Quantity */}
-                                <div className="flex-1 min-w-[150px]">
-                                    <label className="block text-sm font-medium text-gray-700">Quantity</label>
+                                {/* Qty */}
+                                <div className="item-entry-field">
+                                    <label>Qty</label>
                                     <input
                                         type="text"
                                         value={quantity}
@@ -1906,26 +1883,29 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                                 setQuantity("1");
                                             }
                                         }}
-                                        className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-                                        placeholder="Enter quantity"
+                                        placeholder="Enter qty"
                                     />
                                 </div>
+
                                 {/* Total */}
-                                <div className="flex-1 min-w-[150px]">
-                                    <label className="block text-sm font-medium text-gray-700">Total</label>
+                                <div className="item-entry-field">
+                                    <label>Total</label>
                                     <input
                                         type="number"
-                                        value={selectedItem ? ((selectedItem.price - discount) * quantity).toFixed(2) : ""}
-                                        className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                                        value={
+                                            selectedItem
+                                                ? ((selectedItem.price - discount) * quantity).toFixed(2)
+                                                : ""
+                                        }
                                         disabled
                                     />
                                 </div>
 
-                                {/* Remove Button */}
-                                <div className="flex">
-                                    <Button
-                                        color="danger"
-                                        className="text-sm" // reduced padding and smaller text
+                                {/* Action Buttons */}
+                                <div className="item-entry-actions">
+                                    <button
+                                        type="button"
+                                        className="remove-btn"
                                         disabled={!selectedItem}
                                         onClick={() => {
                                             setSelectedItem(null);
@@ -1934,13 +1914,18 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                         }}
                                     >
                                         Remove
-                                    </Button>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        id="addOrderDetail"
+                                        className="add-btn"
+                                        onClick={handleAddToOrder}
+                                    >
+                                        Add to Order
+                                    </button>
                                 </div>
                             </div>
                         </FormGroup>
-                        <button type="button" id="addOrderDetail" className="bg-green-500 text-white p-2 rounded-md" onClick={handleAddToOrder}>
-                            Add to Order
-                        </button>
                         {/* Order Details Table */}
                         <div className="overflow-auto max-w-full">
                             <table className="min-w-[600px] bg-white border rounded-lg shadow-md mb-6 mt-3">
@@ -2262,7 +2247,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                         id="subPayment"
                                         value={formData.subPayment}
                                         onChange={handleChange1}
-
+                                       
                                         disabled={!formData.payment}
                                     >
                                         <option value="">Select Sub Option</option>
@@ -2313,7 +2298,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                     </span>
                                 </div>*/}
 
-                                <div className="custom-info-row">
+                            <div className="custom-info-row">
                                     <span className="custom-info-label">Balance</span>
                                     <span className="custom-info-value">Rs.{balance}</span>
                                 </div>
@@ -2420,7 +2405,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                     <span className="custom-info-label">Balance</span>
                                     <span className="custom-info-value">Rs.{balance}</span>
                                 </div>
-
+                            
                             </>
                         )}
 
@@ -2502,91 +2487,91 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                     <span className="custom-info-value">Rs.{grossAmount}</span>
                                 </div>
                                 <div className="custom-info-row">
-                                    <span className="custom-info-label">Payment Amount</span>
-                                    <span className="custom-info-value">
+                                <span className="custom-info-label">Payment Amount</span>
+                                <span className="custom-info-value">
                                     <Input
-                                        type="text"
-                                        name="amount"
-                                        value={chequeAmount}
-                                        onChange={(e) => {
-                                            const val = e.target.value;
-                                            if (/^\d*\.?\d*$/.test(val)) {
-                                                setChequeAmount(val);
-                                                setAdvance(val); // Reflect in general payment state
-                                            }
-                                        }}
-
-                                        className="w-full text-right"
+                                    type="text"
+                                    name="amount"
+                                    value={chequeAmount}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (/^\d*\.?\d*$/.test(val)) {
+                                        setChequeAmount(val);
+                                        setAdvance(val); // Reflect in general payment state
+                                        }
+                                    }}
+                                    
+                                    className="w-full text-right"
                                     />
                                 </span>
                                 </div>
 
                                 <div className="custom-info-row">
-                                    <span className="custom-info-label">Cheque Number</span>
-                                    <span className="custom-info-value">
+                                <span className="custom-info-label">Cheque Number</span>
+                                <span className="custom-info-value">
                                     <Input
-                                        type="text"
-                                        name="chequeNumber"
-                                        value={chequeNumber}
-                                        onChange={(e) => setChequeNumber(e.target.value)}
-
-                                        className="w-full text-right"
+                                    type="text"
+                                    name="chequeNumber"
+                                    value={chequeNumber}
+                                    onChange={(e) => setChequeNumber(e.target.value)}
+                                    
+                                    className="w-full text-right"
                                     />
                                 </span>
                                 </div>
 
                                 <div className="custom-info-row">
-                                    <span className="custom-info-label">Bank</span>
-                                    <span className="custom-info-value">
+                                <span className="custom-info-label">Bank</span>
+                                <span className="custom-info-value">
                                     <Input
-                                        type="text"
-                                        name="bank"
-                                        value={bank}
-                                        onChange={(e) => setBank(e.target.value)}
-
-                                        className="w-full text-right"
+                                    type="text"
+                                    name="bank"
+                                    value={bank}
+                                    onChange={(e) => setBank(e.target.value)}
+                                    
+                                    className="w-full text-right"
                                     />
                                 </span>
                                 </div>
 
                                 <div className="custom-info-row">
-                                    <span className="custom-info-label">Branch</span>
-                                    <span className="custom-info-value">
+                                <span className="custom-info-label">Branch</span>
+                                <span className="custom-info-value">
                                     <Input
-                                        type="text"
-                                        name="branch"
-                                        value={branch}
-                                        onChange={(e) => setBranch(e.target.value)}
-
-                                        className="w-full text-right"
+                                    type="text"
+                                    name="branch"
+                                    value={branch}
+                                    onChange={(e) => setBranch(e.target.value)}
+                                    
+                                    className="w-full text-right"
                                     />
                                 </span>
                                 </div>
 
                                 <div className="custom-info-row">
-                                    <span className="custom-info-label">Account Number</span>
-                                    <span className="custom-info-value">
+                                <span className="custom-info-label">Account Number</span>
+                                <span className="custom-info-value">
                                     <Input
-                                        type="text"
-                                        name="accountNumber"
-                                        value={accountNumber}
-                                        onChange={(e) => setAccountNumber(e.target.value)}
-
-                                        className="w-full text-right"
+                                    type="text"
+                                    name="accountNumber"
+                                    value={accountNumber}
+                                    onChange={(e) => setAccountNumber(e.target.value)}
+                                    
+                                    className="w-full text-right"
                                     />
                                 </span>
                                 </div>
 
                                 <div className="custom-info-row">
-                                    <span className="custom-info-label">Cheque Date</span>
-                                    <span className="custom-info-value">
+                                <span className="custom-info-label">Cheque Date</span>
+                                <span className="custom-info-value">
                                     <Input
-                                        type="date"
-                                        name="chequeDate"
-                                        value={chequeDate}
-                                        onChange={(e) => setChequeDate(e.target.value)}
-
-                                        className="w-full text-right"
+                                    type="date"
+                                    name="chequeDate"
+                                    value={chequeDate}
+                                    onChange={(e) => setChequeDate(e.target.value)}
+                                    
+                                    className="w-full text-right"
                                     />
                                 </span>
                                 </div>
@@ -2594,45 +2579,45 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                     <span className="custom-info-label">Balance</span>
                                     <span className="custom-info-value">Rs.{balance}</span>
                                 </div>
-                                <div className="custom-info-row">
+                                    <div className="custom-info-row">
                                     <span className="custom-info-label">Balance</span>
                                     <span className="custom-info-value">Rs.{balance}</span>
                                 </div>
                                 <Row className="align-items-center">
-                                    <Col xs="4">
-                                        <Button color="info" onClick={handleCheque}>Add Cheque</Button>
-                                    </Col>
-                                </Row>
+                                <Col xs="4">
+                                    <Button color="info" onClick={handleCheque}>Add Cheque</Button>
+                                </Col>
+                            </Row>
 
                                 {cheques.length > 0 && (
                                     <Table bordered size="sm" className="mt-3">
                                         <thead className="custom-table-header">
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Cheque Number</th>
-                                            <th>Date</th>
-                                            <th>Amount</th>
-                                            <th>Action</th>
-                                        </tr>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Cheque Number</th>
+                                                <th>Date</th>
+                                                <th>Amount</th>
+                                                <th>Action</th>
+                                            </tr>
                                         </thead>
                                         <tbody>
-                                        {cheques.map((cheque, index) => (
-                                            <tr key={index}>
-                                                <td>{index + 1}</td>
-                                                <td>{cheque.chequeNumber}</td>
-                                                <td>{cheque.chequeDate}</td>
-                                                <td>{cheque.amount}</td>
-                                                <td>
-                                                    <Button
-                                                        color="danger"
-                                                        size="sm"
-                                                        onClick={() => handleRemoveCheque(index)}
-                                                    >
-                                                        Remove
-                                                    </Button>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                            {cheques.map((cheque, index) => (
+                                                <tr key={index}>
+                                                    <td>{index + 1}</td>
+                                                    <td>{cheque.chequeNumber}</td>
+                                                    <td>{cheque.chequeDate}</td>
+                                                    <td>{cheque.amount}</td>
+                                                    <td>
+                                                        <Button
+                                                            color="danger"
+                                                            size="sm"
+                                                            onClick={() => handleRemoveCheque(index)}
+                                                        >
+                                                            Remove
+                                                        </Button>
+                                                    </td>
+                                                </tr>
+                                            ))}
                                         </tbody>
                                     </Table>
                                 )}
@@ -2647,35 +2632,35 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                     <span className="custom-info-value">Rs.{grossAmount}</span>
                                 </div>
                                 <div className="custom-info-row">
-                                    <span className="custom-info-label">Payment Amount</span>
-                                    <span className="custom-info-value">
+                                <span className="custom-info-label">Payment Amount</span>
+                                <span className="custom-info-value">
                                     <Input
-                                        type="text"
-                                        name="amount"
-                                        value={creditAmount}
-                                        onChange={(e) => {
-                                            const val = e.target.value;
-                                            if (/^\d*\.?\d*$/.test(val)) {
-                                                setCreditAmount(val);
-                                                setAdvance(val); // Reflect in general payment state
-                                            }
-                                        }}
-                                        required
-                                        className="w-full text-right"
+                                    type="text"
+                                    name="amount"
+                                    value={creditAmount}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (/^\d*\.?\d*$/.test(val)) {
+                                        setCreditAmount(val);
+                                        setAdvance(val); // Reflect in general payment state
+                                        }
+                                    }}
+                                    required
+                                    className="w-full text-right"
                                     />
                                 </span>
                                 </div>
 
                                 <div className="custom-info-row">
-                                    <span className="custom-info-label">Expected Date</span>
-                                    <span className="custom-info-value">
+                                <span className="custom-info-label">Expected Date</span>
+                                <span className="custom-info-value">
                                     <Input
-                                        type="date"
-                                        name="expectedDate"
-                                        value={creditExpectedDate}
-                                        onChange={(e) => setCreditExpectedDate(e.target.value)}
-                                        required
-                                        className="w-full text-right"
+                                    type="date"
+                                    name="expectedDate"
+                                    value={creditExpectedDate}
+                                    onChange={(e) => setCreditExpectedDate(e.target.value)}
+                                    required
+                                    className="w-full text-right"
                                     />
                                 </span>
                                 </div>
@@ -2863,32 +2848,32 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                 {cheques.length > 0 && (
                                     <Table bordered size="sm" className="mt-3">
                                         <thead className="custom-table-header">
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Cheque Number</th>
-                                            <th>Date</th>
-                                            <th>Amount</th>
-                                            <th>Action</th>
-                                        </tr>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Cheque Number</th>
+                                                <th>Date</th>
+                                                <th>Amount</th>
+                                                <th>Action</th>
+                                            </tr>
                                         </thead>
                                         <tbody>
-                                        {cheques.map((cheque, index) => (
-                                            <tr key={index}>
-                                                <td>{index + 1}</td>
-                                                <td>{cheque.chequeNumber}</td>
-                                                <td>{cheque.chequeDate}</td>
-                                                <td>{cheque.amount}</td>
-                                                <td>
-                                                    <Button
-                                                        color="danger"
-                                                        size="sm"
-                                                        onClick={() => handleRemoveCheque(index)}
-                                                    >
-                                                        Remove
-                                                    </Button>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                            {cheques.map((cheque, index) => (
+                                                <tr key={index}>
+                                                    <td>{index + 1}</td>
+                                                    <td>{cheque.chequeNumber}</td>
+                                                    <td>{cheque.chequeDate}</td>
+                                                    <td>{cheque.amount}</td>
+                                                    <td>
+                                                        <Button
+                                                            color="danger"
+                                                            size="sm"
+                                                            onClick={() => handleRemoveCheque(index)}
+                                                        >
+                                                            Remove
+                                                        </Button>
+                                                    </td>
+                                                </tr>
+                                            ))}
                                         </tbody>
                                     </Table>
                                 )}
@@ -3138,13 +3123,13 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                     <ModalHeader toggle={() => setShowStockModal1(!showStockModal1)}>Special Reserved</ModalHeader>
                     <ModalBody>
                         {selectedItemForReserve && (
-                            <div classNamee="mb-3">
+                            <div className="mb-3">
                                 <strong>Selected Item ID:</strong>{" "}
                                 {selectedItemForReserve.itemId || selectedItemForReserve.I_Id || "N/A"}
                             </div>
                         )}
 
-                        <FormGroup style={{position: "relative"}}>
+                        <FormGroup style={{ position: "relative" }}>
                             <Label>Search Item by ID</Label>
                             <Input
                                 type="text"
@@ -3168,17 +3153,16 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                 >
                                     {filteredItems.map((item) => (
                                         <div
-                                            key={`${item.I_Id}-${item.stock_Id}-${item.pc_Id}`}
+                                            key={item.I_Id + item.stock_Id}
                                             onClick={() => handleSelectedItem(item)}
                                             className="dropdown-item"
                                             style={{ padding: "8px", cursor: "pointer" }}
                                         >
-                                            {item.I_Id}-{item.stock_Id}-{item.pc_Id}
+                                            {item.I_Id} - {item.pid_Id} - {item.stock_Id}
                                         </div>
                                     ))}
                                 </div>
                             )}
-
                         </FormGroup>
 
                         <Label className="mt-3">Selected Items</Label>
@@ -3188,14 +3172,24 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                 <th>Item ID</th>
                                 <th>Batch ID</th>
                                 <th>Stock ID</th>
+                                <th>Action</th>
                             </tr>
                             </thead>
                             <tbody>
                             {selectedItems1.map((item, index) => (
                                 <tr key={index}>
                                     <td>{item.I_Id}</td>
-                                    <td>{item.pc_Id}</td>
+                                    <td>{item.pid_Id}</td>
                                     <td>{item.stock_Id}</td>
+                                    <td>
+                                        <Button
+                                            color="danger"
+                                            size="sm"
+                                            onClick={() => handleRemoveSelectedItem(index)}
+                                        >
+                                            Remove
+                                        </Button>
+                                    </td>
                                 </tr>
                             ))}
                             </tbody>
@@ -3213,6 +3207,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                         </Button>
                     </ModalFooter>
                 </Modal>
+
                 <Modal isOpen={showStockModal2} toggle={() => setShowStockModal2(!showStockModal2)}>
                     <ModalHeader toggle={() => setShowStockModal2(!showStockModal2)}>
                         Supplier Production

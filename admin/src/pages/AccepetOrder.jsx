@@ -237,8 +237,9 @@ const OrderDetails = () => {
                     Accepted: `/accept-order-detail/${updatedData.orderId}`,
                     Pending: `/order-detail/${updatedData.orderId}`,
                     Completed: `/complete-order-detail/${updatedData.orderId}`,
+                    Issued: `/issued-order-detail/${updatedData.orderId}`,
                 };
-                navigate(orderRoutes[updatedData.orderStatus] || "/dashboard");
+                navigate(orderRoutes[updatedData.orderStatus] || "/admin-dashboard");
             }
         } catch (err) {
             console.error("Error updating order:", err);

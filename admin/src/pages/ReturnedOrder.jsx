@@ -76,7 +76,7 @@ const ReturnedOrderDetails = () => {
             const orderRoutes = {
                 Completed: `/complete-order-detail/${order.orderId}`,
             };
-            navigate(orderRoutes[formData.orderStatus] || "/dashboard");
+            navigate(orderRoutes[formData.orderStatus] || "/admin-dashboard");
         } catch (err) {
             console.error("Error updating order:", err);
             toast.error(`Error: ${err.message}`);

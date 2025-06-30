@@ -498,7 +498,7 @@ router.post("/orders", async (req, res) => {
         let Cust_id = c_ID;
         let Occupation = "-", WorkPlace = "-", tType = "-";
         let stID = null;
-        if (type === 'Walking' || type === 'On-site') {
+        if (type === 'Walking' || type === 'On site') {
             Occupation = occupation;
             WorkPlace = workPlace;
         } else {
@@ -580,7 +580,7 @@ router.post("/orders", async (req, res) => {
 
         let orderStatus = null;
 
-        if (orderType === 'On-site') {
+        if (type === 'On site') {
             orderStatus = "Pending";
         } else {
             // ✅ Set order status for Walking to 'Delivered' 0r 'Issued'
@@ -955,7 +955,7 @@ router.post("/later-order", async (req, res) => {
         }
         let orderStatus = null;
 
-        if (orderType === 'On-site') {
+        if (type === 'On site') {
             // ✅ Always set On-site orders as Pending
             orderStatus = "Pending";
         } else {
@@ -1439,7 +1439,6 @@ router.get("/allitems", async (req, res) => {
             warrantyPeriod: item.warrantyPeriod,
             img: `data:image/png;base64,${item.img.toString("base64")}`, // Convert LONGBLOB image to Base64
             color: item.color,
-
         }));
 
         // Send the formatted items as a JSON response
@@ -2062,7 +2061,7 @@ router.get("/accept-order-details", async (req, res) => {
                 discount: item.unitDiscount,
                 amountBeforeDiscount: item.unitPrice * item.qty,
                 totalDiscountAmount: item.unitDiscount * item.qty,
-                amount: ((item.unitPrice * item.qty) - item.unitDiscount),
+                amount: item.tprice,
                 booked: item.bookedQty > 0,
                 bookedQuantity: item.bookedQty,
                 availableQuantity: item.availableQty,
@@ -2560,22 +2559,29 @@ router.get("/order-details", async (req, res) => {
             expectedDeliveryDate: formatDate(orderData.expectedDate),
             specialNote: orderData.specialNote,
             salesTeam: orderData.salesEmployeeName ? { employeeName: orderData.salesEmployeeName } : null,
-            items: itemsResult.map(item => ({
-                id: item.id,
-                itemId: item.I_Id,
-                itemName: item.I_name,
-                color: item.color,
-                quantity: item.qty,
-                unitPrice: item.unitPrice,
-                discount: item.unitDiscount,
-                amountBeforeDiscount: item.unitPrice * item.qty,
-                totalDiscountAmount: item.unitDiscount * item.qty,
-                amount: (item.unitPrice * item.qty) - item.unitDiscount,
-                booked: item.bookedQty > 0,
-                bookedQuantity: item.bookedQty,
-                availableQuantity: item.availableQty,
-                stockQuantity: item.stockQty,
-            })),
+            items: itemsResult.map(item => {
+                const { qty, unitPrice, unitDiscount } = item;
+                const amountBeforeDiscount = unitPrice * qty;
+                const totalDiscountAmount = unitDiscount * qty;
+                const finalAmount = item.tprice;
+
+                return {
+                    id: item.id,
+                    itemId: item.I_Id,
+                    itemName: item.I_name,
+                    color: item.color,
+                    quantity: qty,
+                    unitPrice: unitPrice,
+                    discount: unitDiscount,
+                    amountBeforeDiscount: amountBeforeDiscount,
+                    totalDiscountAmount: totalDiscountAmount,
+                    amount: finalAmount,
+                    booked: item.bookedQty > 0,
+                    bookedQuantity: item.bookedQty,
+                    availableQuantity: item.availableQty,
+                    stockQuantity: item.stockQty
+                };
+            }),
         };
 
         // Fetch Delivery Info if it's a delivery order
@@ -4944,45 +4950,67 @@ router.put("/updateReturnOrder", async (req, res) => {
 // Update order
 router.put("/update-order-details", async (req, res) => {
     try {
-        const { orderId, orderDate, orderStatus,payStatus,phoneNumber,optionalNumber,netTotal,customerId,
-            deliveryStatus, deliveryCharge, discount, totalPrice,advance , balance , expectedDeliveryDate, specialNote } = req.body;
-        // Check if the order exists
-        const orderCheckQuery = `SELECT * FROM orders WHERE OrID = ?`;
-        const [orderResult] = await db.query(orderCheckQuery, [orderId]);
+        const {
+            orderId, orderDate, orderStatus, payStatus, phoneNumber, optionalNumber,
+            netTotal, customerId, deliveryStatus, deliveryCharge, discount, totalPrice,
+            advance, balance, expectedDeliveryDate, specialNote
+        } = req.body;
+
+        // 1. Check if the order exists
+        const [orderResult] = await db.query(`SELECT * FROM orders WHERE OrID = ?`, [orderId]);
 
         if (orderResult.length === 0) {
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
-        if (advance === 0 && payStatus === 'Advanced'){
-
-            return res.status(404).json({ success: false, message: "payement status cannot change to advance when advance is 0" });
+        // 2. Validate advance if status is being marked as "Advanced"
+        if (advance === 0 && payStatus === 'Advanced') {
+            return res.status(400).json({
+                success: false,
+                message: "Payment status cannot be changed to 'Advanced' when advance is 0"
+            });
         }
-        // if (advance === null){
-        //     const orderUpdateQuery = `
-        //     UPDATE orders SET orStatus = ?,delStatus = ? WHERE OrID = ?`;
-        //     await db.query(orderUpdateQuery, [
-        //          orderStatus, deliveryStatus, orderId
-        //     ]);
-        // }
 
-        //Update order details
-        const orderUpdateQuery = `
-            UPDATE orders SET c_ID =?, orStatus = ?, payStatus = ?,delStatus = ?, delPrice = ?, discount = ?,
-                              total = ?, advance = ?, balance = ?, specialNote = ?, netTotal=?
-            WHERE OrID = ?`;
-        await db.query(orderUpdateQuery, [
-            customerId, orderStatus, payStatus, deliveryStatus, deliveryCharge, discount, totalPrice,
-            advance, balance, specialNote,netTotal, orderId
-        ]);
-        // return res.status(200).json({ success: true, message: "Order details updated successfully" });
+        // 3. If the order is being cancelled, handle special reservations
+        if (orderStatus === 'Cancelled') {
+            // a. Get reserved pid_Ids for this order
+            const [reservedItems] = await db.query(
+                `SELECT pid_Id FROM Special_Reservation WHERE orID = ?`,
+                [orderId]
+            );
+
+            if (reservedItems.length > 0) {
+                const pidIds = reservedItems.map(item => item.pid_Id);
+
+                // b. Remove reservations
+                await db.query(`DELETE FROM Special_Reservation WHERE orID = ?`, [orderId]);
+
+                // c. Update p_i_detail: reset status and orID
+                await db.query(
+                    `UPDATE p_i_detail SET status = 'Available', orID = NULL WHERE pid_Id IN (?)`,
+                    [pidIds]
+                );
+            }
+        }
+
+        // 4. Update order details
+        await db.query(
+            `UPDATE orders SET c_ID = ?, orStatus = ?, payStatus = ?, delStatus = ?, delPrice = ?, discount = ?,
+             total = ?, advance = ?, balance = ?, specialNote = ?, netTotal = ?
+             WHERE OrID = ?`,
+            [
+                customerId, orderStatus, payStatus, deliveryStatus, deliveryCharge, discount,
+                totalPrice, advance, balance, specialNote, netTotal, orderId
+            ]
+        );
+
         return res.status(200).json({
             success: true,
             message: "Order updated successfully",
             data: {
-                orderId: orderId,
-                orderDate: orderDate,
-                expectedDeliveryDate: expectedDeliveryDate,
+                orderId,
+                orderDate,
+                expectedDeliveryDate,
             },
         });
 
@@ -4995,6 +5023,7 @@ router.put("/update-order-details", async (req, res) => {
         });
     }
 });
+
 router.put("/update-order-items", async (req, res) => {
     try {
         const { orderId, orderStatus, items } = req.body;
@@ -6038,95 +6067,27 @@ router.post("/addStock", upload.single("image"), async (req, res) => {
 });
 
 // DELETE Purchase Note API
-// router.delete("/deletePurchase/:pc_Id", async (req, res) => {
-//     const { pc_Id } = req.params;
-
-//     try {
-//         if (!pc_Id) {
-//             return res.status(400).json({ success: false, message: "Missing purchase ID" });
-//         }
-
-//         // Delete from purchase (cascades to purchase_detail and p_i_detail via FK)
-//         const [result] = await db.query("DELETE FROM purchase WHERE pc_Id = ?", [pc_Id]);
-
-//         if (result.affectedRows === 0) {
-//             return res.status(404).json({ success: false, message: "Purchase not found" });
-//         }
-
-//         return res.status(200).json({ success: true, message: "Purchase deleted successfully" });
-//     } catch (err) {
-//         console.error("Error deleting purchase:", err);
-//         return res.status(500).json({ success: false, message: "Server error", error: err.message });
-//     }
-// });
 router.delete("/deletePurchase/:pc_Id", async (req, res) => {
     const { pc_Id } = req.params;
 
-    if (!pc_Id) {
-        return res.status(400).json({ success: false, message: "Missing purchase ID" });
-    }
-
     try {
-        // 1️⃣ Fetch item quantity summary from p_i_detail
-        const [details] = await db.query(
-            `SELECT I_Id, status, COUNT(*) as count
-             FROM p_i_detail
-             WHERE pc_Id = ?
-             GROUP BY I_Id, status`,
-            [pc_Id]
-        );
-
-        // 2️⃣ Prepare and execute update queries for Item table
-        const itemMap = {}; // { I_Id: { available: x, damage: y, total: z } }
-
-        for (const row of details) {
-            const { I_Id, status, count } = row;
-            if (!itemMap[I_Id]) itemMap[I_Id] = { available: 0, damage: 0, total: 0 };
-            itemMap[I_Id].total += count;
-
-            if (status === "Available") {
-                itemMap[I_Id].available += count;
-            } else if (status === "Damage") {
-                itemMap[I_Id].damage += count;
-            } else {
-                itemMap[I_Id].available += count; // Treat others as available
-            }
+        if (!pc_Id) {
+            return res.status(400).json({ success: false, message: "Missing purchase ID" });
         }
 
-        for (const I_Id in itemMap) {
-            const { total, available, damage } = itemMap[I_Id];
-            await db.query(
-                `UPDATE Item
-                 SET stockQty = stockQty - ?, 
-                     availableQty = availableQty - ?, 
-                     damageQty = damageQty - ?
-                 WHERE I_Id = ?`,
-                [total, available, damage, I_Id]
-            );
-        }
+        // Delete from purchase (cascades to purchase_detail and p_i_detail via FK)
+        const [result] = await db.query("DELETE FROM purchase WHERE pc_Id = ?", [pc_Id]);
 
-        // 3️⃣ Delete the purchase (will cascade to purchase_detail and p_i_detail)
-        const [deleteResult] = await db.query(
-            "DELETE FROM purchase WHERE pc_Id = ?",
-            [pc_Id]
-        );
-
-        if (deleteResult.affectedRows === 0) {
+        if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: "Purchase not found" });
         }
 
-        return res.status(200).json({ success: true, message: "Purchase deleted and stock updated." });
-
+        return res.status(200).json({ success: true, message: "Purchase deleted successfully" });
     } catch (err) {
-        console.error("Error deleting purchase and updating stock:", err);
-        return res.status(500).json({
-            success: false,
-            message: "Server error while deleting purchase.",
-            error: err.message
-        });
+        console.error("Error deleting purchase:", err);
+        return res.status(500).json({ success: false, message: "Server error", error: err.message });
     }
 });
-
 
 // Find cost by sid and iid
 router.get("/find-cost", async (req, res) => {

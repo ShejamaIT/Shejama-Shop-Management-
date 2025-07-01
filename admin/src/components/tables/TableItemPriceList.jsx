@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import "../../style/TableTwo.css"; // Import the stylesheet
+import "../../style/TableItemPriceList.css"; // <-- Updated filename
 import { useNavigate } from "react-router-dom";
 
 const TableItemPriceList = () => {
     const [items, setItems] = useState([]);
-    const [filteredItems, setFilteredItems] = useState([]); // Stores search results
-    const [searchQuery, setSearchQuery] = useState(""); // Search input state
+    const [filteredItems, setFilteredItems] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -14,7 +14,6 @@ const TableItemPriceList = () => {
         fetchItems();
     }, []);
 
-    // Fetch all items from API
     const fetchItems = async () => {
         setLoading(true);
         try {
@@ -23,7 +22,7 @@ const TableItemPriceList = () => {
 
             if (data.length > 0) {
                 setItems(data);
-                setFilteredItems(data); // Initialize filtered list
+                setFilteredItems(data);
             } else {
                 setItems([]);
                 setFilteredItems([]);
@@ -38,7 +37,7 @@ const TableItemPriceList = () => {
             setLoading(false);
         }
     };
-    // Handle search filter (by Item ID or Item Name)
+
     const handleSearch = (event) => {
         const query = event.target.value.toLowerCase();
         setSearchQuery(query);
@@ -46,18 +45,16 @@ const TableItemPriceList = () => {
         const filteredData = items.filter((item) =>
             item.I_Id.toString().toLowerCase().includes(query) ||
             item.I_name.toLowerCase().includes(query) ||
-            item.price.toString().toLowerCase().includes(query) // ← Convert to string
+            item.price.toString().toLowerCase().includes(query)
         );
 
         setFilteredItems(filteredData);
     };
 
-
     return (
-        <div className="table-container">
+        <div className="table-price-list-container">
             <h4 className="table-title">All Items Prices</h4>
 
-            {/* 🔍 Search Box */}
             <input
                 type="text"
                 placeholder="Search by Item ID or Name or Price..."
@@ -74,35 +71,33 @@ const TableItemPriceList = () => {
                         <th>Item Id</th>
                         <th>Item Name</th>
                         <th>Price</th>
-                        <th>QTY</th>
+                        <th>Stock QTY</th>
+                        <th>Available QTY</th>
                     </tr>
                     </thead>
                     <tbody>
                     {loading ? (
                         <tr>
-                            <td colSpan="8" className="loading-text text-center">Loading...</td>
+                            <td colSpan="5" className="loading-message">Loading...</td>
                         </tr>
                     ) : error ? (
                         <tr>
-                            <td colSpan="8" className="error-text text-center">{error}</td>
+                            <td colSpan="5" className="error-message">{error}</td>
                         </tr>
                     ) : filteredItems.length === 0 ? (
                         <tr>
-                            <td colSpan="8" className="no-items-message text-center">No items found</td>
+                            <td colSpan="5" className="no-data-message">No items found</td>
                         </tr>
                     ) : (
                         filteredItems.map((item) => (
                             <tr key={item.I_Id}>
                                 <td>
-                                    <img
-                                        src={item.img}
-                                        alt={item.I_name}
-                                        className="product-image"
-                                    />
+                                    <img src={item.img} alt={item.I_name} className="product-image" />
                                 </td>
                                 <td>{item.I_Id}</td>
                                 <td>{item.I_name}</td>
                                 <td>Rs.{item.price}</td>
+                                <td>{item.stockQty}</td>
                                 <td>{item.availableQty}</td>
                             </tr>
                         ))

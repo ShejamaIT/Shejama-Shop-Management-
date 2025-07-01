@@ -245,6 +245,75 @@ button[type="button"].clear-btn:hover {
   text-align: right;
   flex: 1;
 }
+.item-entry-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.item-entry-field {
+    flex: 1;
+    min-width: 150px;
+}
+
+.item-entry-field label {
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+    display: block;
+    color: #374151;
+}
+
+.item-entry-field input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.item-entry-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.item-entry-actions button {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+.item-entry-actions .remove-btn {
+    background-color: #dc3545;
+}
+
+.item-entry-actions .remove-btn:hover {
+    background-color: #c82333;
+}
+
+.item-entry-actions .add-btn {
+    background-color: #28a745;
+}
+
+.item-entry-actions .add-btn:hover {
+    background-color: #218838;
+}
+
+/* Make container more full-view */
+.place-order-container {
+    max-width: 100%;
+    padding: 30px;
+    margin: 0 auto;
+}
+
 
 
 

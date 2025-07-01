@@ -11024,6 +11024,44 @@ router.delete('/transfers/:id', async (req, res) => {
     res.json({ success: true, message: 'Deleted' });
 });
 
+// add gate pass
+router.post("/create-gate-pass-now", async (req, res) => {
+    try {
+        const { order, vehicleId } = req.body;
+
+        if (!order || !order.orderId || !vehicleId) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing required fields: orderId or vehicleId",
+            });
+        }
+
+        const orderId = order.orderId;
+        // Use provided orderDate or fallback to current date
+        const passDate = order.orderDate;
+
+        const insertQuery = `
+            INSERT INTO gatePass (orID, vehicalNum, date)
+            VALUES (?, ?, ?)
+        `;
+
+        await db.query(insertQuery, [orderId, vehicleId, passDate]);
+
+        return res.status(201).json({
+            success: true,
+            message: "Gate pass created successfully.",
+        });
+    } catch (err) {
+        console.error("❌ Error saving gate pass:", err.message);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to create gate pass.",
+            error: err.message,
+        });
+    }
+});
+
+
 // pass sale team value to review in month end
 
 // Function to generate new ida

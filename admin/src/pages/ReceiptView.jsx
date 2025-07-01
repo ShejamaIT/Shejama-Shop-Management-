@@ -12,7 +12,6 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
     };
 
     const getHeading = () => {
-        console.log(receiptData);
         if (receiptData.delStatus === "Pickup") {
             return receiptData.balance === 0 ? "Gate Pass - Paid" : "Gate Pass";
         }

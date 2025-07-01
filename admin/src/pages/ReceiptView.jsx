@@ -12,7 +12,6 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
     };
 
     const getHeading = () => {
-        console.log(receiptData);
         return receiptData.balance === 0 ? "Cash Bill" : "Invoice";
     };
 

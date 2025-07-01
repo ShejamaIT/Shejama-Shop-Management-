@@ -1124,6 +1124,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                     address:formData.address,
                     contact1:formData.phoneNumber,
                     contact2:formData.otherNumber,
+                    selectedItem:selectedItem2,
                 },
                 vehicleId: formData1.vehicleId,
             };

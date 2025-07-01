@@ -16,6 +16,8 @@ import MakeDeliveryNoteNow from "./MakeDeliveryNoteNow";
 import ReceiptView from "./ReceiptView";
 import DeliveryNoteViewNow from "./DeliveryNoteViewNow";
 import { v4 as uuidv4 } from 'uuid';
+import MakeGatePassNow from "./MakeGatePassNow";
+import GatePassView from "./GatepassView";
 
 const OrderInvoice = ({ onPlaceOrder }) => {
     const [formData, setFormData] = useState({c_ID:"",title:"",FtName: "", SrName: "", phoneNumber: "",occupation:"",workPlace:"",issuable:"",payment:"", subPayment: '',
@@ -75,6 +77,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
     const [showModal1, setShowModal1] = useState(false);
     const [showModal2, setShowModal2] = useState(false);
     const [showModal3, setShowModal3] = useState(false);
+    const [showModal4, setShowModal4] = useState(false);
     const [setShowBank , setSetShowBank] = useState(false);
     const [setShowAccountnumber , setSetShowAccountNumber] = useState(false);
     const [discount, setDiscount] = useState("0");
@@ -89,6 +92,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
     const [receiptData, setReceiptData] = useState(null);
     const [showReceiptView, setShowReceiptView] = useState(false);
     const [showDeliveryView, setShowDeliveryView] = useState(false);
+    const [showGatepassView, setGatePassView] = useState(false);
     const [receiptDataD, setReceiptDataD] = useState(null);
     const [showStockModal1, setShowStockModal1] = useState(false);
     const [showStockModal2, setShowStockModal2] = useState(false);
@@ -1045,7 +1049,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             driverName: formData1.driverName,
             driverId: formData1.driverId,
             hire: formData1.hire || 0,
-            balanceToCollect: formData1.balanceToCollect || 0,
+            balanceToCollect:  parseFloat(balance) || 0,
             selectedDeliveryDate: formData.expectedDate, // Default to today's date if empty
             district: formData.district || "Unknown",
         };
@@ -1084,9 +1088,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             }
 
             toast.success("Delivery note created successfully.");
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
             setReceiptDataD(updatedReceiptData);
             setShowModal3(false);
             setShowDeliveryView(true);
@@ -1095,9 +1096,71 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             toast.error(error.message || "An unexpected error occurred while submitting the delivery note.");
         }
     };
+
+    const handleSubmit4 = async (formData1) => {
+        const updatedReceiptData = {
+            order:{
+                orderId: selectedOrder.orderId,
+                customerName:selectedOrder.customerName,
+                balance: parseFloat(balance) || 0,
+                address:formData.address,
+                contact1:formData.phoneNumber,
+                contact2:formData.otherNumber,
+                total:totalBillPrice,
+                advance:advance,
+                selectedItem:selectedItem2,
+            },
+            vehicleId: formData1.vehicleId,
+        };
+        console.log(updatedReceiptData);
+        try {
+            // Prepare the data for the API request
+            const gatepassData = {
+
+                order:{
+                    orderId: selectedOrder.orderId,
+                    orderDate: selectedOrder.orderDate,
+                    balance: parseFloat(balance) || 0,
+                    address:formData.address,
+                    contact1:formData.phoneNumber,
+                    contact2:formData.otherNumber,
+                },
+                vehicleId: formData1.vehicleId,
+            };
+            console.log(gatepassData);
+            //Make the API call
+            const response = await fetch("http://localhost:5001/api/admin/main/create-gate-pass-now", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(gatepassData),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Error creating gatepass.");
+            }
+
+            toast.success("Gate pass created successfully.");
+
+            setReceiptDataD(updatedReceiptData);
+            setShowModal4(false);
+            setGatePassView(true);
+        } catch (error) {
+            console.error("Error while submitting delivery note:", error);
+            toast.error(error.message || "An unexpected error occurred while submitting the delivery note.");
+        }
+
+    };
     const viewHandle = async (formData) => {
         setShowModal2(false);
         setShowModal3(true);
+    };
+    const viewHandle1 = async (formData) => {
+        setShowModal2(false);
+        setShowModal4(true);
     };
     const handleClear = () => {
         setFormData({c_ID:"",title:"",FtName: "",id:"" ,SrName: "", phoneNumber: "", otherNumber: "", address: "",occupation:"",workPlace:"",
@@ -3098,6 +3161,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                         setShowModal2={setShowModal2}
                         handlePaymentUpdate={handleSubmit3}
                         handleDeliveryNote={viewHandle}
+                        handleGatePass={viewHandle1}
                     />
                 )}
                 {showReceiptView && (
@@ -3113,10 +3177,23 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                         handleDeliveryUpdate={handleSubmit2}
                     />
                 )}
+                {showModal4 && selectedOrder && (
+                    <MakeGatePassNow
+                        selectedOrders={selectedOrder}
+                        setShowModal={setShowModal4}
+                        handleGatepassUpdate={handleSubmit4}
+                    />
+                )}
                 {showDeliveryView && (
                     <DeliveryNoteViewNow
                         receiptData={receiptDataD}
                         setShowDeliveryView={setShowDeliveryView}
+                    />
+                )}
+                {showGatepassView && (
+                    <GatePassView
+                        receiptData={receiptDataD}
+                        setShowDeliveryView={setGatePassView}
                     />
                 )}
                 <Modal isOpen={showStockModal1} toggle={() => setShowStockModal1(!showStockModal1)}>

@@ -3,7 +3,7 @@ import "../style/finalInvoice.css";
 import { Button, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import { toast } from "react-toastify";
 
-const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handleDeliveryNote }) => {
+const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handleDeliveryNote,handleGatePass }) => {
     const invoiceDate = new Date().toLocaleDateString();
     const [paymentType, setPaymentType] = useState(selectedOrder.payStatus);
     const [deliveryStatus, setDeliveryStatus] = useState(selectedOrder.deliveryStatus);
@@ -62,10 +62,9 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
         );
     };
     const viewhandle1 = () => {
-        setShowModal2(false);
-        setTimeout(() => {
-            window.location.reload(); // Refresh after closing modal
-        }, 300); // Slight delay gives smoother UX
+        handleGatePass(
+            //
+        );
     };
     
     useEffect(() => {
@@ -142,48 +141,48 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
         setDropdownOpen(filtered.length > 0);
     };
     const handleSelectItem = (item) => {
-        const orderedItem = selectedOrder.items.find(orderItem => orderItem.itemId === item.I_Id);
+    const orderedItem = selectedOrder.items.find(orderItem => orderItem.itemId === item.I_Id);
 
-        if (!orderedItem) {
-            toast.error("Selected stock does not belong to the order.");
-            return;
-        }
+    if (!orderedItem) {
+        toast.error("Selected stock does not belong to the order.");
+        return;
+    }
 
-        const requestedQty = orderedItem.quantity;
+    const requestedQty = orderedItem.quantity;
 
-        // ✅ Count how many stock items have already been selected for this I_Id
-        const selectedCount = selectedItems.filter(selected => selected.I_Id === item.I_Id).length;
+    // ✅ Count how many stock items have already been selected for this I_Id
+    const selectedCount = selectedItems.filter(selected => selected.I_Id === item.I_Id).length;
 
-        if (selectedCount >= requestedQty) {
-            toast.error(`You cannot select more than ${requestedQty} stock items for item ID ${item.I_Id}.`);
-            return;
-        }
+    if (selectedCount >= requestedQty) {
+        toast.error(`You cannot select more than ${requestedQty} stock items for item ID ${item.I_Id}.`);
+        return;
+    }
 
-        // ✅ Prevent duplicate stock_Id *only within same itemId*
-        const isAlreadySelected = selectedItems.some(
-            selected => selected.I_Id === item.I_Id && selected.stock_Id === item.stock_Id
-        );
+    // ✅ Prevent duplicate stock_Id *only within same itemId*
+    const isAlreadySelected = selectedItems.some(
+        selected => selected.I_Id === item.I_Id && selected.stock_Id === item.stock_Id
+    );
 
-        if (isAlreadySelected) {
-            toast.error("This stock item has already been selected.");
-            return;
-        }
+    if (isAlreadySelected) {
+        toast.error("This stock item has already been selected.");
+        return;
+    }
 
-        const unitPrice = orderedItem.price && orderedItem.quantity
-            ? orderedItem.price / orderedItem.quantity
-            : 0;
+    const unitPrice = orderedItem.price && orderedItem.quantity
+        ? orderedItem.price / orderedItem.quantity
+        : 0;
 
-        const itemWithPrice = {
-            ...item,
-            price: unitPrice
-        };
-
-        setSelectedItems(prev => [...prev, itemWithPrice]);
-        setSearchTerm('');
-        setDropdownOpen(false);
-
-        console.log("✅ Item added to selection:", itemWithPrice);
+    const itemWithPrice = {
+        ...item,
+        price: unitPrice
     };
+
+    setSelectedItems(prev => [...prev, itemWithPrice]);
+    setSearchTerm('');
+    setDropdownOpen(false);
+
+    console.log("✅ Item added to selection:", itemWithPrice);
+};
 
     const handlePaymentTypeChange = (e) => {
         setPaymentType(e.target.value);
@@ -281,7 +280,7 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
                         <button className="print-btn" onClick={handlePrintAndSubmit}>Save</button>
 
                         {selectedOrder?.deliveryStatus === "Pickup" && (
-                            <button className="close-btn" onClick={viewhandle1}>Close</button>
+                            <button className="close-btn" onClick={viewhandle1}>Get Gate Pass</button>
                         )}
 
                         {selectedOrder?.deliveryStatus === "Delivery" && (
@@ -294,110 +293,110 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
             </div>
             {/* Stock Modal */}
             <Modal isOpen={showStockModal} toggle={() => setShowStockModal(!showStockModal)}>
-            <ModalHeader toggle={() => setShowStockModal(!showStockModal)}>Scan Stock</ModalHeader>
-            <ModalBody>
-                <FormGroup style={{ position: "relative" }}>
-                <Label>Items ID</Label>
-                <Input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => {
-                    const val = e.target.value.trim();
-                    setSearchTerm(val);
+  <ModalHeader toggle={() => setShowStockModal(!showStockModal)}>Scan Stock</ModalHeader>
+  <ModalBody>
+    <FormGroup style={{ position: "relative" }}>
+      <Label>Items ID</Label>
+      <Input
+        type="text"
+        value={searchTerm}
+        onChange={(e) => {
+          const val = e.target.value.trim();
+          setSearchTerm(val);
 
-                    const filtered = items.filter(
-                        (item) =>
-                        item.I_Id.includes(val) || item.stock_Id.includes(val)
-                    );
-                    setFilteredItems(filtered);
-                    setDropdownOpen(filtered.length > 0);
+          const filtered = items.filter(
+            (item) =>
+              item.I_Id.includes(val) || item.stock_Id.includes(val)
+          );
+          setFilteredItems(filtered);
+          setDropdownOpen(filtered.length > 0);
 
-                    const exactMatch = items.find(
-                        (item) => item.I_Id === val || item.stock_Id === val
-                    );
-                    if (exactMatch) {
-                        handleSelectItem(exactMatch);
-                        setSearchTerm("");
-                        setDropdownOpen(false);
-                        return;
-                    }
-                    }}
-                    placeholder="Search for item..."
-                />
-                {dropdownOpen && (
-                    <div
-                    className="dropdown"
-                    style={{
-                        position: "absolute",
-                        zIndex: 100,
-                        backgroundColor: "white",
-                        border: "1px solid #ddd",
-                        width: "100%",
-                        maxHeight: "150px",
-                        overflowY: "auto",
-                    }}
-                    >
-                    {filteredItems.map((item) => (
-                        <div
-                        key={item.stock_Id}
-                        onClick={() => {
-                            handleSelectItem(item);
-                            setSearchTerm('');
-                            setDropdownOpen(false);
-                        }}
-                        className="dropdown-item"
-                        style={{ padding: "8px", cursor: "pointer" }}
-                        >
-                        {item.I_Id} - {item.stock_Id}
-                        </div>
-                    ))}
-                    </div>
-                )}
-                </FormGroup>
+          const exactMatch = items.find(
+            (item) => item.I_Id === val || item.stock_Id === val
+          );
+          if (exactMatch) {
+            handleSelectItem(exactMatch);
+            setSearchTerm("");
+            setDropdownOpen(false);
+            return;
+          }
+        }}
+        placeholder="Search for item..."
+      />
+      {dropdownOpen && (
+        <div
+          className="dropdown"
+          style={{
+            position: "absolute",
+            zIndex: 100,
+            backgroundColor: "white",
+            border: "1px solid #ddd",
+            width: "100%",
+            maxHeight: "150px",
+            overflowY: "auto",
+          }}
+        >
+          {filteredItems.map((item) => (
+            <div
+              key={item.stock_Id}
+              onClick={() => {
+                handleSelectItem(item);
+                setSearchTerm('');
+                setDropdownOpen(false);
+              }}
+              className="dropdown-item"
+              style={{ padding: "8px", cursor: "pointer" }}
+            >
+              {item.I_Id} - {item.stock_Id}
+            </div>
+          ))}
+        </div>
+      )}
+    </FormGroup>
 
-                <Label>Issued Items</Label>
-                <table className="selected-items-table">
-                <thead>
-                    <tr>
-                        <th>Item ID</th>
-                        <th>Stock ID</th>
-                        <th>Batch ID</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {selectedItems.map((item, index) => (
-                    <tr key={index}>
-                        <td>{item.I_Id}</td>
-                        <td>{item.stock_Id}</td>
-                        <td>{item.pc_Id}</td>
-                        <td>
-                        <button
-                            className="btn btn-sm btn-danger"
-                            onClick={() =>
-                            setSelectedItems(prev =>
-                                prev.filter(i => i.stock_Id !== item.stock_Id)
-                            )
-                            }
-                        >
-                            Remove
-                        </button>
-                        </td>
-                    </tr>
-                    ))}
-                </tbody>
-                </table>
-            </ModalBody>
+    <Label>Issued Items</Label>
+    <table className="selected-items-table">
+      <thead>
+        <tr>
+          <th>Item ID</th>
+          <th>Batch ID</th>
+          <th>Stock ID</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {selectedItems.map((item, index) => (
+          <tr key={index}>
+            <td>{item.I_Id}</td>
+            <td>{item.pc_Id}</td>
+            <td>{item.stock_Id}</td>
+            <td>
+              <button
+                className="btn btn-sm btn-danger"
+                onClick={() =>
+                  setSelectedItems(prev =>
+                    prev.filter(i => i.stock_Id !== item.stock_Id)
+                  )
+                }
+              >
+                Remove
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </ModalBody>
 
-            <ModalFooter>
-                <Button color="primary" onClick={() => passReservedItem(selectedItems)}>
-                Pass
-                </Button>
-                <Button color="secondary" onClick={() => setShowStockModal(false)}>
-                Cancel
-                </Button>
-            </ModalFooter>
-            </Modal>
+  <ModalFooter>
+    <Button color="primary" onClick={() => passReservedItem(selectedItems)}>
+      Pass
+    </Button>
+    <Button color="secondary" onClick={() => setShowStockModal(false)}>
+      Cancel
+    </Button>
+  </ModalFooter>
+</Modal>
 
         </div>
     );

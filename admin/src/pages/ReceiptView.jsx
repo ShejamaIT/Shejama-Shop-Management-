@@ -12,12 +12,7 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
     };
 
     const getHeading = () => {
-        if (receiptData.delStatus === "Pickup") {
-            return receiptData.balance === 0 ? "Gate Pass - Paid" : "Gate Pass";
-        }
-        // if (receiptData.delStatus === "Delivery") {
-        //     return receiptData.balance === 0 ? "Delivery Note - Paid" : "Delivery Note";
-        // }
+        console.log(receiptData);
         return receiptData.balance === 0 ? "Cash Bill" : "Invoice";
     };
 
@@ -192,27 +187,6 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
                         ))}
                         </tbody>
                     </table>
-                    {/* Conditional Pickup Table */}
-                    {receiptData.delStatus === "Pickup" && Array.isArray(receiptData.selectedItems) && (
-                        <table style={{ marginTop: "10px" }}>
-                            <thead>
-                            <tr>
-                                <th>Item ID</th>
-                                <th>Stock ID</th>
-                                <th>Batch ID</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {receiptData.selectedItems.map((item, idx) => (
-                                <tr key={idx}>
-                                    <td>{item.I_Id}</td>
-                                    <td>{item.stock_Id}</td>
-                                    <td>{item.pc_Id}</td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    )}
 
                     <div className="receipt-summary">
                         <p><span><strong>Gross Total:</strong></span><span>Rs. {receiptData.subtotal.toFixed(2)}</span></p>

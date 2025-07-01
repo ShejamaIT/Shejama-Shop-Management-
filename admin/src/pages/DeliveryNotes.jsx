@@ -26,40 +26,48 @@ const DeliveryNotes = () => {
     const [receiptDataD, setReceiptDataD] = useState(null);
 
     const handleSubmit2 = async (formData) => {
+        console.log(formData)
+        console.log(selectedOrders)
         try {
-            // Ensure at least one order is selected before proceeding
             if (!selectedOrders || selectedOrders.length === 0) {
                 toast.error("Please select at least one order.");
                 return;
             }
 
+            const deliveryDate = selectedDeliveryDate || new Date().toISOString().split("T")[0];
+            const route = selectedRoute || "Unknown";
+
+            // Structure for delivery note view
             const updatedReceiptData = {
                 orders: selectedOrders.map(order => ({
                     orderId: order.orderId,
                     customerName: order.customerName || "Unknown",
                     balance: order.balance || 0,
-                    address: order.deliveryInfo?.address || "N/A", // Handle undefined values
+                    address: order.deliveryInfo?.address || "N/A",
                     contact1: order.phoneNumber || "N/A",
                     contact2: order.optionalNumber || "N/A",
                     total: order.totalPrice || 0,
                     advance: order.advance || 0,
+                    selectedItems: formData.selectedItems || [],
                 })),
                 vehicleId: formData.vehicleId,
                 driverName: formData.driverName,
                 driverId: formData.driverId,
                 hire: formData.hire || 0,
                 balanceToCollect: formData.balanceToCollect || 0,
-                selectedDeliveryDate: selectedDeliveryDate || new Date().toISOString().split("T")[0], // Default to today's date if empty
-                district: selectedRoute || "Unknown",
+                selectedDeliveryDate: deliveryDate,
+                district: route,
             };
 
-            // Prepare the data for the API request
+            // Payload to backend
             const deliveryNoteData = {
                 driverName: formData.driverName,
                 driverId: formData.driverId,
-                vehicleName: formData.vehicleId, // Ensure correct field name
+                vehicleName: formData.vehicleId,
                 hire: formData.hire || 0,
-                date: updatedReceiptData.selectedDeliveryDate,
+                date: deliveryDate,
+                district: route,
+                balanceToCollect: formData.balanceToCollect || 0,
                 orders: selectedOrders.map(order => ({
                     orderId: order.orderId,
                     balance: order.balance || 0,
@@ -67,33 +75,33 @@ const DeliveryNotes = () => {
                     contact1: order.phoneNumber || "N/A",
                     contact2: order.optionalNumber || "N/A",
                 })),
-                district: selectedRoute || "Unknown",
-                balanceToCollect: formData.balanceToCollect || 0,
             };
-            // Make the API call
-            const response = await fetch("http://localhost:5001/api/admin/main/create-delivery-note", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(deliveryNoteData),
-            });
 
-            const data = await response.json();
+            // const response = await fetch("http://localhost:5001/api/admin/main/create-delivery-note", {
+            //     method: "POST",
+            //     headers: {
+            //         "Content-Type": "application/json",
+            //     },
+            //     body: JSON.stringify(deliveryNoteData),
+            // });
+            //
+            // const result = await response.json();
+            //
+            // if (!response.ok) {
+            //     throw new Error(result.message || "Error creating delivery note.");
+            // }
+            //
+            // toast.success("Delivery note created successfully.");
+            // setReceiptDataD(updatedReceiptData);
+            // setShowModal2(false);
+            // setShowDeliveryView(true);
 
-            if (!response.ok) {
-                throw new Error(data.message || "Error creating delivery note.");
-            }
-
-            toast.success("Delivery note created successfully.");
-            setReceiptDataD(updatedReceiptData);
-            setShowModal2(false);
-            setShowDeliveryView(true);
         } catch (error) {
             console.error("Error while submitting delivery note:", error);
             toast.error(error.message || "An unexpected error occurred while submitting the delivery note.");
         }
     };
+
 
     useEffect(() => {
         fetchRoutes();
@@ -103,11 +111,19 @@ const DeliveryNotes = () => {
         try {
             const response = await fetch("http://localhost:5001/api/admin/main/delivery-rates");
             const data = await response.json();
-            setRoutes(["All", ...data.data.map(route => route.district)]);
+
+            if (Array.isArray(data.data) && data.data.length > 0) {
+                const districts = data.data.map(route => route.district).filter(Boolean);
+                setRoutes(["All", ...districts]);
+            } else {
+                setRoutes(["All"]);
+            }
         } catch (error) {
             toast.error("Error fetching routes.");
+            setRoutes(["All"]); // fallback in case of error
         }
     };
+
 
     const loadOrders = (e) => {
         const routedate = e.target.value;
@@ -200,26 +216,31 @@ const DeliveryNotes = () => {
     };
 
     const handleSubmit3 = async (formData) => {
+        // Clone and enhance selectedOrder with selectedItems
+        const enrichedOrder = {
+            ...selectedOrder,
+            selectedItems: formData.selectedItems, // Inject selectedItems here
+        };
+
         const updatedData = {
-            orID: selectedOrder.orderId,
-            orderDate: selectedOrder.orderDate,
+            orID: enrichedOrder.orderId,
+            orderDate: enrichedOrder.orderDate,
             delStatus: formData.deliveryStatus,
             delPrice: formData.delivery,
-            discount: selectedOrder.discount,
+            discount: enrichedOrder.discount,
             subtotal: formData.subtotal,
             total: formData.billTotal,
             advance: formData.totalAdvance,
             payStatus: formData.paymentType,
-            stID: selectedOrder.saleID,
+            stID: enrichedOrder.saleID,
             paymentAmount: formData.addedAdvance || 0,
-            selectedItems: formData.selectedItems,
-            balance: formData.billTotal - formData.totalAdvance, // assuming balance calculation
-            salesperson: selectedOrder.salesTeam.employeeName,
-            items: selectedOrder.items,
+            selectedItems: formData.selectedItems, // Also needed in payload
+            balance: formData.billTotal - formData.totalAdvance,
+            salesperson: enrichedOrder.salesTeam?.employeeName || "Unknown",
+            items: enrichedOrder.items,
         };
 
         try {
-            // Make API request to the /isssued-order endpoint
             const response = await fetch('http://localhost:5001/api/admin/main/issued-items', {
                 method: 'POST',
                 headers: {
@@ -227,12 +248,13 @@ const DeliveryNotes = () => {
                 },
                 body: JSON.stringify(updatedData),
             });
+
             const result = await response.json();
             if (response.ok) {
                 toast.success("Update order Successfully");
                 setShowModal1(false);
-                setReceiptData(updatedData);  // Set data for receipt
-                setShowReceiptView(true);         // Show receipt view
+                setReceiptData(enrichedOrder);     // ← Store updated order with selectedItems
+                setShowReceiptView(true);
             } else {
                 console.error("Error:", result.message);
             }
@@ -240,6 +262,7 @@ const DeliveryNotes = () => {
             console.error("Error making API request:", error.message);
         }
     };
+
     const handleEditClick3 = (selectedOrders) => {
         if (!selectedOrders) return;
         setSelectedOrders(selectedOrders);

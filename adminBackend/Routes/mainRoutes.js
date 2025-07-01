@@ -11029,37 +11029,55 @@ router.post("/create-gate-pass-now", async (req, res) => {
     try {
         const { order, vehicleId } = req.body;
 
-        if (!order || !order.orderId || !vehicleId) {
+        if (!order || !order.orderId || !vehicleId || !Array.isArray(order.selectedItem)) {
             return res.status(400).json({
                 success: false,
-                message: "Missing required fields: orderId or vehicleId",
+                message: "Missing required fields: orderId, vehicleId, or selectedItem",
             });
         }
 
         const orderId = order.orderId;
-        // Use provided orderDate or fallback to current date
         const passDate = order.orderDate;
 
-        const insertQuery = `
+        // Insert into gatePass table
+        const insertGatePassQuery = `
             INSERT INTO gatePass (orID, vehicalNum, date)
             VALUES (?, ?, ?)
         `;
 
-        await db.query(insertQuery, [orderId, vehicleId, passDate]);
+        const [gatePassResult] = await db.query(insertGatePassQuery, [orderId, vehicleId, passDate]);
+
+        const gatepassID = gatePassResult.insertId;
+
+        // Insert into gatePass_details table
+        const insertDetailQuery = `
+            INSERT INTO gatePass_details (gatepassID, pid_Id)
+            VALUES (?, ?)
+        `;
+
+        for (const item of order.selectedItem) {
+            const pid_Id = item.pid_Id;
+
+            if (pid_Id) {
+                await db.query(insertDetailQuery, [gatepassID, pid_Id]);
+            }
+        }
 
         return res.status(201).json({
             success: true,
-            message: "Gate pass created successfully.",
+            message: "Gate pass and details saved successfully.",
         });
+
     } catch (err) {
-        console.error("❌ Error saving gate pass:", err.message);
+        console.error("❌ Error saving gate pass or details:", err.message);
         return res.status(500).json({
             success: false,
-            message: "Failed to create gate pass.",
+            message: "Failed to create gate pass and details.",
             error: err.message,
         });
     }
 });
+
 
 
 // pass sale team value to review in month end

@@ -581,7 +581,14 @@ CREATE TABLE accountNumbers(
         CONSTRAINT FOREIGN KEY (sbID) REFERENCES shop_Banks (sbID)
                                  ON DELETE CASCADE ON UPDATE CASCADE
 );
-
+CREATE TABLE handover_cheque (
+    hcID INT AUTO_INCREMENT PRIMARY KEY,
+    chequeNumber TEXT,
+    givenName TEXT,
+    givenDate DATE,
+    purpose TEXT,
+    type ENUM('Handover', 'Return') DEFAULT 'Handover'
+);
 ALTER TABLE order_payment
 ADD COLUMN c_ID VARCHAR(15),
 ADD COLUMN balance DOUBLE;
@@ -590,8 +597,6 @@ ADD CONSTRAINT fk_order_customer
 FOREIGN KEY (c_ID) REFERENCES Customer(c_ID)
 ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE `ord_cheque_pay` CHANGE `status` `status` ENUM('Pass','Return','InHand','') 
-CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'InHand';
 CREATE TABLE ord_Cash_Pay(
     id INT AUTO_INCREMENT PRIMARY KEY,
     optId INT,
@@ -630,11 +635,20 @@ CREATE TABLE deposit_withdrawals (
 );
 ALTER TABLE `cash_balance` CHANGE `ref_type` `ref_type` ENUM('order','advance','loss','other','supplier','Loan','hire','Deposit','Withdrawl') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'other';
 ALTER TABLE `ord_cheque_pay` CHANGE `status` `status` ENUM('received','cashed','returned','handover') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'received';
-CREATE TABLE handover_cheque (
-    hcID INT AUTO_INCREMENT PRIMARY KEY,
-    chequeNumber TEXT,
-    givenName TEXT,
-    givenDate DATE,
-    purpose TEXT,
-    type ENUM('Handover', 'Return') DEFAULT 'Handover'
+CREATE TABLE gatePass(
+    gatepassID INT AUTO_INCREMENT PRIMARY KEY,
+    orID VARCHAR(25),
+    vehicalNum VARCHAR(25),
+    date DATE,
+    CONSTRAINT FOREIGN KEY (orID) REFERENCES Orders (orID)
+                                    ON DELETE CASCADE ON UPDATE CASCADE
+);
+CREATE TABLE gatePass_details(
+    g_p_dID INT AUTO_INCREMENT PRIMARY KEY,
+    gatepassID INT,
+    pid_Id INT,
+    CONSTRAINT FOREIGN KEY (gatepassID) REFERENCES gatePass (gatepassID)
+                                    ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT FOREIGN KEY (pid_Id) REFERENCES p_i_detail (pid_Id)
+                                        ON DELETE CASCADE ON UPDATE CASCADE
 );

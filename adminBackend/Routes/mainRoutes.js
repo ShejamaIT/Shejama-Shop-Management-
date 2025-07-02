@@ -580,7 +580,7 @@ router.post("/orders", async (req, res) => {
 
         let orderStatus = null;
 
-        if (type === 'On site') {
+        if (orderType === 'On-site') {
             orderStatus = "Pending";
         } else {
             // ✅ Set order status for Walking to 'Delivered' 0r 'Issued'
@@ -955,7 +955,7 @@ router.post("/later-order", async (req, res) => {
         }
         let orderStatus = null;
 
-        if (type === 'On site') {
+        if (orderType === 'On-site') {
             // ✅ Always set On-site orders as Pending
             orderStatus = "Pending";
         } else {

@@ -25,6 +25,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
     const [items, setItems] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
     const [quantity, setQuantity] = useState("");
+    const [sellingPrice, setSellingPrice] = useState("");
     const [selectedItems, setSelectedItems] = useState([]);
     const [selectedItems1, setSelectedItems1] = useState([]);
     const [selectedItem2 , setSeletedItem2] = useState([]);
@@ -369,7 +370,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             setFullTotalPay(0);
         }
     }, [formData.payment, formData.subPayment, formData.cashAmount,cardPayment, totalBillPrice,cheques,grossAmount,combinedCardBalance,combinedTransferBalance,combinedChequeBalance, creditAmount, ChequeBalance,transferPortion ]);
-
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
 
@@ -499,7 +499,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             setFilteredItems(filtered);
         }
     };
-
     // Fetch items only once, e.g., in useEffect
     useEffect(() => {
         const fetchItemsOnce = async () => {
@@ -509,7 +508,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         };
         fetchItemsOnce();
     }, []);
-
     const handleSelectItem = (item) => {
         setSelectedItem(item);
         setQuantity(1);
@@ -568,10 +566,9 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             });
         }
 
-        // Update selectedItems state
         setSelectedItems(updatedSelectedItems);
 
-        // Add expanded items with unique UID
+        // Generate new items (1 per quantity)
         const newFlatItems = Array.from({ length: quantity }, () => ({
             ...updatedSelectedItem,
             uid: uuidv4(),
@@ -584,18 +581,69 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             status: formData.issuable === "Later" ? "Booked" : "",
         }));
 
-        // Update selectedItemsQTY state
+        // Update selectedItemsQty
         setSelectedItemsQTY(prev => [...prev, ...newFlatItems]);
 
-        // Reset fields after adding the item
-        setSelectedItem(null); // Clear selected item
-        setDiscount(0); // Clear discount
-        setQuantity(1); // Reset quantity to 1
+        // ✅ Automatically add to processedItems as "Booked" if issuable is "Later"
+        if (formData.issuable === "Later") {
+            const bookedItems = newFlatItems.map(item => ({
+                I_Id: item.I_Id,
+                material: item.material,
+                uid: item.uid,
+                unitPrice: item.unitPrice,
+                discount: item.discount || 0,
+                status: "Booked"
+            }));
 
-        // Optionally reset `formData` or other states if needed
+            setProcessedItems(prev => [...prev, ...bookedItems]);
+
+            console.log("✅ Booked Items Auto Added:", bookedItems);
+        }
+
+        // Reset form states
+        setSelectedItem(null);
+        setDiscount(0);
+        setQuantity(1);
     };
 
+    const handleStatusChange = (index, newStatus, item) => {
+        const updatedItems = [...selectedItemsQty];
+        const updatedItem = { ...updatedItems[index], status: newStatus };
+        updatedItems[index] = updatedItem;
+        setSelectedItemsQTY(updatedItems);
 
+        const identifier = updatedItem.uid;
+
+        const removeByUid = (array) => array.filter(i => i.uid !== identifier);
+
+        setProcessedItems(prev => removeByUid(prev)); // clear from any status
+
+        if (newStatus === "Booked") {
+            const strippedItem = {
+                I_Id: updatedItem.I_Id,
+                material: updatedItem.material,
+                uid: updatedItem.uid,
+                unitPrice: updatedItem.unitPrice,
+                discount: updatedItem.discount || 0,
+                status: "Booked"
+            };
+            setProcessedItems(prev => [...prev, strippedItem]);
+        } else if (newStatus === "Reserved") {
+            setSelectedItemForReserve(updatedItem);
+            setShowStockModal1(true);
+        } else if (newStatus === "Production") {
+            fetchSuppliers(updatedItem.I_Id);
+            setSelectedItemForProduction(updatedItem);
+            setShowStockModal2(true);
+        }
+
+        setTimeout(() => {
+            console.log("📦 All Processed Items:", processedItems);
+            console.log("🔒 Reserved:", processedItems.filter(i => i.status === "Reserved"));
+            console.log("🏭 Production:", processedItems.filter(i => i.status === "Production"));
+            console.log("📦 Booked:", processedItems.filter(i => i.status === "Booked"));
+        }, 200);
+    };
     const handleRemoveItem = (index) => {
         const updatedItems = [...selectedItems];
         const removedItem = updatedItems.splice(index, 1)[0]; // Remove and capture the item
@@ -1031,7 +1079,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
 
         // Optional: send to API if needed
     };
-
     const handleSubmit2 = async (formData1) => {
         const updatedReceiptData = {
             order:{
@@ -1096,7 +1143,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             toast.error(error.message || "An unexpected error occurred while submitting the delivery note.");
         }
     };
-
     const handleSubmit4 = async (formData1) => {
         const updatedReceiptData = {
             order:{
@@ -1462,44 +1508,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             alert("Failed to add account number. Please try again.");
         }
     };
-    const handleStatusChange = (index, newStatus, item) => {
-        const updatedItems = [...selectedItemsQty];
-        const updatedItem = { ...updatedItems[index], status: newStatus };
-        updatedItems[index] = updatedItem;
-        setSelectedItemsQTY(updatedItems);
 
-        const identifier = updatedItem.uid;
-
-        const removeByUid = (array) => array.filter(i => i.uid !== identifier);
-
-        setProcessedItems(prev => removeByUid(prev)); // clear from any status
-
-        if (newStatus === "Booked") {
-            const strippedItem = {
-                I_Id: updatedItem.I_Id,
-                material: updatedItem.material,
-                uid: updatedItem.uid,
-                unitPrice: updatedItem.unitPrice,
-                discount: updatedItem.discount || 0,
-                status: "Booked"
-            };
-            setProcessedItems(prev => [...prev, strippedItem]);
-        } else if (newStatus === "Reserved") {
-            setSelectedItemForReserve(updatedItem);
-            setShowStockModal1(true);
-        } else if (newStatus === "Production") {
-            fetchSuppliers(updatedItem.I_Id);
-            setSelectedItemForProduction(updatedItem);
-            setShowStockModal2(true);
-        }
-
-        setTimeout(() => {
-            console.log("📦 All Processed Items:", processedItems);
-            console.log("🔒 Reserved:", processedItems.filter(i => i.status === "Reserved"));
-            console.log("🏭 Production:", processedItems.filter(i => i.status === "Production"));
-            console.log("📦 Booked:", processedItems.filter(i => i.status === "Booked"));
-        }, 200);
-    };
     const handleProduction = (e) => {
         e.preventDefault();
 
@@ -1787,7 +1796,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                         name="otherNumber"
                                         value={formData.otherNumber}
                                         onChange={handleChange}
-                                        onBlur={() => handlePhoneNumberBlur(formData.otherNumber)}
                                     />
                                 </FormGroup>
                             </Col>
@@ -1901,8 +1909,96 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                 />
                             </div>
                         </FormGroup>
+                        {/*<FormGroup className="flex flex-col mb-4">*/}
+                        {/*    /!* Row 1: Unit Price, Quantity, Discount, Total, Remove Button *!/*/}
+                        {/*    <div className="item-entry-row">*/}
+                        {/*        /!* Unit Price *!/*/}
+                        {/*        <div className="item-entry-field">*/}
+                        {/*            <label>Unit Price</label>*/}
+                        {/*            <input*/}
+                        {/*                type="number"*/}
+                        {/*                value={selectedItem ? selectedItem.price : ""}*/}
+                        {/*                disabled*/}
+                        {/*            />*/}
+                        {/*        </div>*/}
+
+                        {/*        /!* Item Discount *!/*/}
+                        {/*        <div className="item-entry-field">*/}
+                        {/*            <label>Item Discount</label>*/}
+                        {/*            <input*/}
+                        {/*                type="text"*/}
+                        {/*                value={discount}*/}
+                        {/*                onChange={(e) => {*/}
+                        {/*                    const value = e.target.value;*/}
+                        {/*                    if (/^\d*\.?\d*$/.test(value)) {*/}
+                        {/*                        setDiscount(value);*/}
+                        {/*                    }*/}
+                        {/*                }}*/}
+                        {/*                placeholder="Enter discount"*/}
+                        {/*            />*/}
+                        {/*        </div>*/}
+
+                        {/*        /!* Qty *!/*/}
+                        {/*        <div className="item-entry-field">*/}
+                        {/*            <label>Qty</label>*/}
+                        {/*            <input*/}
+                        {/*                type="text"*/}
+                        {/*                value={quantity}*/}
+                        {/*                onChange={(e) => {*/}
+                        {/*                    const value = e.target.value;*/}
+                        {/*                    if (/^\d*$/.test(value)) {*/}
+                        {/*                        setQuantity(value);*/}
+                        {/*                    }*/}
+                        {/*                }}*/}
+                        {/*                onBlur={() => {*/}
+                        {/*                    if (quantity === "" || parseInt(quantity) < 1) {*/}
+                        {/*                        setQuantity("1");*/}
+                        {/*                    }*/}
+                        {/*                }}*/}
+                        {/*                placeholder="Enter qty"*/}
+                        {/*            />*/}
+                        {/*        </div>*/}
+
+                        {/*        /!* Total *!/*/}
+                        {/*        <div className="item-entry-field">*/}
+                        {/*            <label>Total</label>*/}
+                        {/*            <input*/}
+                        {/*                type="number"*/}
+                        {/*                value={*/}
+                        {/*                    selectedItem*/}
+                        {/*                        ? ((selectedItem.price - discount) * quantity).toFixed(2)*/}
+                        {/*                        : ""*/}
+                        {/*                }*/}
+                        {/*                disabled*/}
+                        {/*            />*/}
+                        {/*        </div>*/}
+
+                        {/*        /!* Action Buttons *!/*/}
+                        {/*        <div className="item-entry-actions">*/}
+                        {/*            <button*/}
+                        {/*                type="button"*/}
+                        {/*                className="remove-btn"*/}
+                        {/*                disabled={!selectedItem}*/}
+                        {/*                onClick={() => {*/}
+                        {/*                    setSelectedItem(null);*/}
+                        {/*                    setDiscount(0);*/}
+                        {/*                    setQuantity(1);*/}
+                        {/*                }}*/}
+                        {/*            >*/}
+                        {/*                Remove*/}
+                        {/*            </button>*/}
+                        {/*            <button*/}
+                        {/*                type="button"*/}
+                        {/*                id="addOrderDetail"*/}
+                        {/*                className="add-btn"*/}
+                        {/*                onClick={handleAddToOrder}*/}
+                        {/*            >*/}
+                        {/*                Add to Order*/}
+                        {/*            </button>*/}
+                        {/*        </div>*/}
+                        {/*    </div>*/}
+                        {/*</FormGroup>*/}
                         <FormGroup className="flex flex-col mb-4">
-                            {/* Row 1: Unit Price, Quantity, Discount, Total, Remove Button */}
                             <div className="item-entry-row">
                                 {/* Unit Price */}
                                 <div className="item-entry-field">
@@ -1911,6 +2007,26 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                         type="number"
                                         value={selectedItem ? selectedItem.price : ""}
                                         disabled
+                                    />
+                                </div>
+
+                                {/* Selling Price */}
+                                <div className="item-entry-field">
+                                    <label>Selling Price</label>
+                                    <input
+                                        type="number"
+                                        value={sellingPrice}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            if (/^\d*\.?\d*$/.test(value)) {
+                                                setSellingPrice(value);
+                                                if (selectedItem && value !== "") {
+                                                    const discountValue = (selectedItem.price - parseFloat(value)).toFixed(2);
+                                                    setDiscount(discountValue > 0 ? discountValue : "0");
+                                                }
+                                            }
+                                        }}
+                                        placeholder="Enter selling price"
                                     />
                                 </div>
 
@@ -1924,6 +2040,10 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                             const value = e.target.value;
                                             if (/^\d*\.?\d*$/.test(value)) {
                                                 setDiscount(value);
+                                                if (selectedItem && value !== "") {
+                                                    const priceAfterDiscount = (selectedItem.price - parseFloat(value)).toFixed(2);
+                                                    setSellingPrice(priceAfterDiscount > 0 ? priceAfterDiscount : "0");
+                                                }
                                             }
                                         }}
                                         placeholder="Enter discount"
@@ -1957,8 +2077,8 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                     <input
                                         type="number"
                                         value={
-                                            selectedItem
-                                                ? ((selectedItem.price - discount) * quantity).toFixed(2)
+                                            selectedItem && sellingPrice
+                                                ? (parseFloat(sellingPrice) * parseInt(quantity || 1)).toFixed(2)
                                                 : ""
                                         }
                                         disabled
@@ -1973,8 +2093,9 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                         disabled={!selectedItem}
                                         onClick={() => {
                                             setSelectedItem(null);
-                                            setDiscount(0);
-                                            setQuantity(1);
+                                            setDiscount("0");
+                                            setQuantity("1");
+                                            setSellingPrice("");
                                         }}
                                     >
                                         Remove
@@ -1990,6 +2111,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                 </div>
                             </div>
                         </FormGroup>
+
                         {/* Order Details Table */}
                         <div className="overflow-auto max-w-full">
                             <table className="min-w-[600px] bg-white border rounded-lg shadow-md mb-6 mt-3">

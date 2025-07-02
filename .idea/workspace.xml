@@ -4,21 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update order detail views">
-      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/pdf/qrcodes_PC_002.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/pdf/qrcodes_PC_003.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KRC01-1-PC_003.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KRC01-2-PC_003.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KRC01-3-PC_003.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KT3DP-2-PC_002.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KT3DP-3-PC_002.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KT3DP-4-PC_002.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/adminBackend/uploads/barcodes/qrcode_KT3DP-5-PC_002.png" afterDir="false" />
+    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update order invoice">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/MakeDeliveryNoteNow.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/MakeDeliveryNoteNow.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/pages/ReceiptView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/ReceiptView.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/style/receiptView.css" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/style/receiptView.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,38 +42,38 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;js.last.introduce.type&quot;: &quot;CONST&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/VISHWA/Documents/testing/20250616/Shop_Website_withadmin/admin/src/pages&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;npm.start admin.executor&quot;: &quot;Run&quot;,
-    &quot;npm.start adminBackend.executor&quot;: &quot;Run&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.ide.settings.new.ui&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.1\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "main",
+    "js.last.introduce.type": "CONST",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/VISHWA/Desktop/backu/Shejama-Shop-Management-",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "npm.start admin.executor": "Run",
+    "npm.start adminBackend.executor": "Run",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "reference.settings.ide.settings.new.ui",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.1\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\VISHWA\Documents\testing\20250616\Shop_Website_withadmin\admin\src\pages" />
@@ -101,7 +90,7 @@
       <recent name="C:\Users\Dell\Desktop\Shop_Mangement_Website" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.start adminBackend">
+  <component name="RunManager" selected="npm.start admin">
     <configuration name="start admin" type="js.build_tools.npm">
       <package-json value="$PROJECT_DIR$/admin/package.json" />
       <command value="run" />
@@ -391,6 +380,7 @@
       <workItem from="1750837306082" duration="319000" />
       <workItem from="1750841537865" duration="780000" />
       <workItem from="1751171569448" duration="18206000" />
+      <workItem from="1751452614700" duration="3096000" />
     </task>
     <task id="LOCAL-00176" summary="update item save">
       <created>1739523210532</created>
@@ -765,7 +755,6 @@
     <MESSAGE value="update leave" />
     <MESSAGE value="update payment" />
     <MESSAGE value="update and add recevied cheque" />
-    <MESSAGE value="update order invoice" />
     <MESSAGE value="update" />
     <MESSAGE value="update backend" />
     <MESSAGE value="add bank detail view and update" />
@@ -779,6 +768,7 @@
     <MESSAGE value="add item update" />
     <MESSAGE value="delete unwanted images" />
     <MESSAGE value="update order detail views" />
-    <option name="LAST_COMMIT_MESSAGE" value="update order detail views" />
+    <MESSAGE value="update order invoice" />
+    <option name="LAST_COMMIT_MESSAGE" value="update order invoice" />
   </component>
 </project>

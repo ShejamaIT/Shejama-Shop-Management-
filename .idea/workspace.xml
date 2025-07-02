@@ -90,7 +90,7 @@
       <recent name="C:\Users\Dell\Desktop\Shop_Mangement_Website" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.start admin">
+  <component name="RunManager" selected="npm.start adminBackend">
     <configuration name="start admin" type="js.build_tools.npm">
       <package-json value="$PROJECT_DIR$/admin/package.json" />
       <command value="run" />
@@ -380,14 +380,7 @@
       <workItem from="1750837306082" duration="319000" />
       <workItem from="1750841537865" duration="780000" />
       <workItem from="1751171569448" duration="18206000" />
-      <workItem from="1751452614700" duration="3096000" />
-    </task>
-    <task id="LOCAL-00176" summary="update item save">
-      <created>1739523210532</created>
-      <option name="number" value="00176" />
-      <option name="presentableId" value="LOCAL-00176" />
-      <option name="project" value="LOCAL" />
-      <updated>1739523210533</updated>
+      <workItem from="1751452614700" duration="5544000" />
     </task>
     <task id="LOCAL-00177" summary="update item save with supplier">
       <created>1739527149699</created>
@@ -725,7 +718,14 @@
       <option name="project" value="LOCAL" />
       <updated>1751188658607</updated>
     </task>
-    <option name="localTasksCounter" value="412" />
+    <task id="LOCAL-00412" summary="update order invoice">
+      <created>1751456344838</created>
+      <option name="number" value="00412" />
+      <option name="presentableId" value="LOCAL-00412" />
+      <option name="project" value="LOCAL" />
+      <updated>1751456344838</updated>
+    </task>
+    <option name="localTasksCounter" value="413" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

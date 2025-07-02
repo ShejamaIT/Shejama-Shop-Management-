@@ -562,6 +562,16 @@ router.post("/orders", async (req, res) => {
             billBalance = billPrice - payAmount;
         }
 
+        let payStatus = null;
+
+        if (payAmount === 0) {
+            payStatus = 'Pending';
+        } else if (payAmount >= billPrice) {
+            payStatus = 'Settled';
+        } else {
+            payStatus = 'Advanced';
+        }
+
         const orID = `ORD_${Date.now()}`;
 
         if (couponCode) {
@@ -589,7 +599,7 @@ router.post("/orders", async (req, res) => {
         
         const orderQuery = `
             INSERT INTO Orders (OrID, orDate, c_ID, orStatus, delStatus, delPrice, discount, specialdic, netTotal, total, stID, expectedDate, specialNote, ordertype, advance, balance, payStatus)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')`;
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         const orderParams = [
             orID, orderDate, Cust_id, orderStatus, dvStatus,
@@ -598,7 +608,7 @@ router.post("/orders", async (req, res) => {
             parseFloat(specialdiscountAmount) || 0,
             parseFloat(totalItemPrice) || 0,
             parseFloat(TotalOrder) || 0,
-            stID, expectedDate, specialNote, orderType, advance1, billBalance
+            stID, expectedDate, specialNote, orderType, parseFloat(paymentAmount), billBalance ,payStatus
         ];
 
         await db.query(orderQuery, orderParams);
@@ -922,7 +932,6 @@ router.post("/later-order", async (req, res) => {
             ];
             await db.query(sqlInsertCustomer, valuesCustomer);
         }
-
         const advance1 = parseFloat(advance) || 0;
         const balance1 = parseFloat(balance) || 0;
         const newTotalOrder = parseFloat(totalItemPrice) - parseFloat(discountAmount);
@@ -936,6 +945,16 @@ router.post("/later-order", async (req, res) => {
             billBalance = 0;
         } else if (billPrice > payAmount) {
             billBalance = billPrice - payAmount;
+        }
+
+        let payStatus = null;
+
+        if (payAmount === 0) {
+            payStatus = 'Pending';
+        } else if (payAmount >= billPrice) {
+            payStatus = 'Settled';
+        } else {
+            payStatus = 'Advanced';
         }
 
         const orID = `ORD_${Date.now()}`;
@@ -966,11 +985,11 @@ router.post("/later-order", async (req, res) => {
 
     
         const orderQuery = `INSERT INTO Orders (OrID, orDate, c_ID, orStatus, delStatus, delPrice, discount, specialdic, netTotal, total, stID, expectedDate, specialNote, ordertype, advance, balance, payStatus)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')`;
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         const orderParams = [
             orID, orderDate, Cust_id, orderStatus, dvStatus,parseFloat(deliveryPrice) || 0,parseFloat(discountAmount) || 0,parseFloat(specialdiscountAmount) || 0,parseFloat(totalItemPrice) || 0,parseFloat(TotalOrder) || 0,
-            stID, expectedDate, specialNote, orderType, advance1, billBalance
+            stID, expectedDate, specialNote, orderType, parseFloat(paymentAmount), billBalance,payStatus
         ];
 
         await db.query(orderQuery, orderParams);

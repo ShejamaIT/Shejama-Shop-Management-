@@ -25,7 +25,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
     const [items, setItems] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
     const [quantity, setQuantity] = useState("");
-    const [sellingPrice, setSellingPrice] = useState("");
+    const [sellingPrice, setSellingPrice] = useState(0);
     const [selectedItems, setSelectedItems] = useState([]);
     const [selectedItems1, setSelectedItems1] = useState([]);
     const [selectedItem2 , setSeletedItem2] = useState([]);
@@ -604,6 +604,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         setSelectedItem(null);
         setDiscount(0);
         setQuantity(1);
+        setSellingPrice(0);
     };
 
     const handleStatusChange = (index, newStatus, item) => {
@@ -1913,95 +1914,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                 />
                             </div>
                         </FormGroup>
-                        {/*<FormGroup className="flex flex-col mb-4">*/}
-                        {/*    /!* Row 1: Unit Price, Quantity, Discount, Total, Remove Button *!/*/}
-                        {/*    <div className="item-entry-row">*/}
-                        {/*        /!* Unit Price *!/*/}
-                        {/*        <div className="item-entry-field">*/}
-                        {/*            <label>Unit Price</label>*/}
-                        {/*            <input*/}
-                        {/*                type="number"*/}
-                        {/*                value={selectedItem ? selectedItem.price : ""}*/}
-                        {/*                disabled*/}
-                        {/*            />*/}
-                        {/*        </div>*/}
-
-                        {/*        /!* Item Discount *!/*/}
-                        {/*        <div className="item-entry-field">*/}
-                        {/*            <label>Item Discount</label>*/}
-                        {/*            <input*/}
-                        {/*                type="text"*/}
-                        {/*                value={discount}*/}
-                        {/*                onChange={(e) => {*/}
-                        {/*                    const value = e.target.value;*/}
-                        {/*                    if (/^\d*\.?\d*$/.test(value)) {*/}
-                        {/*                        setDiscount(value);*/}
-                        {/*                    }*/}
-                        {/*                }}*/}
-                        {/*                placeholder="Enter discount"*/}
-                        {/*            />*/}
-                        {/*        </div>*/}
-
-                        {/*        /!* Qty *!/*/}
-                        {/*        <div className="item-entry-field">*/}
-                        {/*            <label>Qty</label>*/}
-                        {/*            <input*/}
-                        {/*                type="text"*/}
-                        {/*                value={quantity}*/}
-                        {/*                onChange={(e) => {*/}
-                        {/*                    const value = e.target.value;*/}
-                        {/*                    if (/^\d*$/.test(value)) {*/}
-                        {/*                        setQuantity(value);*/}
-                        {/*                    }*/}
-                        {/*                }}*/}
-                        {/*                onBlur={() => {*/}
-                        {/*                    if (quantity === "" || parseInt(quantity) < 1) {*/}
-                        {/*                        setQuantity("1");*/}
-                        {/*                    }*/}
-                        {/*                }}*/}
-                        {/*                placeholder="Enter qty"*/}
-                        {/*            />*/}
-                        {/*        </div>*/}
-
-                        {/*        /!* Total *!/*/}
-                        {/*        <div className="item-entry-field">*/}
-                        {/*            <label>Total</label>*/}
-                        {/*            <input*/}
-                        {/*                type="number"*/}
-                        {/*                value={*/}
-                        {/*                    selectedItem*/}
-                        {/*                        ? ((selectedItem.price - discount) * quantity).toFixed(2)*/}
-                        {/*                        : ""*/}
-                        {/*                }*/}
-                        {/*                disabled*/}
-                        {/*            />*/}
-                        {/*        </div>*/}
-
-                        {/*        /!* Action Buttons *!/*/}
-                        {/*        <div className="item-entry-actions">*/}
-                        {/*            <button*/}
-                        {/*                type="button"*/}
-                        {/*                className="remove-btn"*/}
-                        {/*                disabled={!selectedItem}*/}
-                        {/*                onClick={() => {*/}
-                        {/*                    setSelectedItem(null);*/}
-                        {/*                    setDiscount(0);*/}
-                        {/*                    setQuantity(1);*/}
-                        {/*                }}*/}
-                        {/*            >*/}
-                        {/*                Remove*/}
-                        {/*            </button>*/}
-                        {/*            <button*/}
-                        {/*                type="button"*/}
-                        {/*                id="addOrderDetail"*/}
-                        {/*                className="add-btn"*/}
-                        {/*                onClick={handleAddToOrder}*/}
-                        {/*            >*/}
-                        {/*                Add to Order*/}
-                        {/*            </button>*/}
-                        {/*        </div>*/}
-                        {/*    </div>*/}
-                        {/*</FormGroup>*/}
+                
                         <FormGroup className="flex flex-col mb-4">
                             <div className="item-entry-row">
                                 {/* Unit Price */}
@@ -2018,7 +1931,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                 <div className="item-entry-field">
                                     <label>Selling Price</label>
                                     <input
-                                        type="number"
+                                        type="text"
                                         value={sellingPrice}
                                         onChange={(e) => {
                                             const value = e.target.value;
@@ -2030,7 +1943,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                                                 }
                                             }
                                         }}
-                                        placeholder="Enter selling price"
+                                        // placeholder="Enter selling price"
                                     />
                                 </div>
 

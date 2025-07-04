@@ -202,6 +202,7 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
                         <label><strong>Payment Status:</strong></label>
                         <select value={paymentType} onChange={handlePaymentTypeChange}>
                             {/* Conditionally render options based on deliveryStatus */}
+                            {balance === 0 && <option value="Settled">Settled</option>} {/* Auto-set to Settled if balance is 0 */}
                             {deliveryStatus === "Pickup" && (
                                 <>
                                     <option value="">-- Please Select Payment Type ---</option>
@@ -214,7 +215,7 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
                                     <option value="Settled">Settled</option><option value="COD">COD</option><option value="Credit">Credit</option>
                                 </>
                             )}
-                            {balance === 0 && <option value="Settled">Settled</option>} {/* Auto-set to Settled if balance is 0 */}
+                            
                         </select>
                     </div>
 
@@ -272,7 +273,7 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
                     <div className="total-section">
                         <p><strong>Subtotal:</strong> Rs. {subtotal.toFixed(2)}</p><p><strong>Discount:</strong> Rs. {discount.toFixed(2)}</p>
                         <p><strong>Delivery:</strong> Rs. {delivery.toFixed(2)}</p><p><strong>Total:</strong> Rs. {netTotal.toFixed(2)}</p>
-                        <p><strong>Advance:</strong> Rs. {advance.toFixed(2)}</p><p><strong>Balance:</strong> Rs. {balance.toFixed(2)}</p>
+                        <p><strong>Payment:</strong> Rs. {advance.toFixed(2)}</p><p><strong>Balance:</strong> Rs. {balance.toFixed(2)}</p>
                     </div>
 
                     <div className="modal-buttons">
@@ -293,110 +294,110 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
             </div>
             {/* Stock Modal */}
             <Modal isOpen={showStockModal} toggle={() => setShowStockModal(!showStockModal)}>
-  <ModalHeader toggle={() => setShowStockModal(!showStockModal)}>Scan Stock</ModalHeader>
-  <ModalBody>
-    <FormGroup style={{ position: "relative" }}>
-      <Label>Items ID</Label>
-      <Input
-        type="text"
-        value={searchTerm}
-        onChange={(e) => {
-          const val = e.target.value.trim();
-          setSearchTerm(val);
+                <ModalHeader toggle={() => setShowStockModal(!showStockModal)}>Scan Stock</ModalHeader>
+                <ModalBody>
+                    <FormGroup style={{ position: "relative" }}>
+                    <Label>Items ID</Label>
+                    <Input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => {
+                        const val = e.target.value.trim();
+                        setSearchTerm(val);
 
-          const filtered = items.filter(
-            (item) =>
-              item.I_Id.includes(val) || item.stock_Id.includes(val)
-          );
-          setFilteredItems(filtered);
-          setDropdownOpen(filtered.length > 0);
+                        const filtered = items.filter(
+                            (item) =>
+                            item.I_Id.includes(val) || item.stock_Id.includes(val)
+                        );
+                        setFilteredItems(filtered);
+                        setDropdownOpen(filtered.length > 0);
 
-          const exactMatch = items.find(
-            (item) => item.I_Id === val || item.stock_Id === val
-          );
-          if (exactMatch) {
-            handleSelectItem(exactMatch);
-            setSearchTerm("");
-            setDropdownOpen(false);
-            return;
-          }
-        }}
-        placeholder="Search for item..."
-      />
-      {dropdownOpen && (
-        <div
-          className="dropdown"
-          style={{
-            position: "absolute",
-            zIndex: 100,
-            backgroundColor: "white",
-            border: "1px solid #ddd",
-            width: "100%",
-            maxHeight: "150px",
-            overflowY: "auto",
-          }}
-        >
-          {filteredItems.map((item) => (
-            <div
-              key={item.stock_Id}
-              onClick={() => {
-                handleSelectItem(item);
-                setSearchTerm('');
-                setDropdownOpen(false);
-              }}
-              className="dropdown-item"
-              style={{ padding: "8px", cursor: "pointer" }}
-            >
-              {item.I_Id} - {item.stock_Id}
-            </div>
-          ))}
-        </div>
-      )}
-    </FormGroup>
+                        const exactMatch = items.find(
+                            (item) => item.I_Id === val || item.stock_Id === val
+                        );
+                        if (exactMatch) {
+                            handleSelectItem(exactMatch);
+                            setSearchTerm("");
+                            setDropdownOpen(false);
+                            return;
+                        }
+                        }}
+                        placeholder="Search for item..."
+                    />
+                    {dropdownOpen && (
+                        <div
+                        className="dropdown"
+                        style={{
+                            position: "absolute",
+                            zIndex: 100,
+                            backgroundColor: "white",
+                            border: "1px solid #ddd",
+                            width: "100%",
+                            maxHeight: "150px",
+                            overflowY: "auto",
+                        }}
+                        >
+                        {filteredItems.map((item) => (
+                            <div
+                            key={item.stock_Id}
+                            onClick={() => {
+                                handleSelectItem(item);
+                                setSearchTerm('');
+                                setDropdownOpen(false);
+                            }}
+                            className="dropdown-item"
+                            style={{ padding: "8px", cursor: "pointer" }}
+                            >
+                            {item.I_Id} - {item.stock_Id}
+                            </div>
+                        ))}
+                        </div>
+                    )}
+                    </FormGroup>
 
-    <Label>Issued Items</Label>
-    <table className="selected-items-table">
-      <thead>
-        <tr>
-          <th>Item ID</th>
-          <th>Batch ID</th>
-          <th>Stock ID</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {selectedItems.map((item, index) => (
-          <tr key={index}>
-            <td>{item.I_Id}</td>
-            <td>{item.pc_Id}</td>
-            <td>{item.stock_Id}</td>
-            <td>
-              <button
-                className="btn btn-sm btn-danger"
-                onClick={() =>
-                  setSelectedItems(prev =>
-                    prev.filter(i => i.stock_Id !== item.stock_Id)
-                  )
-                }
-              >
-                Remove
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </ModalBody>
+                    <Label>Issued Items</Label>
+                    <table className="selected-items-table">
+                    <thead>
+                        <tr>
+                        <th>Item ID</th>
+                        <th>Batch ID</th>
+                        <th>Stock ID</th>
+                        <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {selectedItems.map((item, index) => (
+                        <tr key={index}>
+                            <td>{item.I_Id}</td>
+                            <td>{item.pc_Id}</td>
+                            <td>{item.stock_Id}</td>
+                            <td>
+                            <button
+                                className="btn btn-sm btn-danger"
+                                onClick={() =>
+                                setSelectedItems(prev =>
+                                    prev.filter(i => i.stock_Id !== item.stock_Id)
+                                )
+                                }
+                            >
+                                Remove
+                            </button>
+                            </td>
+                        </tr>
+                        ))}
+                    </tbody>
+                    </table>
+                </ModalBody>
 
-  <ModalFooter>
-    <Button color="primary" onClick={() => passReservedItem(selectedItems)}>
-      Pass
-    </Button>
-    <Button color="secondary" onClick={() => setShowStockModal(false)}>
-      Cancel
-    </Button>
-  </ModalFooter>
-</Modal>
+                <ModalFooter>
+                    <Button color="primary" onClick={() => passReservedItem(selectedItems)}>
+                    Pass
+                    </Button>
+                    <Button color="secondary" onClick={() => setShowStockModal(false)}>
+                    Cancel
+                    </Button>
+                </ModalFooter>
+            </Modal>
 
         </div>
     );

@@ -5922,38 +5922,46 @@ router.post("/addStock", upload.single("image"), async (req, res) => {
         const parsedItems = typeof items === "string" ? JSON.parse(items) : items;
         const stockDetails = [];
 
-        for (const item of parsedItems) {
-            const { I_Id, unit_price, quantity, material, price } = item;
-            const totalPrice = parseFloat(unit_price) * Number(quantity);
+        // Loop through all items
+            for (const item of parsedItems) {
+                const { I_Id, unit_price, quantity, material, price } = item;
+                const totalPrice = parseFloat(price) * Number(quantity);  // `price` is used for total calculation
 
-            const [unitPriceResult] = await db.query(
-                `SELECT unit_cost FROM item_supplier WHERE I_Id = ? AND s_ID = ?`,
-                [I_Id, supplier_id]
-            );
+                // Check if existing unit cost matches — update if needed
+                const [unitPriceResult] = await db.query(
+                    `SELECT unit_cost FROM item_supplier WHERE I_Id = ? AND s_ID = ?`,
+                    [I_Id, supplier_id]
+                );
 
-            if (unitPriceResult.length > 0) {
-                const existingUnitPrice = unitPriceResult[0].unit_cost;
-                if (parseFloat(existingUnitPrice) !== parseFloat(unit_price)) {
+                if (unitPriceResult.length > 0) {
+                    const existingUnitPrice = unitPriceResult[0].unit_cost;
+                    
+                    // Check if the existing unit cost differs from the `price` (as per your request)
+                    if (parseFloat(existingUnitPrice) !== parseFloat(price)) {
+                        // Update `unit_cost` to match the new `price`
+                        await db.query(
+                            `UPDATE item_supplier SET unit_cost = ? WHERE I_Id = ? AND s_ID = ?`,
+                            [price, I_Id, supplier_id]
+                        );
+                    }
+                } else {
+                    // Insert the new price into the item_supplier if not found
                     await db.query(
-                        `UPDATE item_supplier SET unit_cost = ? WHERE I_Id = ? AND s_ID = ?`,
-                        [unit_price, I_Id, supplier_id]
+                        `INSERT INTO item_supplier (I_Id, s_ID, unit_cost) VALUES (?, ?, ?)`,
+                        [I_Id, supplier_id, price]
                     );
                 }
-            } else {
+
+                // Insert purchase detail
                 await db.query(
-                    `INSERT INTO item_supplier (I_Id, s_ID, unit_cost) VALUES (?, ?, ?)`,
-                    [I_Id, supplier_id, unit_price]
+                    `INSERT INTO purchase_detail (pc_Id, I_Id, rec_count, unitPrice, total, stock_range)
+                    VALUES (?, ?, ?, ?, ?, ?)`,
+                    [purchase_id, I_Id, quantity, price, totalPrice, ""]
                 );
+
+                // Add stock details for later processing
+                stockDetails.push({ I_Id, quantity, material, price });
             }
-
-            await db.query(
-                `INSERT INTO purchase_detail (pc_Id, I_Id, rec_count, unitPrice, total, stock_range)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-                [purchase_id, I_Id, quantity, unit_price, totalPrice, ""]
-            );
-
-            stockDetails.push({ I_Id, quantity, material, price });
-        }
 
         const insertBarcodeQuery = `
       INSERT INTO p_i_detail (pc_Id, I_Id, stock_Id, barcode_img, status, orID, datetime, material, price)

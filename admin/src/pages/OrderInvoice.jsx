@@ -1353,6 +1353,8 @@ const OrderInvoice = ({ onPlaceOrder }) => {
 
             const materialToSend = newItem.material === "Other" ? newItem.otherMaterial : newItem.material;
 
+            console.log(newItem);
+            console.log(materialToSend);
             // Step 4: Build FormData for item creation
             const formDataToSend = new FormData();
             formDataToSend.append("I_Id", newItem.I_Id);
@@ -1403,6 +1405,11 @@ const OrderInvoice = ({ onPlaceOrder }) => {
             };
 
             console.log("🧾 Sending Item FormData:", formDataToSend);
+            console.log("🧾 Sending Item FormData (Detailed):");
+                for (let [key, value] of formDataToSend.entries()) {
+                    console.log(`  ${key}:`, value);
+                }
+
             console.log("📦 Sending Stock Order Data:", JSON.stringify(orderData, null, 2));
 
             // Step 7: Submit Item Creation

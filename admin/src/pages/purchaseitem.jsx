@@ -282,7 +282,7 @@ const PurchaseDetails = () => {
                                                                 <th>Item ID</th>
                                                                 <th>Item Name</th>
                                                                 <th>Color</th>
-                                                                <th>Unit Price (Rs.)</th>
+                                                                <th>Cost (Rs.)</th>
                                                                 <th>Qty</th>
                                                                 <th>Total Price (Rs.)</th>
                                                                 <th>Remove</th>

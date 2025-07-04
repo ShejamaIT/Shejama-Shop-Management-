@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update order invoice">
+    <list default="true" id="1668d6f8-a283-4394-b710-4811e83b129f" name="Changes" comment="update order invoice  2">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/pages/OrderInvoice.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/adminBackend/Routes/mainRoutes.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -380,14 +379,7 @@
       <workItem from="1750837306082" duration="319000" />
       <workItem from="1750841537865" duration="780000" />
       <workItem from="1751171569448" duration="18206000" />
-      <workItem from="1751452614700" duration="5544000" />
-    </task>
-    <task id="LOCAL-00177" summary="update item save with supplier">
-      <created>1739527149699</created>
-      <option name="number" value="00177" />
-      <option name="presentableId" value="LOCAL-00177" />
-      <option name="project" value="LOCAL" />
-      <updated>1739527149699</updated>
+      <workItem from="1751452614700" duration="7679000" />
     </task>
     <task id="LOCAL-00178" summary="update item detail with two pop up">
       <created>1739530878718</created>
@@ -725,7 +717,14 @@
       <option name="project" value="LOCAL" />
       <updated>1751456344838</updated>
     </task>
-    <option name="localTasksCounter" value="413" />
+    <task id="LOCAL-00413" summary="update order invoice  2">
+      <created>1751459168266</created>
+      <option name="number" value="00413" />
+      <option name="presentableId" value="LOCAL-00413" />
+      <option name="project" value="LOCAL" />
+      <updated>1751459168266</updated>
+    </task>
+    <option name="localTasksCounter" value="414" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -744,7 +743,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="update order invoice with Later (save to item in array)" />
     <MESSAGE value="update accept and complete order view" />
     <MESSAGE value="update order invoice with later option" />
     <MESSAGE value="update admin side bar" />
@@ -769,6 +767,7 @@
     <MESSAGE value="delete unwanted images" />
     <MESSAGE value="update order detail views" />
     <MESSAGE value="update order invoice" />
-    <option name="LAST_COMMIT_MESSAGE" value="update order invoice" />
+    <MESSAGE value="update order invoice  2" />
+    <option name="LAST_COMMIT_MESSAGE" value="update order invoice  2" />
   </component>
 </project>

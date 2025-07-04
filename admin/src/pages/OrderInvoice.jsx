@@ -29,6 +29,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
     const [selectedItems, setSelectedItems] = useState([]);
     const [selectedItems1, setSelectedItems1] = useState([]);
     const [selectedItem2 , setSeletedItem2] = useState([]);
+    const selectedItem2Ref = useRef([]);
     const [selectedItemsQty, setSelectedItemsQTY] = useState([]);
     const [interestValue , setInterestValue] = useState(0);
     const [rate , setRate] = useState(0);
@@ -997,6 +998,8 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                     orderId: orderId,
                     orderDate: result.data.orderDate,
                     phoneNumber: formData.phoneNumber,
+                    otherNumber: formData.otherNumber,
+                    Address: formData.address,
                     payStatus: formData.advance > 0 ? 'Advanced' : 'Pending',
                     deliveryStatus: formData.dvStatus,
                     deliveryCharge: deliveryPrice,
@@ -1006,7 +1009,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                     items: items,
                     balance: parseFloat(balance),
                     totalPrice: totalBillPrice,
-                    customerName: formData.FtName + " " + formData.SrName,
+                    customerName: formData.title+ " "+ formData.FtName + " " + formData.SrName,
                 };
                 setSelectedOrder(newOrder);
                 // Optionally, open invoice modal here
@@ -1036,30 +1039,35 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         }));
 
         // ✅ Update state with selected items
-        setSeletedItem2(filteredSelectedItems);
+        //setSeletedItem2(filteredSelectedItems);
+        selectedItem2Ref.current = filteredSelectedItems;
 
         const updatedData = {
             orID: selectedOrder.orderId,
             orderDate: selectedOrder.orderDate,
-            customerName: formData.title+" "+formData.FtName+" "+formData.SrName,
-            contact1:formData.phoneNumber,
-            contact2:formData.otherNumber,
-            address:formData.address,
-            delStatus: formData.deliveryStatus,
-            delPrice: formData.delivery,
-            deliveryStatus: formData.deliveryStatus,
-            discount: selectedOrder.discount,
-            subtotal: formData.subtotal,
-            total: formData.billTotal,
-            advance: formData.totalAdvance,
-            payStatus: formData.paymentType,
-            stID: saleteam[0]?.id,
+            // Check if each field exists, otherwise provide default values
+            customerName: formData.order.customerName || '',
+            contact1: formData.order.phoneNumber || '',
+            contact2: formData.order.otherNumber || '',
+            address: formData.order.Address || '',
+            delStatus: formData.deliveryStatus || '', // ensure it's never undefined
+            delPrice: formData.delivery || 0,       // default to 0 if delivery is not provided
+            deliveryStatus: formData.deliveryStatus || '',
+            discount: selectedOrder.discount || 0,   // provide a default if missing
+            subtotal: formData.subtotal || 0,       // handle missing values
+            total: formData.billTotal || 0,          // ensure no undefined values
+            advance: formData.totalAdvance || 0,     // default to 0 if undefined
+            payStatus: formData.paymentType || '',   // default to empty string if undefined
+            stID: saleteam[0]?.id || '',            // ensure stID is not undefined
             paymentAmount: formData.addedAdvance || 0,
             selectedItems: filteredSelectedItems,
-            balance: formData.billTotal - formData.totalAdvance,
-            salesperson: saleteam[0]?.name,
+            balance: formData.billTotal - formData.totalAdvance || 0, // calculate balance safely
+            salesperson: saleteam[0]?.name || '',    // ensure salesperson has a value
             items: selectedOrder.items,
         };
+
+
+        console.log(updatedData);
 
          try {
                 // Make API request to the /isssued-order endpoint
@@ -1085,6 +1093,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         // Optional: send to API if needed
     };
     const handleSubmit2 = async (formData1) => {
+        const collectingbalance=parseFloat(totalBillPrice) - parseFloat(advance);
         const updatedReceiptData = {
             order:{
                 orderId: selectedOrder.orderId,
@@ -1095,13 +1104,14 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                 contact2:formData.otherNumber,
                 total:totalBillPrice,
                 advance:advance,
-                selectedItem:selectedItem2,
+                selectedItem: selectedItem2Ref.current,
+
             },
             vehicleId: formData1.vehicleId,
             driverName: formData1.driverName,
             driverId: formData1.driverId,
             hire: formData1.hire || 0,
-            balanceToCollect:  parseFloat(balance) || 0,
+            balanceToCollect:  parseFloat(collectingbalance) || 0,
             selectedDeliveryDate: formData.expectedDate, // Default to today's date if empty
             district: formData.district || "Unknown",
         };
@@ -1159,7 +1169,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                 contact2:formData.otherNumber,
                 total:totalBillPrice,
                 advance:advance,
-                selectedItem:selectedItem2,
+                selectedItem: selectedItem2Ref.current,
             },
             vehicleId: formData1.vehicleId,
         };
@@ -3211,12 +3221,6 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                         handleGatePass={viewHandle1}
                     />
                 )}
-                {showReceiptView && (
-                    <ReceiptView
-                        receiptData={receiptData}
-                        setShowReceiptView={setShowReceiptView}
-                    />
-                )}
                 {showModal3 && selectedOrder && (
                     <MakeDeliveryNoteNow
                         selectedOrders={selectedOrder}
@@ -3224,6 +3228,13 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                         handleDeliveryUpdate={handleSubmit2}
                     />
                 )}
+                {showReceiptView && (
+                    <ReceiptView
+                        receiptData={receiptData}
+                        setShowReceiptView={setShowReceiptView}
+                    />
+                )}
+                
                 {showModal4 && selectedOrder && (
                     <MakeGatePassNow
                         selectedOrders={selectedOrder}

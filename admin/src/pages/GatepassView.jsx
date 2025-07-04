@@ -76,6 +76,9 @@ const GatePassView = ({ receiptData, setShowDeliveryView }) => {
 
     const handleClose = () => {
         setShowDeliveryView(false);
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
     };
 
     return (
@@ -86,8 +89,8 @@ const GatePassView = ({ receiptData, setShowDeliveryView }) => {
 
                 <p><strong>Date & Time:</strong> {currentDateTime}</p>
                 <p><strong>Order ID:</strong> {order.orderId}</p>
-                <p><strong>Customer:</strong> {receiptData.customerName}</p>
-                <p><strong>Phone:</strong> {receiptData.contact1}{receiptData.contact2 ? ` / ${receiptData.contact2}` : ""}</p>
+                <p><strong>Customer:</strong> {order.customerName}</p>
+                <p><strong>Phone:</strong> {order.contact1}{order.contact2 ? ` / ${order.contact2}` : ""}</p>
                 <p><strong>Vehicle ID:</strong> {vehicleId || "N/A"}</p>
                 <hr />
 

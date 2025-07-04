@@ -32,7 +32,6 @@ const MakeGatePassNow = ({ selectedOrders, setShowModal, handleGatepassUpdate })
                             <th>Customer Name</th>
                             <th>Total</th>
                             <th>Advance</th>
-                            <th>Balance</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -41,7 +40,6 @@ const MakeGatePassNow = ({ selectedOrders, setShowModal, handleGatepassUpdate })
                             <td>{order.customerName}</td>
                             <td>Rs.{order.totalPrice}</td>
                             <td>Rs.{order.advance}</td>
-                            <td>Rs.{order.balance}</td>
                         </tr>
                         </tbody>
                     </table>

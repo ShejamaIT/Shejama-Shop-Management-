@@ -5,6 +5,7 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
     const currentDateTime = new Date().toLocaleString();
     const receiptRef = useRef(null);
     const fullInvoiceRef = useRef(null);
+    console.log(receiptData);
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -159,6 +160,8 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
                     <hr />
 
                     <p><strong>Order ID:</strong> #{receiptData.orID}</p>
+                    <p><strong>Customer Name: </strong>{receiptData.customerName}</p>
+                    <p><strong>Contact Number: </strong>{receiptData.contact1}</p>
                     <p><strong>Order Date:</strong> {formatDate(receiptData.orderDate)}</p>
                     <p><strong>Print Date:</strong> {currentDateTime}</p>
                     <p><strong>Salesperson:</strong> {receiptData.salesperson}</p>

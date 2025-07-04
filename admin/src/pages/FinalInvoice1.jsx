@@ -4,6 +4,7 @@ import { Button, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHe
 import { toast } from "react-toastify";
 
 const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handleDeliveryNote,handleGatePass }) => {
+    console.log(selectedOrder);
     const invoiceDate = new Date().toLocaleDateString();
     const [paymentType, setPaymentType] = useState(selectedOrder.payStatus);
     const [deliveryStatus, setDeliveryStatus] = useState(selectedOrder.deliveryStatus);
@@ -50,7 +51,7 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
             toast.error("No reserved items selected.");
         } else {
             handlePaymentUpdate({
-                orderId: selectedOrder.orderId,
+                orderId: selectedOrder.orderId, order:selectedOrder,
                 paymentType: paymentType, deliveryStatus: deliveryStatus, totalAdvance: totalAdvance, subtotal: subtotal,
                 billTotal: netTotal, balance: balance, delivery: delivery, selectedItems: selectedItems,
             });
@@ -348,7 +349,7 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
                             className="dropdown-item"
                             style={{ padding: "8px", cursor: "pointer" }}
                             >
-                            {item.I_Id} - {item.stock_Id}
+                            {item.I_Id}-{item.stock_Id}-{item.pc_Id}
                             </div>
                         ))}
                         </div>

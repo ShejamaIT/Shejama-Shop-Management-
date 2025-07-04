@@ -98,6 +98,9 @@ const DeliveryNoteViewNow = ({ receiptData, setShowDeliveryView }) => {
 
   const handleClose = () => {
     setShowDeliveryView(false);
+    setTimeout(() => {
+        window.location.reload();
+    }, 1000);
   };
 
   return (
@@ -107,14 +110,18 @@ const DeliveryNoteViewNow = ({ receiptData, setShowDeliveryView }) => {
         <hr />
 
         <p><strong>Print Date & Time:</strong> {currentDateTime}</p>
-        <p><strong>Delivery Date:</strong> {formatDate(selectedDeliveryDate) || currentDateTime}</p>
-        <p><strong>Vehicle ID:</strong> {vehicleId}</p>
-        <p><strong>Driver Name:</strong> {driverName}</p>
+        <div className="info-row">
+          <p><strong>Order ID:</strong> {order.orderId}</p>
+          <p><strong>Delivery Date:</strong> {formatDate(selectedDeliveryDate) || currentDateTime}</p>
+        </div>
+        <div className="info-row">
+          <p><strong>Vehicle ID:</strong> {vehicleId}</p>
+          <p><strong>Driver Name:</strong> {driverName}</p>
+        </div>
+
+        
         <p><strong>Hire:</strong> Rs. {Dhire.toFixed(2)}</p>
-        <p><strong>Order ID:</strong> {order.orderId}</p>
-        <p><strong>Customer:</strong> {receiptData.customerName}</p>
-        <p><strong>Phone:</strong> {receiptData.contact1}{receiptData.contact2 ? ` / ${receiptData.contact2}` : ""}</p>
-        <p><strong>Address:</strong> {receiptData.address}</p>
+        <p><strong>Customer:</strong> {order.customerName}</p>
 
         <table>
           <thead>
@@ -147,6 +154,7 @@ const DeliveryNoteViewNow = ({ receiptData, setShowDeliveryView }) => {
         <table>
           <thead>
             <tr>
+              <th>Name</th>
               <th>Address</th>
               <th>Contact 1</th>
               <th>Contact 2</th>
@@ -154,6 +162,7 @@ const DeliveryNoteViewNow = ({ receiptData, setShowDeliveryView }) => {
           </thead>
           <tbody>
             <tr>
+              <td>{order.customerName}</td>
               <td>{order.address}</td>
               <td>{order.contact1}</td>
               <td>{order.contact2}</td>

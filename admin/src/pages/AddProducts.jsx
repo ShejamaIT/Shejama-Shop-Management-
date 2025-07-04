@@ -331,21 +331,21 @@ const AddItem = () => {
 
                         <FormGroup>
                             <Label for="cost">Cost</Label>
-                            <Input type="number" name="cost" id="cost" value={formData.cost} onChange={handleChange} required />
+                            <Input type="text" name="cost" id="cost" value={formData.cost} onChange={handleChange} required />
                         </FormGroup>
 
                         <FormGroup>
                             <Label for="price">Selling Price</Label>
-                            <Input type="number" name="price" id="price" value={formData.price} onChange={handleChange} required />
+                            <Input type="text" name="price" id="price" value={formData.price} onChange={handleChange} required />
                         </FormGroup>
 
                         <FormGroup>
                             <Label for="minQty">Min Quantity (for production)</Label>
-                            <Input type="number" name="minQty" id="minQty" value={formData.minQty} onChange={handleChange} required />
+                            <Input type="text" name="minQty" id="minQty" value={formData.minQty} onChange={handleChange} required />
                         </FormGroup>
                         <FormGroup>
                             <Label for="stockQty">Available Stock Qty</Label>
-                            <Input type="number" name="stockQty" id="stockQty" value={formData.stockQty} onChange={handleChange} required />
+                            <Input type="text" name="stockQty" id="stockQty" value={formData.stockQty} onChange={handleChange} required />
                         </FormGroup>
                         <FormGroup>
                             <Label for="img">Main Image (Required)</Label>

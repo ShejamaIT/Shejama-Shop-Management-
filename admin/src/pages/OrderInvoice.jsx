@@ -1040,6 +1040,10 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         const updatedData = {
             orID: selectedOrder.orderId,
             orderDate: selectedOrder.orderDate,
+            customerName: formData.title+" "+formData.FtName+" "+formData.SrName,
+            contact1:formData.phoneNumber,
+            contact2:formData.otherNumber,
+            address:formData.address,
             delStatus: formData.deliveryStatus,
             delPrice: formData.delivery,
             deliveryStatus: formData.deliveryStatus,
@@ -1083,7 +1087,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         const updatedReceiptData = {
             order:{
                 orderId: selectedOrder.orderId,
-                customerName:selectedOrder.customerName,
+                customerName:formData.title+ " "+formData.FtName+" "+formData.SrName,
                 balance: parseFloat(balance) || 0,
                 address:formData.address,
                 contact1:formData.phoneNumber,
@@ -1147,7 +1151,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
         const updatedReceiptData = {
             order:{
                 orderId: selectedOrder.orderId,
-                customerName:selectedOrder.customerName,
+                customerName:formData.title+ " "+formData.FtName+" "+formData.SrName,
                 balance: parseFloat(balance) || 0,
                 address:formData.address,
                 contact1:formData.phoneNumber,

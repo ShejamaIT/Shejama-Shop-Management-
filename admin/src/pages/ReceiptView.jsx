@@ -211,6 +211,9 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
                             No.75, Sri Premarathana Mw, Moratumulla<br />
                             071 3 608 108 / 077 3 608 108</p>
                         <p><strong>Order ID:</strong> #{receiptData.orID}</p>
+                        <p><strong>Customer:</strong> {receiptData.customerName}</p>
+                        <p><strong>Phone:</strong> {receiptData.contact1}{receiptData.contact2 ? ` / ${receiptData.contact2}` : ""}</p>
+                        <p><strong>Address:</strong> {receiptData.address}</p>
                         <p><strong>Date:</strong> {formatDate(receiptData.orderDate)}</p>
                         <p><strong>Salesperson:</strong> {receiptData.salesperson}</p>
                         <p><strong>Delivery:</strong> {receiptData.delStatus}</p>

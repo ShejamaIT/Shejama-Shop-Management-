@@ -112,7 +112,9 @@ const DeliveryNoteViewNow = ({ receiptData, setShowDeliveryView }) => {
         <p><strong>Driver Name:</strong> {driverName}</p>
         <p><strong>Hire:</strong> Rs. {Dhire.toFixed(2)}</p>
         <p><strong>Order ID:</strong> {order.orderId}</p>
-        <p><strong>Customer:</strong> {order.customerName}</p>
+        <p><strong>Customer:</strong> {receiptData.customerName}</p>
+        <p><strong>Phone:</strong> {receiptData.contact1}{receiptData.contact2 ? ` / ${receiptData.contact2}` : ""}</p>
+        <p><strong>Address:</strong> {receiptData.address}</p>
 
         <table>
           <thead>

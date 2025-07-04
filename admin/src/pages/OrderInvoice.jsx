@@ -915,6 +915,22 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                 unitPrice: item.unitPrice,
             };
         });
+        const items2 = selectedItems.map(item => {
+            const unitPrice = parseFloat(item.originalPrice || item.price || 0);
+            const discount = parseFloat(item.discount || 0);
+            const grossPrice = unitPrice - discount;
+            const netPrice = grossPrice * item.qty;
+
+            return {
+                itemId: item.I_Id,
+                itemName:item.itemName,
+                color: item.color,
+                quantity: item.qty,
+                unitPrice: netPrice,
+                discount: discount,
+                price: item.unitPrice,
+            };
+        });
 
         // ✅ Calculate totalItemPrice and totalBillPrice from selectedItems
         const totalItemPrice = itemList.reduce((sum, item) => sum + parseFloat(item.price), 0);
@@ -963,13 +979,45 @@ const OrderInvoice = ({ onPlaceOrder }) => {
 
                 const result = await response.json();
                 console.log("📝 API Response:", result); // Log the response to check its structure
-
+                
                 if (response.ok && result.success && result.data) {
                     const { orderId, orderDate, expectedDate } = result.data;
+                    const billbalance=parseFloat(totalBillPrice) - parseFloat(advance);
+                    const updatedData = {
+                        orID: orderId,
+                        orderDate: orderDate,
+                        expectedDate: expectedDate || formData.expectedDate || '',
+                        customerName: `${formData.title || ''} ${formData.FtName || ''} ${formData.SrName || ''}`.trim(),
+                        contact1: formData.phoneNumber || '',
+                        contact2: formData.otherNumber || '',
+                        address: formData.address || '',
+                        balance: parseFloat(billbalance),
+                        delStatus: formData.dvStatus || '', 
+                        delPrice: parseFloat(formData.delivery || 0),
+                        deliveryStatus: formData.dvStatus || '',
+                        discount: parseFloat(discountAmount || 0),
+                        subtotal: parseFloat(totalItemPrice || 0),
+                        total: parseFloat(totalBillPrice || 0),
+                        advance: parseFloat(updatedAdvance || 0),
+                        payStatus: formData.paymentType || (updatedAdvance > 0 ? 'Advanced' : 'Pending'),
+                        stID: saleteam[0]?.id || '',
+                        paymentAmount: parseFloat(updatedPaymentAmount || 0),
+                        cashReturn: parseFloat(updatedCashReturn || 0),
+                        balance: parseFloat(updatedBalance || 0),
+                        salesperson: saleteam[0]?.name || '',
+                        items: items2,
+                        customerBalanceDecision: action,
+                        finalCustomerBalance: finalBalance,
+                    };
+                    console.log(updatedData);
+
+
                     toast.success(`Order placed successfully! Order ID: ${orderId}`);
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
+                    setReceiptData(updatedData);  // Set data for receipt
+                    setShowReceiptView(true);   
+                    // setTimeout(() => {
+                    //     window.location.reload();
+                    // }, 1000);
                 } else {
                     toast.error(result.message || "Failed to place the order.");
                     console.error("❌ Order Error:", result.message || result);

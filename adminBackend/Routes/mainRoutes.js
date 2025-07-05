@@ -2760,8 +2760,12 @@ router.get("/orders-pending", async (req, res) => {
         const [orders] = await db.query(query);
 
         if (orders.length === 0) {
-            return res.status(404).json({ message: "No pending orders found" });
+            return res.status(200).json({
+                message: "No pending orders found",
+                data: []
+            });
         }
+
 
         const formattedOrders = orders.map(order => ({
             OrID: order.OrID,
@@ -2824,7 +2828,10 @@ router.get("/orders-pending-stid", async (req, res) => {
         );
 
         if (orders.length === 0) {
-            return res.status(404).json({ message: "No pending orders found for this sales team." });
+            return res.status(200).json({
+                message: "No pending orders found for this sales team.",
+                data: []
+            });
         }
 
         // Step 3: Format and send orders
@@ -2925,7 +2932,10 @@ router.get("/orders-accepting", async (req, res) => {
         const [orders] = await db.query(query);
 
         if (orders.length === 0) {
-            return res.status(404).json({ message: "No Accepted orders found" });
+            return res.status(200).json({
+                message: "No Accepted orders found",
+                data: []
+            });
         }
 
         const { bookedOrders, unbookedOrders } = categorizeOrders(orders);
@@ -2972,7 +2982,10 @@ router.get("/orders-accepting-stid", async (req, res) => {
         const [orders] = await db.query(query, [stID]);
 
         if (orders.length === 0) {
-            return res.status(404).json({ message: "No Accepted orders found for this sales team." });
+            return res.status(200).json({
+                message: "No Accepted orders found for this sales team.",
+                data: []
+            });
         }
 
         const categorized = categorizeOrders(orders);
@@ -3008,7 +3021,10 @@ router.get("/orders-Processing", async (req, res) => {
         const [orders] = await db.query(query);
 
         if (orders.length === 0) {
-            return res.status(404).json({ message: "No Processing orders found" });
+            return res.status(200).json({
+                message: "No Processing orders found",
+                data: []
+            });
         }
 
         // Group orders by OrID
@@ -3094,7 +3110,10 @@ router.get("/orders-Processing-stid", async (req, res) => {
         const [orders] = await db.query(query, [stID]);
 
         if (orders.length === 0) {
-            return res.status(404).json({ message: "No Processing orders found" });
+            return res.status(200).json({
+                message: "No Processing orders found for this sales team.",
+                data: []
+            });
         }
 
         // Group orders by OrID
@@ -3165,8 +3184,12 @@ router.get("/orders-completed", async (req, res) => {
         const [orders] = await db.query(query);
 
         if (orders.length === 0) {
-            return res.status(404).json({ message: "No Completed orders found" });
+            return res.status(200).json({
+                message: "No Completed orders found",
+                data: []
+            });
         }
+
 
         // Group orders by OrID
         const groupedOrders = {};
@@ -3254,8 +3277,12 @@ router.get("/orders-completed-stid", async (req, res) => {
         const [orders] = await db.query(query, [stID]);
 
         if (orders.length === 0) {
-            return res.status(404).json({ message: "No Completed orders found" });
+            return res.status(200).json({
+                message: "No Completed orders found for this sales team.",
+                data: []
+            });
         }
+
 
         // Group orders by OrID
         const groupedOrders = {};
@@ -3326,7 +3353,10 @@ router.get("/orders-issued", async (req, res) => {
 
         // If no orders found, return a 404 status
         if (orders.length === 0) {
-            return res.status(404).json({ message: "No Issued orders found" });
+            return res.status(200).json({
+                message: "No Issued orders found",
+                data: []
+            });
         }
 
         // Group orders by OrID
@@ -3414,7 +3444,10 @@ router.get("/orders-issued-stid", async (req, res) => {
 
         // If no orders found, return a 404 status
         if (orders.length === 0) {
-            return res.status(404).json({ message: "No Issued orders found" });
+            return res.status(200).json({
+                message: "No Issued orders found for this sales team.",
+                data: []
+            });
         }
 
         // Group orders by OrID
@@ -3488,10 +3521,12 @@ router.get("/orders-delivered", async (req, res) => {
 
         const [orders] = await db.query(query);
 
-        if (!orders.length) {
-            return res.status(404).json({ message: "No Delivered orders found" });
+        if (orders.length === 0) {
+            return res.status(200).json({
+                message: "No Delivered orders found",
+                data: []
+            });
         }
-
         const groupedOrders = {};
 
         for (const order of orders) {
@@ -3584,8 +3619,11 @@ router.get("/orders-delivered-stid", async (req, res) => {
 
         const [orders] = await db.query(query, [stID]);
 
-        if (!orders.length) {
-            return res.status(404).json({ message: "No Delivered orders found" });
+        if (orders.length === 0) {
+            return res.status(200).json({
+                message: "No Delivered orders found for this sales team.",
+                data: []
+            });
         }
 
         // 🧠 Step 3: Group by Order ID
@@ -3659,7 +3697,10 @@ router.get("/orders-returned", async (req, res) => {
 
         // If no orders found, return a 404 status
         if (orders.length === 0) {
-            return res.status(404).json({ message: "No returned orders found" });
+            return res.status(200).json({
+                message: "No returned orders found",
+                data: []
+            });
         }
 
         // Group orders by OrID
@@ -3750,7 +3791,10 @@ router.get("/orders-returned-stid", async (req, res) => {
 
         // If no orders found, return a 404 status
         if (orders.length === 0) {
-            return res.status(404).json({ message: "No returned orders found" });
+            return res.status(200).json({
+                message: "No returned orders found for this sales team.",
+                data: []
+            });
         }
 
         // Group orders by OrID
@@ -3828,9 +3872,11 @@ router.get("/orders-canceled", async (req, res) => {
 
         // If no orders found, return a 404 status
         if (orders.length === 0) {
-            return res.status(404).json({ message: "No canceled orders found" });
+            return res.status(200).json({
+                message: "No canceled orders found",
+                data: []
+            });
         }
-
         // Group orders by OrID
         const groupedOrders = {};
 
@@ -3919,7 +3965,10 @@ router.get("/orders-canceled-stid", async (req, res) => {
 
         // If no orders found, return a 404 status
         if (orders.length === 0) {
-            return res.status(404).json({ message: "No canceled orders found" });
+            return res.status(200).json({
+                message: "No canceled orders found for this sales team.",
+                data: []
+            });
         }
 
         // Group orders by OrID

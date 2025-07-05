@@ -29,19 +29,19 @@ const DeliveryNotes = () => {
 
 
     const handleSubmit2 = async (formData) => {
-        console.log(formData)
-        console.log(selectedOrders)
-        try {
-            if (!selectedOrders || selectedOrders.length === 0) {
-                toast.error("Please select at least one order.");
-                return;
-            }
+        console.log("Form:", formData);
+        console.log("Selected Orders:", selectedOrders);
 
+        if (!selectedOrders || selectedOrders.length === 0) {
+            toast.error("Please select at least one order.");
+            return;
+        }
+
+        try {
             const deliveryDate = selectedDeliveryDate || new Date().toISOString().split("T")[0];
             const route = selectedRoute || "Unknown";
-            
 
-            // Structure for delivery note view
+            // ✅ Preview for delivery note
             const updatedReceiptData = {
                 order: selectedOrders.map(order => ({
                     orderId: order.orderId,
@@ -52,7 +52,7 @@ const DeliveryNotes = () => {
                     contact2: order.optionalNumber || "N/A",
                     total: order.totalPrice || 0,
                     advance: order.advance || 0,
-                    selectedItem: selectedItem2Ref.current,
+                    selectedItem: order.selectedItems || [], // ✅ now correctly set
                 })),
                 vehicleId: formData.vehicle,
                 driverName: formData.driverName,
@@ -63,7 +63,7 @@ const DeliveryNotes = () => {
                 district: route,
             };
 
-            // Payload to backend
+            // ✅ Backend payload
             const deliveryNoteData = {
                 driverName: formData.driverName,
                 driverId: formData.driverId,
@@ -80,7 +80,11 @@ const DeliveryNotes = () => {
                     contact2: order.optionalNumber || "N/A",
                 })),
             };
-            console.log(updatedReceiptData);
+
+            console.log("Final Delivery Receipt Preview:", updatedReceiptData);
+
+            // Uncomment to activate API call
+            /*
             const response = await fetch("http://localhost:5001/api/admin/main/create-delivery-note", {
                 method: "POST",
                 headers: {
@@ -88,22 +92,24 @@ const DeliveryNotes = () => {
                 },
                 body: JSON.stringify(deliveryNoteData),
             });
-            
+
             const result = await response.json();
-            
+
             if (!response.ok) {
                 throw new Error(result.message || "Error creating delivery note.");
             }
-            
+
             toast.success("Delivery note created successfully.");
+            */
+
             setReceiptDataD(updatedReceiptData);
             setShowModal2(false);
             setShowDeliveryView(true);
 
         } catch (error) {
             console.error("Error while submitting delivery note:", error);
-            toast.error(error.message || "An unexpected error occurred while submitting the delivery note.");
-        } 
+            toast.error(error.message || "An unexpected error occurred.");
+        }
     };
 
 
@@ -200,15 +206,16 @@ const DeliveryNotes = () => {
     };
 
     const handleOrderSelection = (order) => {
-        console.log(order);
         const updatedOrders = selectedOrders.includes(order)
             ? selectedOrders.filter(o => o !== order)
             : [...selectedOrders, order];
+
         setSelectedOrders(updatedOrders);
         setSelectedOrder(order);
         handleEditClick1(order);
         calculateTotal(updatedOrders);
     };
+
 
     const handleEditClick1 = (order) => {
         console.log(order);
@@ -223,11 +230,9 @@ const DeliveryNotes = () => {
     };
 
     const handleSubmit3 = async (formData) => {
-        console.log(formData);
-        // Clone and enhance selectedOrder with selectedItems
         const enrichedOrder = {
             ...selectedOrder,
-            selectedItems: formData.selectedItems, // Inject selectedItems here
+            selectedItems: formData.selectedItems, // Inject selected items
         };
 
         const updatedData = {
@@ -242,13 +247,24 @@ const DeliveryNotes = () => {
             payStatus: formData.paymentType,
             stID: enrichedOrder.saleID,
             paymentAmount: formData.addedAdvance || 0,
-            selectedItems: formData.selectedItems, // Also needed in payload
+            selectedItems: formData.selectedItems,
             balance: formData.billTotal - formData.totalAdvance,
             salesperson: enrichedOrder.salesTeam?.employeeName || "Unknown",
             items: enrichedOrder.items,
         };
-        console.log(updatedData);
+
+        console.log("Updated data being sent:", updatedData);
+
         selectedItem2Ref.current = formData.selectedItems || [];
+
+        // ✅ Update selectedOrders state with selectedItems for this order
+        setSelectedOrders(prevOrders =>
+            prevOrders.map(order =>
+                order.orderId === enrichedOrder.orderId
+                    ? { ...order, selectedItems: formData.selectedItems }
+                    : order
+            )
+        );
 
         try {
             const response = await fetch('http://localhost:5001/api/admin/main/issued-items-Now', {
@@ -261,9 +277,9 @@ const DeliveryNotes = () => {
 
             const result = await response.json();
             if (response.ok) {
-                toast.success("Update order Successfully");
+                toast.success("Update order successfully");
                 setShowModal1(false);
-                setReceiptData(updatedData);     // ← Store updated order with selectedItems
+                setReceiptData(updatedData); // Save updated order for receipt
                 setShowReceiptView(true);
             } else {
                 console.error("Error:", result.message);
@@ -272,6 +288,7 @@ const DeliveryNotes = () => {
             console.error("Error making API request:", error.message);
         }
     };
+
 
     const handleEditClick3 = (selectedOrders) => {
         if (!selectedOrders) return;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect, useRef} from "react";
 import { Container, Row, Col, Form, FormGroup, Label, Input, Button, Table } from "reactstrap";
 import { toast } from "react-toastify";
 import "../style/deliverynotes.css";
@@ -24,6 +24,7 @@ const DeliveryNotes = () => {
     const [showReceiptView, setShowReceiptView] = useState(false);
     const [receiptData, setReceiptData] = useState(null);
     const [receiptDataD, setReceiptDataD] = useState(null);
+    const selectedItem2Ref = useRef([]);
 
     const handleSubmit2 = async (formData) => {
         console.log(formData)
@@ -36,10 +37,11 @@ const DeliveryNotes = () => {
 
             const deliveryDate = selectedDeliveryDate || new Date().toISOString().split("T")[0];
             const route = selectedRoute || "Unknown";
+            
 
             // Structure for delivery note view
             const updatedReceiptData = {
-                orders: selectedOrders.map(order => ({
+                order: selectedOrders.map(order => ({
                     orderId: order.orderId,
                     customerName: order.customerName || "Unknown",
                     balance: order.balance || 0,
@@ -48,9 +50,9 @@ const DeliveryNotes = () => {
                     contact2: order.optionalNumber || "N/A",
                     total: order.totalPrice || 0,
                     advance: order.advance || 0,
-                    selectedItems: formData.selectedItems || [],
+                    selectedItem: selectedItem2Ref.current,
                 })),
-                vehicleId: formData.vehicleId,
+                vehicleId: formData.vehicle,
                 driverName: formData.driverName,
                 driverId: formData.driverId,
                 hire: formData.hire || 0,
@@ -76,30 +78,30 @@ const DeliveryNotes = () => {
                     contact2: order.optionalNumber || "N/A",
                 })),
             };
-
-            // const response = await fetch("http://localhost:5001/api/admin/main/create-delivery-note", {
-            //     method: "POST",
-            //     headers: {
-            //         "Content-Type": "application/json",
-            //     },
-            //     body: JSON.stringify(deliveryNoteData),
-            // });
-            //
-            // const result = await response.json();
-            //
-            // if (!response.ok) {
-            //     throw new Error(result.message || "Error creating delivery note.");
-            // }
-            //
-            // toast.success("Delivery note created successfully.");
-            // setReceiptDataD(updatedReceiptData);
-            // setShowModal2(false);
-            // setShowDeliveryView(true);
+            console.log(updatedReceiptData);
+            const response = await fetch("http://localhost:5001/api/admin/main/create-delivery-note", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(deliveryNoteData),
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.message || "Error creating delivery note.");
+            }
+            
+            toast.success("Delivery note created successfully.");
+            setReceiptDataD(updatedReceiptData);
+            setShowModal2(false);
+            setShowDeliveryView(true);
 
         } catch (error) {
             console.error("Error while submitting delivery note:", error);
             toast.error(error.message || "An unexpected error occurred while submitting the delivery note.");
-        }
+        } 
     };
 
 
@@ -154,6 +156,7 @@ const DeliveryNotes = () => {
             const response1 = await fetch(url1);
             const data = await response.json();
             const data1 = await response1.json();
+            console.log(data.orders);
             setOrders(data.orders || []);
             setReturnOrders(data1.orders || []);
         } catch (error) {
@@ -195,6 +198,7 @@ const DeliveryNotes = () => {
     };
 
     const handleOrderSelection = (order) => {
+        console.log(order);
         const updatedOrders = selectedOrders.includes(order)
             ? selectedOrders.filter(o => o !== order)
             : [...selectedOrders, order];
@@ -205,6 +209,7 @@ const DeliveryNotes = () => {
     };
 
     const handleEditClick1 = (order) => {
+        console.log(order);
         if (!order) return;
         setSelectedOrder(order);
         setShowModal1(true);
@@ -216,6 +221,7 @@ const DeliveryNotes = () => {
     };
 
     const handleSubmit3 = async (formData) => {
+        console.log(formData);
         // Clone and enhance selectedOrder with selectedItems
         const enrichedOrder = {
             ...selectedOrder,
@@ -239,6 +245,8 @@ const DeliveryNotes = () => {
             salesperson: enrichedOrder.salesTeam?.employeeName || "Unknown",
             items: enrichedOrder.items,
         };
+        console.log(updatedData);
+        selectedItem2Ref.current = formData.selectedItems || [];
 
         try {
             const response = await fetch('http://localhost:5001/api/admin/main/issued-items', {
@@ -253,7 +261,7 @@ const DeliveryNotes = () => {
             if (response.ok) {
                 toast.success("Update order Successfully");
                 setShowModal1(false);
-                setReceiptData(enrichedOrder);     // ← Store updated order with selectedItems
+                setReceiptData(updatedData);     // ← Store updated order with selectedItems
                 setShowReceiptView(true);
             } else {
                 console.error("Error:", result.message);

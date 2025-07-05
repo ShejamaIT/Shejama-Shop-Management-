@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import "../style/receiptView.css";
 
 const ReceiptView = ({ receiptData, setShowReceiptView }) => {
+    console.log(receiptData);
     const currentDateTime = new Date().toLocaleString();
     const receiptRef = useRef(null);
     const fullInvoiceRef = useRef(null);
@@ -172,20 +173,20 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
                         <thead>
                         <tr>
                             <th>Item</th>
+                            <th>Rate (Rs.)</th>
+                            <th>Discount (Rs.)</th>
                             <th>Qty</th>
-                            <th>Rate</th>
-                            <th>Discount</th>
-                            <th>Total</th>
+                            <th>Total (Rs.)</th>
                         </tr>
                         </thead>
                         <tbody>
                         {receiptData.items.map((item, index) => (
                             <tr key={index}>
                                 <td>{item.itemName}</td>
+                                <td>{item.unitPrice.toFixed(2)}</td>
+                                <td>{item.discount.toFixed(2)}</td>
                                 <td>{item.quantity}</td>
-                                <td>Rs. {item.unitPrice.toFixed(2)}</td>
-                                <td>Rs. {item.discount.toFixed(2)}</td>
-                                <td>Rs. {(item.quantity * (item.unitPrice - item.discount)).toFixed(2)}</td>
+                                <td>{(item.quantity * (item.unitPrice - item.discount)).toFixed(2)}</td>
                             </tr>
                         ))}
                         </tbody>
@@ -227,20 +228,20 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
                         <thead>
                         <tr>
                             <th>Item</th>
+                            <th>Rate (Rs.)</th>
+                            <th>Discount (Rs.)</th>
                             <th>Qty</th>
-                            <th>Rate</th>
-                            <th>Discount</th>
-                            <th>Total</th>
+                            <th>Total (Rs.)</th>
                         </tr>
                         </thead>
                         <tbody>
                         {receiptData.items.map((item, index) => (
                             <tr key={index}>
                                 <td>{item.itemName}</td>
+                                <td>{item.unitPrice.toFixed(2)}</td>
+                                <td>{item.discount.toFixed(2)}</td>
                                 <td>{item.quantity}</td>
-                                <td>Rs. {item.unitPrice.toFixed(2)}</td>
-                                <td>Rs. {item.discount.toFixed(2)}</td>
-                                <td>Rs. {(item.quantity * (item.unitPrice - item.discount)).toFixed(2)}</td>
+                                <td>{(item.quantity * (item.unitPrice - item.discount)).toFixed(2)}</td>
                             </tr>
                         ))}
                         </tbody>

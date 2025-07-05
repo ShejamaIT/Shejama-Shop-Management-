@@ -241,20 +241,20 @@ const FinalInvoice2 = ({ selectedOrder, setShowModal2, handlePaymentUpdate }) =>
                     <thead>
                     <tr>
                         <th>Item</th>
-                        <th>Discount</th>
-                        <th>Price</th>
+                        <th>Price (Rs:)</th>
+                        <th>Discount (Rs:)</th>
                         <th>Qty</th>
-                        <th>Total</th>
+                        <th>Total (Rs:)</th>
                     </tr>
                     </thead>
                     <tbody>
                     {selectedOrder.items.map((item, index) => (
                         <tr key={index}>
                             <td>{item.itemName}</td>
-                            <td>{item.discount}</td>
-                            <td>Rs. {(item.price.toFixed(2)/item.quantity)}</td>
+                            <td>{(item.unitPrice.toFixed(2))}</td>
+                            <td>{item.discount.toFixed(2)}</td>
                             <td>{item.quantity}</td>
-                            <td>Rs. {item.price.toFixed(2)}</td>
+                            <td>{item.price.toFixed(2)}</td>
                         </tr>
                     ))}
                     </tbody>
@@ -300,104 +300,104 @@ const FinalInvoice2 = ({ selectedOrder, setShowModal2, handlePaymentUpdate }) =>
                 <ModalHeader toggle={() => setShowStockModal(!showStockModal)}>Scan Stock</ModalHeader>
                 <ModalBody>
                     <FormGroup style={{ position: "relative" }}>
-                        <Label>Items ID</Label>
-                        <Input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => {
-                                const val = e.target.value.trim();
-                                setSearchTerm(val);
+                    <Label>Items ID</Label>
+                    <Input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => {
+                        const val = e.target.value.trim();
+                        setSearchTerm(val);
 
-                                const filtered = items.filter(
-                                    (item) =>
-                                        item.I_Id.includes(val) || item.stock_Id.includes(val)
-                                );
-                                setFilteredItems(filtered);
-                                setDropdownOpen(filtered.length > 0);
+                        const filtered = items.filter(
+                            (item) =>
+                            item.I_Id.includes(val) || item.stock_Id.includes(val)
+                        );
+                        setFilteredItems(filtered);
+                        setDropdownOpen(filtered.length > 0);
 
-                                const exactMatch = items.find(
-                                    (item) => item.I_Id === val || item.stock_Id === val
-                                );
-                                if (exactMatch) {
-                                    handleSelectItem(exactMatch);
-                                    setSearchTerm("");
-                                    setDropdownOpen(false);
-                                    return;
-                                }
-                            }}
-                            placeholder="Search for item..."
-                        />
-                        {dropdownOpen && (
+                        const exactMatch = items.find(
+                            (item) => item.I_Id === val || item.stock_Id === val
+                        );
+                        if (exactMatch) {
+                            handleSelectItem(exactMatch);
+                            setSearchTerm("");
+                            setDropdownOpen(false);
+                            return;
+                        }
+                        }}
+                        placeholder="Search for item..."
+                    />
+                    {dropdownOpen && (
+                        <div
+                        className="dropdown"
+                        style={{
+                            position: "absolute",
+                            zIndex: 100,
+                            backgroundColor: "white",
+                            border: "1px solid #ddd",
+                            width: "100%",
+                            maxHeight: "150px",
+                            overflowY: "auto",
+                        }}
+                        >
+                        {filteredItems.map((item) => (
                             <div
-                                className="dropdown"
-                                style={{
-                                    position: "absolute",
-                                    zIndex: 100,
-                                    backgroundColor: "white",
-                                    border: "1px solid #ddd",
-                                    width: "100%",
-                                    maxHeight: "150px",
-                                    overflowY: "auto",
-                                }}
+                            key={item.stock_Id}
+                            onClick={() => {
+                                handleSelectItem(item);
+                                setSearchTerm('');
+                                setDropdownOpen(false);
+                            }}
+                            className="dropdown-item"
+                            style={{ padding: "8px", cursor: "pointer" }}
                             >
-                                {filteredItems.map((item) => (
-                                    <div
-                                        key={item.stock_Id}
-                                        onClick={() => {
-                                            handleSelectItem(item);
-                                            setSearchTerm('');
-                                            setDropdownOpen(false);
-                                        }}
-                                        className="dropdown-item"
-                                        style={{ padding: "8px", cursor: "pointer" }}
-                                    >
-                                        {item.I_Id} - {item.stock_Id}
-                                    </div>
-                                ))}
+                            {item.I_Id}-{item.stock_Id}-{item.pc_Id}
                             </div>
-                        )}
+                        ))}
+                        </div>
+                    )}
                     </FormGroup>
 
                     <Label>Issued Items</Label>
                     <table className="selected-items-table">
-                        <thead>
+                    <thead>
                         <tr>
-                            <th>Item ID</th>
-                            <th>Batch ID</th>
-                            <th>Stock ID</th>
-                            <th>Action</th>
+                        <th>Item ID</th>
+                        <th>Batch ID</th>
+                        <th>Stock ID</th>
+                        <th>Action</th>
                         </tr>
-                        </thead>
-                        <tbody>
+                    </thead>
+                    <tbody>
                         {selectedItems.map((item, index) => (
-                            <tr key={index}>
-                                <td>{item.I_Id}</td>
-                                <td>{item.pc_Id}</td>
-                                <td>{item.stock_Id}</td>
-                                <td>
-                                    <button
-                                        className="btn btn-sm btn-danger"
-                                        onClick={() =>
-                                            setSelectedItems(prev =>
-                                                prev.filter(i => i.stock_Id !== item.stock_Id)
-                                            )
-                                        }
-                                    >
-                                        Remove
-                                    </button>
-                                </td>
-                            </tr>
+                        <tr key={index}>
+                            <td>{item.I_Id}</td>
+                            <td>{item.pc_Id}</td>
+                            <td>{item.stock_Id}</td>
+                            <td>
+                            <button
+                                className="btn btn-sm btn-danger"
+                                onClick={() =>
+                                setSelectedItems(prev =>
+                                    prev.filter(i => i.stock_Id !== item.stock_Id)
+                                )
+                                }
+                            >
+                                Remove
+                            </button>
+                            </td>
+                        </tr>
                         ))}
-                        </tbody>
+                    </tbody>
                     </table>
                 </ModalBody>
 
                 <ModalFooter>
                     <Button color="primary" onClick={() => passReservedItem(selectedItems)}>
-                        Pass
+                    Pass
                     </Button>
                     <Button color="secondary" onClick={() => setShowStockModal(false)}>
-                        Cancel
+                    Cancel
                     </Button>
                 </ModalFooter>
             </Modal>

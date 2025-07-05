@@ -6,7 +6,7 @@ const MakeDeliveryNote = ({ selectedOrders, setShowModal, handleDeliveryUpdate }
     const [vehicleId, setVehicleId] = useState("");
     const [driverName, setDriverName] = useState("");
     const [driverId, setDriverId] = useState("");  // New: Stores the selected driver ID (devID)
-    const [vehicle, setVehicle] = useState("");  // New: Stores the selected driver ID (devID)
+    const [vehicle, setVehicle] = useState("");  
     const [drivers, setDrivers] = useState([]);
     const [vehicles, setVehicles] = useState([]);
     const [hire, setHire] = useState("");
@@ -64,6 +64,7 @@ const MakeDeliveryNote = ({ selectedOrders, setShowModal, handleDeliveryUpdate }
         handleDeliveryUpdate({
             orders: selectedOrders,
             vehicleId,
+            vehicle,
             driverName,  // Includes selected driver name
             driverId,    // Includes selected driver ID (devID)
             hire,

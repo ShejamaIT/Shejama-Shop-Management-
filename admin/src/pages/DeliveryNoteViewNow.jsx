@@ -141,7 +141,7 @@ const DeliveryNoteViewNow = ({ receiptData, setShowDeliveryView }) => {
                   <td>{item.pc_Id}</td>
                   <td>Rs. {Number(item.price).toFixed(2)}</td>
                 </tr>
-              ))}
+            ))}
           </tbody>
         </table>
 

@@ -230,20 +230,20 @@ const FinalInvoice1 = ({ selectedOrder, setShowModal2, handlePaymentUpdate,handl
                     <thead>
                     <tr>
                         <th>Item</th>
-                        <th>Discount</th>
-                        <th>Price</th>
+                        <th>Price (Rs:)</th>
+                        <th>Discount (Rs:)</th>
                         <th>Qty</th>
-                        <th>Total</th>
+                        <th>Total (Rs:)</th>
                     </tr>
                     </thead>
                     <tbody>
                     {selectedOrder.items.map((item, index) => (
                         <tr key={index}>
                             <td>{item.itemName}</td>
-                            <td>{item.discount}</td>
-                            <td>Rs. {(item.price.toFixed(2)/item.quantity)}</td>
+                            <td>{item.unitPrice.toFixed(2)}</td>
+                            <td>{item.discount.toFixed(2)}</td>
                             <td>{item.quantity}</td>
-                            <td>Rs. {item.price.toFixed(2)}</td>
+                            <td>{item.price.toFixed(2)}</td>
                         </tr>
                     ))}
                     </tbody>

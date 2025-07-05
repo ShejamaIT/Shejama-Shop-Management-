@@ -3,14 +3,13 @@ import "../style/deliveryRecipt.css";
 
 const DeliveryNoteView = ({ receiptData, setShowDeliveryView }) => {
     const {
-        orders,
+        order: orders, // Renamed for clarity
         vehicleId,
         driverName,
         hire,
         balanceToCollect,
         selectedDeliveryDate,
     } = receiptData;
-    console.log(receiptData);
 
     const receiptRef = useRef(null);
     const Dhire = Number(hire || 0);
@@ -32,67 +31,67 @@ const DeliveryNoteView = ({ receiptData, setShowDeliveryView }) => {
         if (printWindow) {
             printWindow.document.open();
             printWindow.document.write(`
-        <html>
-          <head>
-            <title>Delivery Note</title>
-            <style>
-              @media print {
-                body {
-                  width: 80mm;
-                  margin: 0;
-                  font-family: monospace;
-                  font-size: 15px;
-                  color: #000;
-                }
-                h3 {
-                  text-align: center;
-                  margin: 4px 0;
-                  font-size: 17px;
-                  border-bottom: 1px solid #000;
-                  padding-bottom: 4px;
-                }
-                p {
-                  margin: 2px 0;
-                  font-size: 15px;
-                }
-                table {
-                  width: 100%;
-                  border-collapse: collapse;
-                  margin-top: 8px;
-                  font-size: 15px;
-                }
-                th {
-                  background-color: #f0f0f0;
-                }
-                th, td {
-                  border: 1px dashed #000;
-                  padding: 6px;
-                  text-align: center;
-                }
-                .balance-row {
-                  display: flex;
-                  justify-content: space-between;
-                  margin: 4px 0;
-                  font-size: 15px;
-                }
-                hr {
-                  border: none;
-                  border-top: 1px dashed #000;
-                  margin: 6px 0;
-                }
-                .footer-note {
-                  text-align: center;
-                  font-size: 13px;
-                  margin-top: 10px;
-                }
-              }
-            </style>
-          </head>
-          <body onload="window.print(); window.close();">
-            ${printContent}
-          </body>
-        </html>
-      `);
+                <html>
+                  <head>
+                    <title>Delivery Note</title>
+                    <style>
+                      @media print {
+                        body {
+                          width: 80mm;
+                          margin: 0;
+                          font-family: monospace;
+                          font-size: 15px;
+                          color: #000;
+                        }
+                        h3 {
+                          text-align: center;
+                          margin: 4px 0;
+                          font-size: 17px;
+                          border-bottom: 1px solid #000;
+                          padding-bottom: 4px;
+                        }
+                        p {
+                          margin: 2px 0;
+                          font-size: 15px;
+                        }
+                        table {
+                          width: 100%;
+                          border-collapse: collapse;
+                          margin-top: 8px;
+                          font-size: 15px;
+                        }
+                        th {
+                          background-color: #f0f0f0;
+                        }
+                        th, td {
+                          border: 1px dashed #000;
+                          padding: 6px;
+                          text-align: center;
+                        }
+                        .balance-row {
+                          display: flex;
+                          justify-content: space-between;
+                          margin: 4px 0;
+                          font-size: 15px;
+                        }
+                        hr {
+                          border: none;
+                          border-top: 1px dashed #000;
+                          margin: 6px 0;
+                        }
+                        .footer-note {
+                          text-align: center;
+                          font-size: 13px;
+                          margin-top: 10px;
+                        }
+                      }
+                    </style>
+                  </head>
+                  <body onload="window.print(); window.close();">
+                    ${printContent}
+                  </body>
+                </html>
+            `);
             printWindow.document.close();
         }
     };
@@ -107,12 +106,16 @@ const DeliveryNoteView = ({ receiptData, setShowDeliveryView }) => {
             <div className="receipt-modal" ref={receiptRef}>
                 <h3>Shejama Group - Delivery Note</h3>
                 <hr />
-
                 <p><strong>Print Date & Time:</strong> {currentDateTime}</p>
-                <p><strong>Delivery Date:</strong> {formatDate(selectedDeliveryDate) || currentDateTime}</p>
-                <p><strong>Vehicle ID:</strong> {vehicleId}</p>
-                <p><strong>Driver Name:</strong> {driverName}</p>
-                <p><strong>Hire:</strong> Rs. {Dhire.toFixed(2)}</p>
+
+                <div className="info-row">
+                    <p><strong>Delivery Date:</strong> {formatDate(selectedDeliveryDate)}</p>
+                    <p><strong>Vehicle ID:</strong> {vehicleId}</p>
+                </div>
+                <div className="info-row">
+                    <p><strong>Driver Name:</strong> {driverName}</p>
+                    <p><strong>Hire:</strong> Rs. {Dhire.toFixed(2)}</p>
+                </div>
 
                 {orders.map((order, idx) => (
                     <div key={idx}>
@@ -121,23 +124,23 @@ const DeliveryNoteView = ({ receiptData, setShowDeliveryView }) => {
 
                         <table>
                             <thead>
-                            <tr>
-                                <th>Item ID</th>
-                                <th>Stock ID</th>
-                                <th>Batch ID</th>
-                                <th>Price</th>
-                            </tr>
+                                <tr>
+                                    <th>Item ID</th>
+                                    <th>Stock ID</th>
+                                    <th>Batch ID</th>
+                                    <th>Price</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            {Array.isArray(order.selectedItems) &&
-                                order.selectedItems.map((item, i) => (
-                                    <tr key={i}>
-                                        <td>{item.I_Id}</td>
-                                        <td>{item.stock_Id}</td>
-                                        <td>{item.pc_Id}</td>
-                                        <td>Rs. {Number(item.price).toFixed(2)}</td>
-                                    </tr>
-                                ))}
+                                {Array.isArray(order.selectedItem) &&
+                                    order.selectedItem.map((item, itemIdx) => (
+                                        <tr key={itemIdx}>
+                                            <td>{item.I_Id}</td>
+                                            <td>{item.stock_Id}</td>
+                                            <td>{item.pc_Id}</td>
+                                            <td>Rs. {Number(item.price).toFixed(2)}</td>
+                                        </tr>
+                                    ))}
                             </tbody>
                         </table>
 
@@ -148,18 +151,18 @@ const DeliveryNoteView = ({ receiptData, setShowDeliveryView }) => {
 
                         <table>
                             <thead>
-                            <tr>
-                                <th>Address</th>
-                                <th>Contact 1</th>
-                                <th>Contact 2</th>
-                            </tr>
+                                <tr>
+                                    <th>Address</th>
+                                    <th>Contact 1</th>
+                                    <th>Contact 2</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            <tr>
-                                <td>{order.address}</td>
-                                <td>{order.contact1}</td>
-                                <td>{order.contact2}</td>
-                            </tr>
+                                <tr>
+                                    <td>{order.address}</td>
+                                    <td>{order.contact1}</td>
+                                    <td>{order.contact2}</td>
+                                </tr>
                             </tbody>
                         </table>
 
@@ -169,7 +172,7 @@ const DeliveryNoteView = ({ receiptData, setShowDeliveryView }) => {
 
                 <div className="balance-row">
                     <strong>Total Balance to Collect:</strong>
-                    <span>Rs. {balanceToCollect.toFixed(2)}</span>
+                    <span>Rs. {Number(balanceToCollect).toFixed(2)}</span>
                 </div>
 
                 <div className="footer-note">

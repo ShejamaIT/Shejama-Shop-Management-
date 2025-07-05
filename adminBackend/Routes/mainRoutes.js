@@ -6572,9 +6572,9 @@ router.get("/find-completed-orders-by-date", async (req, res) => {
                     itemName: item.I_name,
                     quantity: item.qty,
                     color: item.color,
-                    price: item.tprice, // total price after discount
-                    unitPrice: item.unitPrice, // original unit price
-                    discount: item.itemDiscount || 0, // 🔥 added item discount
+                    price: (item.unitPrice * item.qty) - (item.itemDiscount || 0), // ✅ calculate correct discounted total
+                    unitPrice: item.unitPrice,
+                    discount: item.itemDiscount || 0,
                     bookedQuantity: item.bookedQty,
                     availableQuantity: item.availableQty,
                 })),

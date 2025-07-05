@@ -910,9 +910,11 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                 itemName:item.itemName,
                 color: item.color,
                 quantity: item.qty,
+                unitPrice: unitPrice,
+                grossprice:grossPrice,
                 price: netPrice,
                 discount: discount,
-                unitPrice: item.unitPrice,
+                
             };
         });
         const items2 = selectedItems.map(item => {

@@ -6500,30 +6500,30 @@ router.get("/find-returned-orders", async (req, res) => {
 router.get("/find-completed-orders-by-date", async (req, res) => {
     try {
         const { date } = req.query;
+
         if (!date) {
             return res.status(400).json({ success: false, message: "Date is required." });
         }
 
-        // Ensure date is valid
         const parsedDate = parseDate(date);
         if (!parsedDate) {
             return res.status(400).json({ success: false, message: "Invalid date format. Use DD/MM/YYYY or YYYY-MM-DD." });
         }
 
-        // Fetch completed orders with delivery, sales team and customer info
+        // Fetch all completed orders for the date
         const orderQuery = `
             SELECT
                 o.orId, o.orDate, o.c_ID, o.orStatus, o.delStatus, o.delPrice, o.discount,
                 o.total, o.ordertype, o.stID, o.expectedDate, o.specialNote, o.advance, o.balance,
                 o.payStatus, d.address, d.district, d.type, d.status AS deliveryStatus, d.schedule_Date,
-                s.stID, e.name AS salesEmployeeName,
+                s.stID AS salesTeamId, e.name AS salesEmployeeName,
                 c.FtName, c.SrName, c.contact1, c.contact2
             FROM Orders o
             JOIN delivery d ON o.orID = d.orID
             LEFT JOIN sales_team s ON o.stID = s.stID
             LEFT JOIN Employee e ON s.E_Id = e.E_Id
             LEFT JOIN Customer c ON o.c_ID = c.c_ID
-            WHERE o.orStatus = 'Completed' AND o.expectedDate = ?;
+            WHERE o.orStatus = 'Completed' AND DATE(o.expectedDate) = ?;
         `;
 
         const [orders] = await db.query(orderQuery, [parsedDate]);
@@ -6532,8 +6532,8 @@ router.get("/find-completed-orders-by-date", async (req, res) => {
             return res.status(404).json({ success: false, message: "No completed orders found for this date." });
         }
 
+        // Build order details with items
         const orderDetails = await Promise.all(orders.map(async (order) => {
-            // 🔥 Fetch items with tprice and discount now
             const itemsQuery = `
                 SELECT 
                     od.I_Id, i.I_name, i.color, od.qty, od.tprice, od.discount AS itemDiscount,
@@ -6542,7 +6542,6 @@ router.get("/find-completed-orders-by-date", async (req, res) => {
                 JOIN Item i ON od.I_Id = i.I_Id
                 WHERE od.orID = ?
             `;
-
             const [items] = await db.query(itemsQuery, [order.orId]);
 
             return {
@@ -6550,7 +6549,7 @@ router.get("/find-completed-orders-by-date", async (req, res) => {
                 orderDate: formatDate(order.orDate),
                 expectedDeliveryDate: formatDate(order.expectedDate),
                 customerId: order.c_ID,
-                customerName: `${order.FtName} ${order.SrName}`,
+                customerName: `${order.FtName || ""} ${order.SrName || ""}`.trim(),
                 phoneNumber: order.contact1,
                 optionalNumber: order.contact2,
                 orderStatus: order.orStatus,
@@ -6572,14 +6571,14 @@ router.get("/find-completed-orders-by-date", async (req, res) => {
                     itemName: item.I_name,
                     quantity: item.qty,
                     color: item.color,
-                    price: (item.unitPrice * item.qty) - (item.itemDiscount || 0), // ✅ calculate correct discounted total
+                    price: (item.unitPrice * item.qty) - (item.itemDiscount || 0),
                     unitPrice: item.unitPrice,
                     discount: item.itemDiscount || 0,
                     bookedQuantity: item.bookedQty,
                     availableQuantity: item.availableQty,
                 })),
                 salesTeam: {
-                    stID: order.stID,
+                    stID: order.salesTeamId,
                     employeeName: order.salesEmployeeName,
                 },
             };
@@ -6587,7 +6586,7 @@ router.get("/find-completed-orders-by-date", async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: "Completed orders fetched successfully.",
+            message: `Found ${orderDetails.length} completed order(s).`,
             orders: orderDetails,
         });
 

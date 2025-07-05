@@ -3,7 +3,7 @@ import "../style/deliveryRecipt.css";
 
 const DeliveryNoteView = ({ receiptData, setShowDeliveryView }) => {
     const {
-        order: orders, // Renamed for clarity
+        order: orders,
         vehicleId,
         driverName,
         hire,
@@ -117,58 +117,71 @@ const DeliveryNoteView = ({ receiptData, setShowDeliveryView }) => {
                     <p><strong>Hire:</strong> Rs. {Dhire.toFixed(2)}</p>
                 </div>
 
-                {orders.map((order, idx) => (
-                    <div key={idx}>
-                        <p><strong>Order ID:</strong> {order.orderId}</p>
-                        <p><strong>Customer:</strong> {order.customerName}</p>
+                {/* Order summary table */}
+                <h4>Order Summary</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {orders.map((order, idx) => (
+                            <tr key={idx}>
+                                <td>{order.orderId}</td>
+                                <td>{order.customerName}</td>
+                                
+                                <td>Rs. {Number(order.balance).toFixed(2)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+                  <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Address</th>
+                            <th>Contact 1</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {orders.map((order, idx) => (
+                            <tr key={idx}>
+                                <td>{order.orderId}</td>
+                               <td>{order.address}</td>
+                                <td>{order.contact1 / order.contact2}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
 
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Item ID</th>
-                                    <th>Stock ID</th>
-                                    <th>Batch ID</th>
-                                    <th>Price</th>
+                {/* Items table */}
+                <h4>Stock Details</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Item ID</th>
+                            <th>Stock ID</th>
+                            <th>Batch ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {orders.flatMap((order, idx) =>
+                            (order.selectedItem || []).map((item, itemIdx) => (
+                                <tr key={`${idx}-${itemIdx}`}>
+                                    <td>{order.orderId}</td>
+                                    <td>{item.I_Id}</td>
+                                    <td>{item.stock_Id}</td>
+                                    <td>{item.pc_Id}</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {Array.isArray(order.selectedItem) &&
-                                    order.selectedItem.map((item, itemIdx) => (
-                                        <tr key={itemIdx}>
-                                            <td>{item.I_Id}</td>
-                                            <td>{item.stock_Id}</td>
-                                            <td>{item.pc_Id}</td>
-                                            <td>Rs. {Number(item.price).toFixed(2)}</td>
-                                        </tr>
-                                    ))}
-                            </tbody>
-                        </table>
-
-                        <div className="balance-row">
-                            <span><strong>Balance:</strong></span>
-                            <span>Rs. {Number(order.balance).toFixed(2)}</span>
-                        </div>
-
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Address</th>
-                                    <th>Contact 1</th>
-                                    <th>Contact 2</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>{order.address}</td>
-                                    <td>{order.contact1}</td>
-                                    <td>{order.contact2}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        <hr />
-                    </div>
-                ))}
+                            ))
+                        )}
+                    </tbody>
+                </table>
 
                 <div className="balance-row">
                     <strong>Total Balance to Collect:</strong>

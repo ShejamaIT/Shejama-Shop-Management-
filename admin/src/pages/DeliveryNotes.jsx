@@ -25,6 +25,8 @@ const DeliveryNotes = () => {
     const [receiptData, setReceiptData] = useState(null);
     const [receiptDataD, setReceiptDataD] = useState(null);
     const selectedItem2Ref = useRef([]);
+    const [orderItemMap, setOrderItemMap] = useState({});
+
 
     const handleSubmit2 = async (formData) => {
         console.log(formData)
@@ -249,7 +251,7 @@ const DeliveryNotes = () => {
         selectedItem2Ref.current = formData.selectedItems || [];
 
         try {
-            const response = await fetch('http://localhost:5001/api/admin/main/issued-items', {
+            const response = await fetch('http://localhost:5001/api/admin/main/issued-items-Now', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -265,7 +265,20 @@ const ReceiptView = ({ receiptData, setShowReceiptView }) => {
                 <div className="modal-buttons">
                     <button onClick={printReceiptView} className="print-btn">Print Receipt View</button>
                     <button onClick={printFullInvoice} className="print-btn">Print Full Invoice</button>
-                    <button onClick={() => setShowReceiptView(false)} className="close-btn">Close</button>
+                    <button
+                        onClick={() => {
+                            setShowReceiptView(false);
+                            if (receiptData.issuable === "Later") {
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            }
+                        }}
+                        className="close-btn"
+                    >
+                        Close
+                    </button>
+
                 </div>
             </div>
         </div>

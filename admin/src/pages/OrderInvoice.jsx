@@ -982,7 +982,8 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                 
                 if (response.ok && result.success && result.data) {
                     const { orderId, orderDate, expectedDate } = result.data;
-                    const billbalance=parseFloat(totalBillPrice) - parseFloat(advance);
+                    const billbalance11 =parseFloat(totalBillPrice) - parseFloat(advance);
+                    console.log(billbalance11);
                     const updatedData = {
                         orID: orderId,
                         orderDate: orderDate,
@@ -991,9 +992,9 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                         contact1: formData.phoneNumber || '',
                         contact2: formData.otherNumber || '',
                         address: formData.address || '',
-                        balance: parseFloat(billbalance),
+                        balance: parseFloat(billbalance11),
                         delStatus: formData.dvStatus || '', 
-                        delPrice: parseFloat(formData.delivery || 0),
+                        delPrice: parseFloat(formData.deliveryPrice || 0),
                         deliveryStatus: formData.dvStatus || '',
                         discount: parseFloat(discountAmount || 0),
                         subtotal: parseFloat(totalItemPrice || 0),
@@ -1003,7 +1004,7 @@ const OrderInvoice = ({ onPlaceOrder }) => {
                         stID: saleteam[0]?.id || '',
                         paymentAmount: parseFloat(updatedPaymentAmount || 0),
                         cashReturn: parseFloat(updatedCashReturn || 0),
-                        balance: parseFloat(updatedBalance || 0),
+                        issuable: formData.issuable,
                         salesperson: saleteam[0]?.name || '',
                         items: items2,
                         customerBalanceDecision: action,

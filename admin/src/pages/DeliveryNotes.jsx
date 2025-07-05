@@ -84,7 +84,7 @@ const DeliveryNotes = () => {
             console.log("Final Delivery Receipt Preview:", updatedReceiptData);
 
             // Uncomment to activate API call
-            /*
+            
             const response = await fetch("http://localhost:5001/api/admin/main/create-delivery-note", {
                 method: "POST",
                 headers: {
@@ -100,9 +100,8 @@ const DeliveryNotes = () => {
             }
 
             toast.success("Delivery note created successfully.");
-            */
-
-            setReceiptDataD(updatedReceiptData);
+            
+           setReceiptDataD(updatedReceiptData);
             setShowModal2(false);
             setShowDeliveryView(true);
 

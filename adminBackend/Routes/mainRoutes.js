@@ -2760,8 +2760,12 @@ router.get("/orders-pending", async (req, res) => {
         const [orders] = await db.query(query);
 
         if (orders.length === 0) {
-            return res.status(404).json({ message: "No pending orders found" });
+            return res.status(200).json({
+                message: "No pending orders found",
+                data: []
+            });
         }
+
 
         const formattedOrders = orders.map(order => ({
             OrID: order.OrID,
